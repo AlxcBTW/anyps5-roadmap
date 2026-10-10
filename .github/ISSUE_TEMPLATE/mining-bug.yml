@@ -1,0 +1,41 @@
+name: Mining bug
+description: The miner read a sentence wrong (name, engine, stage, error line, link) or missed it.
+title: "Mining: "
+labels: [mining]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        The miner reads issue, PR and comment text with keyword rules, one line at a time (`anyps5_roadmap/mine.py`). A good report gives the exact input text and what it should produce; it becomes a fixture test.
+  - type: textarea
+    id: input
+    attributes:
+      label: Input text
+      description: The exact line or lines, copied from the issue or comment.
+      render: text
+      placeholder: "Hollow Knight (PPSA12544) boots to the title screen on main."
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected
+      description: What the miner should read from it.
+      placeholder: "name Hollow Knight, stage Menus, build main"
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual
+      description: What the page or roadmap.json shows instead.
+      placeholder: "stage Starts"
+    validations:
+      required: true
+  - type: input
+    id: source
+    attributes:
+      label: Where the text comes from
+      placeholder: https://github.com/boykopovar/AnyPS5/pull/1234
+    validations:
+      required: false

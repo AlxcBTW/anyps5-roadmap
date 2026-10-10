@@ -1,0 +1,94 @@
+name: Wrong or missing stage
+description: The page shows the wrong stage for a game, or no stage at all.
+title: "Stage: "
+labels: [data-correction]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for checking the map. A stage counts when it was reached on AnyPS5 `main`, or on `main` plus PRs that are merged now. Stages from branches with open PRs, local patches or hacks are not added.
+
+        The "Report a correction" links on the page fill in the first fields for you.
+  - type: input
+    id: title_id
+    attributes:
+      label: Title ID
+      description: PPSA plus five digits. One report per region ID.
+      placeholder: PPSA01234
+    validations:
+      required: true
+  - type: input
+    id: game
+    attributes:
+      label: Game
+      placeholder: Astro's Playroom
+    validations:
+      required: false
+  - type: input
+    id: page_stage
+    attributes:
+      label: Stage on the page now
+      description: Filled in by the link on the page.
+      placeholder: Starts (mined)
+    validations:
+      required: false
+  - type: dropdown
+    id: stage
+    attributes:
+      label: Stage you saw
+      description: "Black frames and loading screens count as Presents. A menu that runs but stays black is still Presents."
+      options:
+        - Converts
+        - Loads
+        - Starts
+        - First draw
+        - Presents
+        - Menus
+        - Ingame
+        - Playable
+    validations:
+      required: true
+  - type: input
+    id: os_gpu
+    attributes:
+      label: OS and GPU
+      placeholder: Windows 11, RTX 4070
+    validations:
+      required: true
+  - type: input
+    id: build
+    attributes:
+      label: Build
+      description: The commit you ran, and any PRs on top of it.
+      placeholder: main at 262c031, or main + #2054 (merged)
+    validations:
+      required: true
+  - type: input
+    id: source
+    attributes:
+      label: Public source
+      description: A link to an issue, a comment or a PR that shows the stage (a log, a screenshot, a sentence). Required; a stage without a public source cannot be added.
+      placeholder: https://github.com/boykopovar/AnyPS5/issues/1234#issuecomment-…
+    validations:
+      required: true
+  - type: input
+    id: page_source
+    attributes:
+      label: Source the page cites now
+      description: Filled in by the link on the page.
+    validations:
+      required: false
+  - type: textarea
+    id: notes
+    attributes:
+      label: Anything else
+      description: Where it stops after that stage, the exact error line, anything a reviewer should know.
+    validations:
+      required: false
+  - type: checkboxes
+    id: main
+    attributes:
+      label: Build check
+      options:
+        - label: This stage was reached on main, or on main plus PRs that are merged now.
+          required: true

@@ -96,7 +96,6 @@ jobs:
           python build/base-src/roadmap.py --offline --no-network --cache "$PWD/$snap" "${base_curated[@]}" --out build/base \
             || python build/base-src/roadmap.py --offline --cache "$PWD/$snap" "${base_curated[@]}" --out build/base \
             || echo "::warning::The base branch did not build; the summary shows this PR only."
-          cp -r site/fonts build/head/
           python -m anyps5_roadmap.preview build/base build/head --snapshot "$label" >> "$GITHUB_STEP_SUMMARY"
 
       - name: Upload the built site

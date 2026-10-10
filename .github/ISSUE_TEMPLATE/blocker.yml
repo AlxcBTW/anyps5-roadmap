@@ -1,0 +1,60 @@
+name: Missing or wrong blocker
+description: A blocker is missing, linked to the wrong games, in the wrong order, or already fixed.
+title: "Blocker: "
+labels: [data-correction]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        A blocker is an upstream AnyPS5 issue (or a PR, or a crash site) that stops one or more games. Corrections go into `data/blockers.json`, which always wins over what the miner finds.
+  - type: input
+    id: blocker
+    attributes:
+      label: Blocker
+      description: The issue number and title as the page shows them. Leave empty for a missing blocker.
+      placeholder: "#2548 Recompiler: packed pixel ancillary word"
+    validations:
+      required: false
+  - type: dropdown
+    id: problem
+    attributes:
+      label: What is wrong
+      options:
+        - A blocker is missing
+        - It is linked to a game it does not block
+        - A game it blocks is missing
+        - The order of a game's blockers is wrong
+        - It is fixed, but still shows as open
+        - The fix PR is wrong or missing
+        - Something else
+    validations:
+      required: true
+  - type: input
+    id: titles
+    attributes:
+      label: Title IDs affected
+      placeholder: PPSA01234, PPSA05678
+    validations:
+      required: false
+  - type: textarea
+    id: error
+    attributes:
+      label: Error line
+      description: The line the game stops at, as logged. It is used to match games to this blocker.
+      render: text
+    validations:
+      required: false
+  - type: input
+    id: source
+    attributes:
+      label: Public source
+      description: An issue, comment or PR that backs the correction. Required.
+      placeholder: https://github.com/boykopovar/AnyPS5/issues/1234
+    validations:
+      required: true
+  - type: textarea
+    id: notes
+    attributes:
+      label: Details
+    validations:
+      required: false

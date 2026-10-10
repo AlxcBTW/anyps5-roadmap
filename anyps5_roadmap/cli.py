@@ -216,6 +216,9 @@ def main(argv=None) -> int:
     if (ROOT / "AGENTS.md").exists():
         shutil.copyfile(ROOT / "AGENTS.md", out / "AGENTS.md")
     (out / ".nojekyll").write_text("", encoding="utf-8")
+    fonts = ROOT / "site" / "fonts"
+    if fonts.is_dir() and (out / "fonts").resolve() != fonts.resolve():
+        shutil.copytree(fonts, out / "fonts", dirs_exist_ok=True)  # a build outside site/ still renders in Geist
     (out / "index.html").write_text(
         render_html.Page(doc, out).render(), **lf
     )  # last: it lists the sizes of the other files

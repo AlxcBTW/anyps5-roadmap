@@ -1,0 +1,110 @@
+# AnyPS5 blocker map
+
+[![CI](https://github.com/AlxcBTW/anyps5-roadmap/actions/workflows/ci.yml/badge.svg)](https://github.com/AlxcBTW/anyps5-roadmap/actions/workflows/ci.yml)
+[![Pages](https://github.com/AlxcBTW/anyps5-roadmap/actions/workflows/roadmap.yml/badge.svg)](https://github.com/AlxcBTW/anyps5-roadmap/actions/workflows/roadmap.yml)
+
+Which open issues stop which PS5 games in the [AnyPS5](https://github.com/boykopovar/AnyPS5) emulator,
+ranked by how many games a fix would move, plus how much of the PS5's system libraries and GPU AnyPS5
+implements.
+
+**Live: <https://alxcbtw.github.io/anyps5-roadmap/>**, rebuilt every hour and after every merge.
+
+A community project, not an official AnyPS5 page. Every stage and link on it comes from public GitHub
+data and links its source.
+
+![The blocker map: a stage ladder of games, the ranked blockers and the games table](docs/screenshot.png)
+
+## How it works
+
+```text
+  boykopovar/AnyPS5 on GitHub                          data/blockers.json
+  issues, PRs, comments, review threads                curated by people; always wins
+          |                                                     |
+          | gh api graphql, cached by updatedAt                 |
+          v                                                     |
+  data/cache/raw.json --> mine.py ----------> model.py <--------+
+                          keyword rules        titles, blockers, chains, ranking
+                          per line                  |
+  progress.json, COMPATIBILITY.md, PM4 sources --> coverage.py, assemble.py
+                                                    |
+                                                    v
+                                  site/roadmap.json --> index.html, ROADMAP.md, llms.txt
+```
+
+1. **Mine.** `collect.py` reads the upstream issues and PRs of the last 60 days (all open ones) with
+   their comments and review threads. `mine.py` reads title IDs, game names, stages, OS, GPU, build and
+   error lines from that text, one line at a time.
+2. **Curate.** `data/blockers.json` holds what mining gets wrong or cannot see: blockers, the order in
+   which they stop each game, and hand reviews of mined stages. A curated fact always wins.
+3. **Render.** `assemble.py` writes `site/roadmap.json`. The page, `ROADMAP.md` and `llms.txt` are
+   rendered from that file alone, so people and tools see the same data.
+
+The code is in [`anyps5_roadmap/`](anyps5_roadmap/); [CONTRIBUTING.md](CONTRIBUTING.md#module-map)
+has a module map.
+
+## Run it locally
+
+Python 3.11 or newer; nothing to install. On Windows, use `py -3` for `python3`.
+
+```sh
+git clone https://github.com/AlxcBTW/anyps5-roadmap && cd anyps5-roadmap
+python3 -m unittest discover -s tests                     # fixture tests, no network
+python3 roadmap.py --offline --no-network --cache tests/fixtures/raw.json --curated tests/fixtures/curated.json --out build/site
+gh auth login                                             # only for live data
+python3 roadmap.py --out build/site                       # live build; open build/site/index.html
+```
+
+The live build needs the [GitHub CLI](https://cli.github.com/) and saves what it fetched in
+`data/cache/`. After that, `python3 roadmap.py --offline --out build/site` rebuilds from the cache in
+seconds, which is the quick way to try a change to `data/blockers.json`. Add
+`--upstream-checkout <path to an AnyPS5 clone>` for the PM4 coverage line.
+
+## The data, in short
+
+- **Stages**, lowest to highest: Converts, Loads, Starts, First draw, Presents, Menus, Ingame,
+  Playable. A stage counts only when it was reached on AnyPS5 `main`, or on `main` plus PRs that are
+  merged now.
+- **Titles** (one per PS5 title ID) have a `best_stage` (verified only), an `unverified_claim` (a mined
+  Menus or higher that nobody has reviewed yet; never ranked on), their `open_blockers` in the order
+  they stop the game, and the `evidence` behind each stage.
+- **Blockers** are upstream issues, PRs (`pr-N`) or crash sites listed in a tracker issue (`N~symbol`).
+  Each has its fix PRs and a score: `3 × one_fix_away + 2 × frontier + total` (games for which it is
+  the only open stop, the first open stop, or any stop).
+- **`origin`** says where a fact comes from: `curated` (data/blockers.json), `upstream`
+  (COMPATIBILITY.md), `github` (native "blocked by" links) or `mined` (text rules).
+
+Every field is described in [AGENTS.md](AGENTS.md) and in the published
+[llms.txt](https://alxcbtw.github.io/anyps5-roadmap/llms.txt).
+
+## Correct an entry
+
+- **On the page:** each game row and each blocker has a "Report a correction" link. It opens an issue
+  form with the title ID, the stage on the page and its source already filled in.
+- **As a pull request:** edit `data/blockers.json`. [CONTRIBUTING.md](CONTRIBUTING.md) walks through a
+  first data fix in five minutes. CI shows what the change does to the ranking and the stages, and the
+  page is rebuilt a few minutes after the merge.
+
+Bugs in the emulator itself belong in [AnyPS5's issues](https://github.com/boykopovar/AnyPS5/issues).
+
+## Known limits
+
+- Mining reads text with keyword rules, one line at a time. Negations and context are handled only
+  roughly, so a stage of Menus or higher stays an unverified claim until someone reviews it.
+- The order of mined blockers is a heuristic: the latest recorded stop first, then issues by date.
+- Reports that only exist on Discord are invisible until someone copies them to GitHub.
+- Titles without a PPSA ID (some homebrew) appear only when curated.
+
+The full list, as of the last build, is under "Known gaps in the data" on the page and in
+`roadmap.json` → `gaps`.
+
+## License
+
+The code is under the [MIT license](LICENSE). Text quoted on the page and in the data (issue titles,
+sentences, error lines) belongs to its authors in the upstream repository; it is quoted with a link to
+its source and is not relicensed. The Geist fonts are under the SIL Open Font License
+([site/fonts/OFL.txt](site/fonts/OFL.txt)).
+
+Not affiliated with the AnyPS5 project or with Sony Interactive Entertainment. PlayStation and PS5 are
+trademarks of Sony Interactive Entertainment.
+
+Contributions follow the [code of conduct](CODE_OF_CONDUCT.md).
