@@ -32,23 +32,37 @@ class Upstream:
     def show(self, path: str) -> str | None:
         if not self.checkout:
             return None
-        proc = subprocess.run(["git", "-C", str(self.checkout), "show", f"{self.ref}:{path}"],
-                              capture_output=True, text=True, encoding="utf-8", errors="replace")
+        proc = subprocess.run(
+            ["git", "-C", str(self.checkout), "show", f"{self.ref}:{path}"],
+            capture_output=True,
+            text=True,
+            encoding="utf-8",
+            errors="replace",
+        )
         return proc.stdout if proc.returncode == 0 else None
 
     def files(self, prefix: str) -> list[str]:
         if not self.checkout:
             return []
-        proc = subprocess.run(["git", "-C", str(self.checkout), "ls-tree", "-r", "--name-only", self.ref, "--", prefix],
-                              capture_output=True, text=True, encoding="utf-8")
+        proc = subprocess.run(
+            ["git", "-C", str(self.checkout), "ls-tree", "-r", "--name-only", self.ref, "--", prefix],
+            capture_output=True,
+            text=True,
+            encoding="utf-8",
+        )
         return proc.stdout.split() if proc.returncode == 0 else []
 
     def grep(self, pattern: str, prefix: str) -> dict[str, int]:
         """Return {path: match count} for an extended regex under prefix at ref."""
         if not self.checkout:
             return {}
-        proc = subprocess.run(["git", "-C", str(self.checkout), "grep", "-c", "-E", "-i", pattern, self.ref, "--", prefix],
-                              capture_output=True, text=True, encoding="utf-8", errors="replace")
+        proc = subprocess.run(
+            ["git", "-C", str(self.checkout), "grep", "-c", "-E", "-i", pattern, self.ref, "--", prefix],
+            capture_output=True,
+            text=True,
+            encoding="utf-8",
+            errors="replace",
+        )
         out = {}
         for line in proc.stdout.splitlines():
             parts = line.rsplit(":", 1)

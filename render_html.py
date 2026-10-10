@@ -12,6 +12,7 @@ and the games table has one row per title ID.
     python3 render_html.py                      # site/roadmap.json -> site/index.html
     python3 render_html.py in.json out.html
 """
+
 from __future__ import annotations
 
 import datetime as dt
@@ -23,12 +24,20 @@ from pathlib import Path
 
 TOP = 10
 DOTS = 10
-AREAS = {"shader": "Shader recompiler", "agc": "AGC driver", "libkernel": "libkernel", "libc": "libc",
-         "prx": "HLE libraries", "relinker": "Relinker"}
-FILES = [("roadmap.json", "Everything on this page, for tools and scripts"),
-         ("llms.txt", "Entry point for language models"),
-         ("ROADMAP.md", "Ranking, games and coverage as Markdown tables"),
-         ("AGENTS.md", "How to add or correct an entry")]
+AREAS = {
+    "shader": "Shader recompiler",
+    "agc": "AGC driver",
+    "libkernel": "libkernel",
+    "libc": "libc",
+    "prx": "HLE libraries",
+    "relinker": "Relinker",
+}
+FILES = [
+    ("roadmap.json", "Everything on this page, for tools and scripts"),
+    ("llms.txt", "Entry point for language models"),
+    ("ROADMAP.md", "Ranking, games and coverage as Markdown tables"),
+    ("AGENTS.md", "How to add or correct an entry"),
+]
 
 
 def esc(s) -> str:
@@ -67,7 +76,7 @@ def ext(url: str, text: str, cls: str = "") -> str:
 def source_label(url: str, repo: str) -> str:
     base = f"https://github.com/{repo}/"
     if url.startswith(base):
-        kind, _, tail = url[len(base):].partition("/")
+        kind, _, tail = url[len(base) :].partition("/")
         num = tail.split("#")[0].split("/")[0]
         if kind == "pull" and num.isdigit():
             return f"PR #{num}"
@@ -93,8 +102,9 @@ def squarify(items: list[tuple[float, object]], x: float, y: float, w: float, h:
 
     def worst(row: list, side: float) -> float:
         area = sum(a for a, _ in row)
-        return max(side * side * max(a for a, _ in row) / (area * area),
-                   area * area / (side * side * min(a for a, _ in row)))
+        return max(
+            side * side * max(a for a, _ in row) / (area * area), area * area / (side * side * min(a for a, _ in row))
+        )
 
     while rest:
         side = min(w, h)
@@ -103,7 +113,7 @@ def squarify(items: list[tuple[float, object]], x: float, y: float, w: float, h:
             if worst(row + [item], side) > worst(row, side):
                 break
             row.append(item)
-        rest = rest[len(row):]
+        rest = rest[len(row) :]
         area = sum(a for a, _ in row)
         if w >= h:
             col_w, cy = area / h, y
@@ -153,12 +163,16 @@ def cell_runs(start: int, end: int, cols: int) -> list[tuple[int, int, int, int]
     return runs
 
 
-CHEVRON = ('<svg class="chev" width="16" height="16" viewBox="0 0 16 16" aria-hidden="true">'
-           '<path d="M6 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.5" '
-           'stroke-linecap="round" stroke-linejoin="round"/></svg>')
-SEARCH = ('<svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><circle cx="7" cy="7" r="4.5" '
-          'fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M10.5 10.5L14 14" stroke="currentColor" '
-          'stroke-width="1.5" stroke-linecap="round"/></svg>')
+CHEVRON = (
+    '<svg class="chev" width="16" height="16" viewBox="0 0 16 16" aria-hidden="true">'
+    '<path d="M6 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.5" '
+    'stroke-linecap="round" stroke-linejoin="round"/></svg>'
+)
+SEARCH = (
+    '<svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><circle cx="7" cy="7" r="4.5" '
+    'fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M10.5 10.5L14 14" stroke="currentColor" '
+    'stroke-width="1.5" stroke-linecap="round"/></svg>'
+)
 
 
 class Page:
@@ -174,14 +188,18 @@ class Page:
         linked = [b for b in ranked if b.get("total")]
         self.unlinked = [b for b in ranked if not b.get("total")]
         # The data ranks by title ID; the page counts games by name, so it ranks by name too.
-        self.score = {b["id"]: 3 * len(self.names(b.get("one_fix_titles", [])))
-                      + 2 * len(self.names(b.get("frontier_titles", []))) + len(self.names(b.get("titles", [])))
-                      for b in linked}
+        self.score = {
+            b["id"]: 3 * len(self.names(b.get("one_fix_titles", [])))
+            + 2 * len(self.names(b.get("frontier_titles", [])))
+            + len(self.names(b.get("titles", [])))
+            for b in linked
+        }
         order = {b["id"]: i for i, b in enumerate(linked)}
         self.ranked = sorted(linked, key=lambda b: (-self.score[b["id"]], order[b["id"]]))
         self.rank_of = {b["id"]: n for n, b in enumerate(self.ranked, 1)}
-        self.listed = [t for t in doc["titles"]
-                       if t.get("best_stage") or t.get("open_blockers") or t.get("unverified_claim")]
+        self.listed = [
+            t for t in doc["titles"] if t.get("best_stage") or t.get("open_blockers") or t.get("unverified_claim")
+        ]
 
     # -- names ---------------------------------------------------------------
 
@@ -207,9 +225,11 @@ class Page:
 
     def fix_status(self, b: dict) -> tuple[str, str, dict | None]:
         fixes = [p for p in b.get("prs", []) if p.get("link") == "fixes"]
-        for states, kind, label in ((("open", "draft"), "review", "Fix in review"),
-                                    (("merged",), "partial", "Partly fixed"),
-                                    (("closed",), "closed", "Fix closed unmerged")):
+        for states, kind, label in (
+            (("open", "draft"), "review", "Fix in review"),
+            (("merged",), "partial", "Partly fixed"),
+            (("closed",), "closed", "Fix closed unmerged"),
+        ):
             hit = [p for p in fixes if p.get("state") in states]
             if hit:
                 return kind, label, hit[0]
@@ -246,10 +266,15 @@ class Page:
     def topbar(self) -> str:
         up = self.doc["upstream"]
         commit = up.get("commit") or ""
-        ref = (ext(f"https://github.com/{self.repo}/commit/{commit}", esc(commit[:7]), "mono")
-               if commit else esc(up.get("ref") or ""))
-        nav = "".join(f'<a href="#{i}">{t}</a>' for i, t in
-                      (("fix-next", "Fix next"), ("games", "Games"), ("coverage", "Coverage"), ("data", "Data")))
+        ref = (
+            ext(f"https://github.com/{self.repo}/commit/{commit}", esc(commit[:7]), "mono")
+            if commit
+            else esc(up.get("ref") or "")
+        )
+        nav = "".join(
+            f'<a href="#{i}">{t}</a>'
+            for i, t in (("fix-next", "Fix next"), ("games", "Games"), ("coverage", "Coverage"), ("data", "Data"))
+        )
         return f"""<header class="bar">
 <div class="wrap bar-in">
   <a class="brand" href="#top"><span class="brand-mark">AnyPS5</span><span class="brand-sub">Blocker map</span></a>
@@ -278,20 +303,33 @@ class Page:
             top = max(held[s].items(), key=lambda kv: (len(kv[1]), -self.rank_of.get(kv[0], 999)), default=None)
             pips = "".join(f'<i class="{"on" if j <= i else ""}"></i>' for j in range(len(self.stages)))
             meaning = self.doc["stages"][i]["meaning"]
-            hold = (f'<span class="r-top">{len(top[1])} held by '
-                    f'<span class="mono">{esc(self.ref(self.blockers[top[0]]))}</span></span>') if top else ""
-            inner = (f'<span class="pips" aria-hidden="true">{pips}</span>'
-                     f'<span class="r-n">{n}</span><span class="r-name">{esc(s)}</span>'
-                     f'<span class="r-def">{esc(meaning)}</span>{hold}')
+            hold = (
+                (
+                    f'<span class="r-top">{len(top[1])} held by '
+                    f'<span class="mono">{esc(self.ref(self.blockers[top[0]]))}</span></span>'
+                )
+                if top
+                else ""
+            )
+            inner = (
+                f'<span class="pips" aria-hidden="true">{pips}</span>'
+                f'<span class="r-n">{n}</span><span class="r-name">{esc(s)}</span>'
+                f'<span class="r-def">{esc(meaning)}</span>{hold}'
+            )
             if n:
-                rungs.append(f'<li><a class="rung" href="#games" data-stage-link="{slug(s)}">'
-                             f'<span class="sr-only">Show games at </span>{inner}</a></li>')
+                rungs.append(
+                    f'<li><a class="rung" href="#games" data-stage-link="{slug(s)}">'
+                    f'<span class="sr-only">Show games at </span>{inner}</a></li>'
+                )
             else:
                 rungs.append(f'<li class="zero"><span class="rung">{inner}</span></li>')
         none = sum(1 for v in best.values() if v is None)
-        rest = (f'<p class="ladder-note"><a href="#games" data-stage-link="none">'
-                f'{plural(none, "more game")}</a> {"has" if none == 1 else "have"} an open blocker but no confirmed stage yet.</p>'
-                if none else "")
+        rest = (
+            f'<p class="ladder-note"><a href="#games" data-stage-link="none">'
+            f"{plural(none, 'more game')}</a> {'has' if none == 1 else 'have'} an open blocker but no confirmed stage yet.</p>"
+            if none
+            else ""
+        )
         return f"""<section class="hero" aria-labelledby="h-hero">
   <h1 id="h-hero">{esc(plural(len(self.ranked), "open blocker"))} stop {esc(plural(len(waiting), "PS5 game"))}.</h1>
   <p class="lead">Fixing the top three gets {len(top3)} of them past their current stop. Below: how far each game gets
@@ -328,7 +366,9 @@ class Page:
             i = steps.index(b["id"])
             if i > 0:
                 key = (self.title_name(tid), "earlier", steps[0])
-                tail = f'<span class="muted">stops earlier at</span> {self.blocker_link(self.blockers[steps[0]], False)}'
+                tail = (
+                    f'<span class="muted">stops earlier at</span> {self.blocker_link(self.blockers[steps[0]], False)}'
+                )
             elif i + 1 < len(steps):
                 key = (self.title_name(tid), "next", steps[i + 1])
                 tail = f'<span class="muted">then</span> {self.blocker_link(self.blockers[steps[i + 1]])}'
@@ -343,8 +383,10 @@ class Page:
 
     def pr_line(self, p: dict) -> str:
         note = f'<span class="pr-note">{esc(p["note"])}</span>' if p.get("note") else ""
-        return (f'<li><span>{ext(p["url"], esc(p["ref"]), "mono")} <span class="muted">{esc(p.get("state"))}</span></span>'
-                f'<span class="pr-title">{esc(p.get("title") or "")}</span>{note}</li>')
+        return (
+            f'<li><span>{ext(p["url"], esc(p["ref"]), "mono")} <span class="muted">{esc(p.get("state"))}</span></span>'
+            f'<span class="pr-title">{esc(p.get("title") or "")}</span>{note}</li>'
+        )
 
     def blocker_body(self, b: dict, rank: int | None) -> str:
         rows = []
@@ -369,7 +411,7 @@ class Page:
         dl = "".join(f"<dt>{k}</dt><dd>{v}</dd>" for k, v in rows)
         num = f"No. {rank:02d} · " if rank else ""
         return f"""<div class="body">
-<div class="p-head"><h3>{esc(b['title'])}</h3>
+<div class="p-head"><h3>{esc(b["title"])}</h3>
 <p class="meta">{num}<span class="mono">{esc(self.ref(b))}</span> · {esc(self.area(b))} · {self.status_html(b)}</p></div>
 <dl>{dl}</dl>
 <p class="out">{ext(b["url"], f"Open {esc(self.ref(b))} on GitHub")}<span class="muted"> · last activity {esc(fmt_date(b.get("last_activity")))}</span></p>
@@ -377,13 +419,19 @@ class Page:
 
     def blocker_item(self, b: dict, rank: int | None) -> str:
         n = len(self.names(b.get("titles", [])))
-        impact = (f'<span class="impact">{self.dots(b)}<span class="count"><b>{n}</b> '
-                  f'{"game" if n == 1 else "games"}</span></span>') if rank else ""
+        impact = (
+            (
+                f'<span class="impact">{self.dots(b)}<span class="count"><b>{n}</b> '
+                f"{'game' if n == 1 else 'games'}</span></span>"
+            )
+            if rank
+            else ""
+        )
         num = f'<span class="rank">{rank:02d}</span>' if rank else ""
         sig = f'<span class="sig-line">{esc(b["signature"])}</span>' if b.get("signature") else ""
-        return f"""<li class="blocker" id="b-{esc(b['id'])}">
+        return f"""<li class="blocker" id="b-{esc(b["id"])}">
 <details>
-<summary>{num}<span class="what"><span class="name">{esc(b['title'])}</span>
+<summary>{num}<span class="what"><span class="name">{esc(b["title"])}</span>
 <span class="meta"><span class="mono">{esc(self.ref(b))}</span> · {esc(self.area(b))} · {self.status_html(b)}</span>{sig}</span>{impact}{CHEVRON}</summary>
 {self.blocker_body(b, rank)}
 </details>
@@ -395,15 +443,19 @@ class Page:
         tail = ""
         if rest:
             items = "".join(self.blocker_item(b, n) for n, b in enumerate(rest, TOP + 1))
-            tail = (f'<details class="rows"><summary><span class="rank">{TOP + 1}–{len(self.ranked)}</span>'
-                    f'<span>Show {len(rest)} more blockers</span>{CHEVRON}</summary>'
-                    f'<ol class="blockers" start="{TOP + 1}">{items}</ol></details>')
+            tail = (
+                f'<details class="rows"><summary><span class="rank">{TOP + 1}–{len(self.ranked)}</span>'
+                f"<span>Show {len(rest)} more blockers</span>{CHEVRON}</summary>"
+                f'<ol class="blockers" start="{TOP + 1}">{items}</ol></details>'
+            )
         unlinked = ""
         if self.unlinked:
             items = "".join(self.blocker_item(b, None) for b in self.unlinked)
-            unlinked = (f'<details class="rows"><summary><span class="rank">—</span>'
-                        f'<span>{esc(plural(len(self.unlinked), "open blocker"))} not linked to a game yet</span>'
-                        f'{CHEVRON}</summary><ul class="blockers plain">{items}</ul></details>')
+            unlinked = (
+                f'<details class="rows"><summary><span class="rank">—</span>'
+                f"<span>{esc(plural(len(self.unlinked), 'open blocker'))} not linked to a game yet</span>"
+                f'{CHEVRON}</summary><ul class="blockers plain">{items}</ul></details>'
+            )
         return f"""<section id="fix-next" class="sec" aria-labelledby="h-fix">
   <div class="sec-head">
     <h2 id="h-fix">Fix next</h2>
@@ -424,21 +476,26 @@ class Page:
 
     def pips(self, stage: str | None) -> str:
         n = self.stage_rank[stage] + 1 if stage in self.stage_rank else 0
-        return ('<span class="pips" aria-hidden="true">'
-                + "".join(f'<i class="{"on" if i < n else ""}"></i>' for i in range(len(self.stages))) + "</span>")
+        return (
+            '<span class="pips" aria-hidden="true">'
+            + "".join(f'<i class="{"on" if i < n else ""}"></i>' for i in range(len(self.stages)))
+            + "</span>"
+        )
 
     def game_row(self, t: dict) -> str:
         stage = self.stage_of(t)
         claim = t.get("unverified_claim")
         claim_html = ""
         if claim and claim.get("url"):
-            claim_html = (f'<span class="note">Claimed {esc(claim.get("stage", ""))}, unverified · '
-                          f'{ext(claim["url"], esc(source_label(claim["url"], self.repo)))}</span>')
+            claim_html = (
+                f'<span class="note">Claimed {esc(claim.get("stage", ""))}, unverified · '
+                f"{ext(claim['url'], esc(source_label(claim['url'], self.repo)))}</span>"
+            )
         steps = [s for s in (t.get("open_blockers") or []) if s["id"] in self.blockers]
         if steps:
             first = self.blockers[steps[0]["id"]]
             where = f'<span class="note">{esc(", ".join(steps[0]["scope"]))}</span>' if steps[0].get("scope") else ""
-            stop = f'<div>{self.blocker_link(first)}{where}</div>'
+            stop = f"<div>{self.blocker_link(first)}{where}</div>"
         else:
             stop = '<span class="muted">None known</span>'
         then = "".join(f"<li>{self.blocker_link(self.blockers[s['id']])}</li>" for s in steps[1:])
@@ -446,8 +503,10 @@ class Page:
         best = t.get("best_stage")
         if best and best.get("url"):
             where = " · ".join(x for x in (best.get("os"), best.get("gpu")) if x)
-            source = (f'<div>{ext(best["url"], esc(source_label(best["url"], self.repo)))}'
-                      f'{f"<span class=note>{esc(where)}</span>" if where else ""}</div>')
+            source = (
+                f"<div>{ext(best['url'], esc(source_label(best['url'], self.repo)))}"
+                f"{f'<span class=note>{esc(where)}</span>' if where else ''}</div>"
+            )
         else:
             source = '<span class="muted">—</span>'
         meta = [f'<span class="mono">{esc(t["id"])}</span>'] + [esc(x) for x in (t.get("engine"), t.get("kind")) if x]
@@ -456,8 +515,8 @@ class Page:
             b = self.blockers[s["id"]]
             words += [b["title"], self.ref(b), self.ref(b).replace("PR ", ""), b.get("signature")]
         search = " ".join(w for w in words if w).lower()
-        return f"""<tr class="game" id="g-{esc(t['id'])}" data-stage="{slug(stage) if stage else 'none'}" data-search="{esc(search)}">
-<td data-label="Game"><span class="g-name">{esc(t.get('name') or t['id'])}</span><span class="meta">{" · ".join(meta)}</span></td>
+        return f"""<tr class="game" id="g-{esc(t["id"])}" data-stage="{slug(stage) if stage else "none"}" data-search="{esc(search)}">
+<td data-label="Game"><span class="g-name">{esc(t.get("name") or t["id"])}</span><span class="meta">{" · ".join(meta)}</span></td>
 <td data-label="Stage"><div><span class="stage">{self.pips(stage)}<span>{esc(stage or "No stage yet")}</span></span>{claim_html}</div></td>
 <td data-label="Stops at">{stop}</td>
 <td data-label="Then">{then}</td>
@@ -465,8 +524,9 @@ class Page:
 </tr>"""
 
     def games_section(self) -> str:
-        ordered = sorted(self.listed, key=lambda t: (-self.stage_rank.get(self.stage_of(t), -1),
-                                                     (t.get("name") or t["id"]).lower()))
+        ordered = sorted(
+            self.listed, key=lambda t: (-self.stage_rank.get(self.stage_of(t), -1), (t.get("name") or t["id"]).lower())
+        )
         counts: dict[str, int] = {}
         for t in ordered:
             k = slug(self.stage_of(t)) if self.stage_of(t) else "none"
@@ -475,7 +535,10 @@ class Page:
         chips.append(("none", "No stage yet", counts.get("none", 0)))
         chip_html = "".join(
             f'<label class="chip"><input type="radio" name="stage" value="{k}"{" checked" if k == "all" else ""}>'
-            f'{esc(label)}<span class="chip-n">{n}</span></label>' for k, label, n in chips if n)
+            f'{esc(label)}<span class="chip-n">{n}</span></label>'
+            for k, label, n in chips
+            if n
+        )
         rows = "".join(self.game_row(t) for t in ordered)
         games = len({self.title_name(t["id"]) for t in ordered})
         return f"""<section id="games" class="sec" aria-labelledby="h-games">
@@ -511,17 +574,18 @@ class Page:
         miss = "".join(
             f'<i style="left:{100 * c / cols:.3f}%;top:{100 * r / rows:.3f}%;'
             f'width:{100 * nc / cols:.3f}%;height:{100 * nr / rows:.3f}%"></i>'
-            for c, r, nc, nr in cell_runs(max(done - first, 0), count, cols))
+            for c, r, nc, nr in cell_runs(max(done - first, 0), count, cols)
+        )
         grid = " grid" if cell >= 3.2 else ""
-        return (f'<div class="tm-band{grid}" style="top:{top:.3f}%;height:{height:.3f}%;--c:{cols};--r:{rows}">'
-                f'{miss}</div>')
+        return (
+            f'<div class="tm-band{grid}" style="top:{top:.3f}%;height:{height:.3f}%;--c:{cols};--r:{rows}">{miss}</div>'
+        )
 
     def treemap(self, groups: list[dict], name_key: str, width: float, height: float, unit: str) -> str:
         """One treemap like upstream's progress map: a tile per group, a cell per function.
 
         The last row is stretched to the tile width, so every cell is a function and no slot stays empty."""
-        items = sorted(((g["done"] + g["todo"], g) for g in groups if g["done"] + g["todo"]),
-                       key=lambda it: -it[0])
+        items = sorted(((g["done"] + g["todo"], g) for g in groups if g["done"] + g["todo"]), key=lambda it: -it[0])
         tiles = []
         for g, x, y, w, h in squarify(items, 0, 0, width, height):
             n = g["done"] + g["todo"]
@@ -532,15 +596,18 @@ class Page:
             if full < n:
                 bands += self.band(100 * (rows - 1) / rows, 100 / rows, full, n - full, n - full, g["done"], cell)
             asked = g.get("requested") or {}
-            missing = [f'{m} (asked in {", ".join(f"#{i}" for i in asked[m])})' if m in asked else m
-                       for m in sorted(g.get("todo_names") or [], key=lambda m: (m not in asked, m))]
+            missing = [
+                f"{m} (asked in {', '.join(f'#{i}' for i in asked[m])})" if m in asked else m
+                for m in sorted(g.get("todo_names") or [], key=lambda m: (m not in asked, m))
+            ]
             label = g.get(name_key) or g.get("label") or "?"
             tiles.append(
                 f'<div class="tm-tile" style="left:calc({100 * x / width:.3f}% + 1.5px);'
-                f'top:calc({100 * y / height:.3f}% + 1.5px);width:calc({100 * w / width:.3f}% - 3px);'
+                f"top:calc({100 * y / height:.3f}% + 1.5px);width:calc({100 * w / width:.3f}% - 3px);"
                 f'height:calc({100 * h / height:.3f}% - 3px)" '
                 f'data-name="{esc(label)}" data-done="{g["done"]}" data-total="{n}" data-unit="{unit}" '
-                f'data-missing="{esc(chr(10).join(missing))}">{bands}<span class="tm-l">{esc(label)}</span></div>')
+                f'data-missing="{esc(chr(10).join(missing))}">{bands}<span class="tm-l">{esc(label)}</span></div>'
+            )
         return "".join(tiles)
 
     def issue_link(self, n: int) -> str:
@@ -558,25 +625,38 @@ class Page:
             lib_rows = "".join(
                 f'<li><span class="lib">{esc(name(g))}</span><span class="mono muted">{g["done"]}/{g["done"] + g["todo"]}</span>'
                 f'<span class="fns">{", ".join(esc(m) for m in sorted(g.get("todo_names") or []))}</span></li>'
-                for g in sorted(libs, key=lambda g: (-g["todo"], name(g).lower())) if g["todo"])
-            asked = sorted(((f, name(g), iss) for g in libs for f, iss in (g.get("requested") or {}).items()),
-                           key=lambda r: (-len(r[2]), r[1].lower(), r[0]))
-            asked_rows = "".join(f'<tr><td class="mono">{esc(f)}</td><td>{esc(lib)}</td>'
-                                 f'<td>{" ".join(self.issue_link(i) for i in iss)}</td></tr>' for f, lib, iss in asked)
-            asked_html = (f'<details class="rows"><summary><span class="rank">{len(asked)}</span>'
-                          f'<span>Missing functions that open issues ask for</span>{CHEVRON}</summary>'
-                          f'<table class="asked"><thead><tr><th scope="col">Function</th><th scope="col">Library</th>'
-                          f'<th scope="col">Asked in</th></tr></thead><tbody>{asked_rows}</tbody></table></details>'
-                          if asked else "")
+                for g in sorted(libs, key=lambda g: (-g["todo"], name(g).lower()))
+                if g["todo"]
+            )
+            asked = sorted(
+                ((f, name(g), iss) for g in libs for f, iss in (g.get("requested") or {}).items()),
+                key=lambda r: (-len(r[2]), r[1].lower(), r[0]),
+            )
+            asked_rows = "".join(
+                f'<tr><td class="mono">{esc(f)}</td><td>{esc(lib)}</td>'
+                f"<td>{' '.join(self.issue_link(i) for i in iss)}</td></tr>"
+                for f, lib, iss in asked
+            )
+            asked_html = (
+                f'<details class="rows"><summary><span class="rank">{len(asked)}</span>'
+                f"<span>Missing functions that open issues ask for</span>{CHEVRON}</summary>"
+                f'<table class="asked"><thead><tr><th scope="col">Function</th><th scope="col">Library</th>'
+                f'<th scope="col">Asked in</th></tr></thead><tbody>{asked_rows}</tbody></table></details>'
+                if asked
+                else ""
+            )
             enc = [g for g in (isa or {}).get("groups", []) if g["done"] + g["todo"]]
             pct = 100 * hle["done"] / hle["total"]
-            lib_label = (f'Treemap of {len(libs)} system libraries, {hle["done"]:,} of {hle["total"]:,} '
-                         f'functions implemented')
+            lib_label = (
+                f"Treemap of {len(libs)} system libraries, {hle['done']:,} of {hle['total']:,} functions implemented"
+            )
             shader_panel = ""
             if enc and isa.get("total"):
                 spct = 100 * isa["done"] / isa["total"]
-                isa_label = (f'Treemap of {len(enc)} shader instruction encodings, {isa["done"]:,} of '
-                             f'{isa["total"]:,} instructions decoded')
+                isa_label = (
+                    f"Treemap of {len(enc)} shader instruction encodings, {isa['done']:,} of "
+                    f"{isa['total']:,} instructions decoded"
+                )
                 shader_panel = f"""<div class="tm-panel">
         <h3 class="tm-sub">GPU shader instructions <span class="tm-n">{isa["done"]:,} of {isa["total"]:,} · {spct:.0f}%</span></h3>
         <div class="tm-area tm-wide" style="aspect-ratio:360/330" role="img" aria-label="{isa_label}">
@@ -609,13 +689,16 @@ class Page:
         lines = []
         if pm4 and pm4.get("total"):
             c, total = pm4["counts"], pm4["total"]
-            rejected = [r["name"] for r in pm4.get("rows", [])
-                        if r.get("status") == "rejected" and r.get("kind") == "type-3"]
-            rej = (f' Rejected: <span class="mono">{", ".join(esc(n) for n in rejected)}</span>.' if rejected else "")
-            lines.append(f'<li><span class="cv-name">GPU command packets (PM4)</span><span class="cv-bar" aria-hidden="true">'
-                         f'<i style="width:{100 * c.get("handled", 0) / total:.2f}%"></i>'
-                         f'<i class="part" style="width:{100 * c.get("conditional", 0) / total:.2f}%"></i></span>'
-                         f'<span>{c.get("handled", 0)} of {total} handled, {c.get("conditional", 0)} in part.{rej}</span></li>')
+            rejected = [
+                r["name"] for r in pm4.get("rows", []) if r.get("status") == "rejected" and r.get("kind") == "type-3"
+            ]
+            rej = f' Rejected: <span class="mono">{", ".join(esc(n) for n in rejected)}</span>.' if rejected else ""
+            lines.append(
+                f'<li><span class="cv-name">GPU command packets (PM4)</span><span class="cv-bar" aria-hidden="true">'
+                f'<i style="width:{100 * c.get("handled", 0) / total:.2f}%"></i>'
+                f'<i class="part" style="width:{100 * c.get("conditional", 0) / total:.2f}%"></i></span>'
+                f"<span>{c.get('handled', 0)} of {total} handled, {c.get('conditional', 0)} in part.{rej}</span></li>"
+            )
         if lines:
             parts.append(f'<ul class="cv-lines">{"".join(lines)}</ul>')
         if not parts:
@@ -638,8 +721,10 @@ class Page:
             size = ""
             if self.site and (self.site / f).exists():
                 size = fmt_size((self.site / f).stat().st_size)
-            rows.append(f'<div class="file"><dt><a class="mono" href="{f}">{f}</a></dt>'
-                        f'<dd class="muted mono">{size}</dd><dd>{purpose}</dd></div>')
+            rows.append(
+                f'<div class="file"><dt><a class="mono" href="{f}">{f}</a></dt>'
+                f'<dd class="muted mono">{size}</dd><dd>{purpose}</dd></div>'
+            )
         return f"""<footer id="data" class="sec" aria-labelledby="h-data">
   <div class="sec-head">
     <h2 id="h-data">Data</h2>

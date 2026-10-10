@@ -14,7 +14,9 @@ if TYPE_CHECKING:  # used in annotations only
 
 
 def parse_pm4_opcodes(header: str) -> list[dict]:
-    return [{"opcode": int(v, 16), "name": n} for v, n in re.findall(r"\{\s*0x([0-9A-Fa-f]+)\s*,\s*\"(\w+)\"\s*\}", header)]
+    return [
+        {"opcode": int(v, 16), "name": n} for v, n in re.findall(r"\{\s*0x([0-9A-Fa-f]+)\s*,\s*\"(\w+)\"\s*\}", header)
+    ]
 
 
 def parse_unsupported_reason(source: str) -> dict:
@@ -36,12 +38,12 @@ def parse_unsupported_reason(source: str) -> dict:
             depth -= 1
             if depth == 0:
                 break
-    body = source[m.end():i]
+    body = source[m.end() : i]
     out: dict = {}
     custom = re.search(r"if \(opcode == 0x10\)\s*\{(.*?)\n    \}", body, re.S)
     rest = body
     if custom:
-        rest = body[:custom.start()] + body[custom.end():]
+        rest = body[: custom.start()] + body[custom.end() :]
         for grp in re.finditer(r"((?:case [^:]+:\s*)+)(.*?)(?=case |default:|\}\s*$)", custom.group(1), re.S):
             values = [int(x, 0) for x in re.findall(r"case (0x[0-9a-fA-F]+|\d+):", grp.group(1))]
             status, reason = _classify_case(grp.group(2))
@@ -72,9 +74,19 @@ def _classify_case(code: str) -> tuple[str, str | None]:
     return "unknown", None
 
 
-CUSTOM_PM4 = {0x05: "DRAW_RESET", 0x06: "WAIT_FLIP_DONE", 0x09: "DISPATCH_RESET", 0x0b: "PUSH_MARKER", 0x0c: "POP_MARKER",
-              0x14: "ACQUIRE_MEM_CUSTOM", 0x15: "WRITE_DATA_CUSTOM", 0x17: "FLIP", 0x18: "RELEASE_MEM_CUSTOM",
-              0x19: "DMA_DATA_CUSTOM", 0x1a: "CONTEXT_STATE"}
+CUSTOM_PM4 = {
+    0x05: "DRAW_RESET",
+    0x06: "WAIT_FLIP_DONE",
+    0x09: "DISPATCH_RESET",
+    0x0B: "PUSH_MARKER",
+    0x0C: "POP_MARKER",
+    0x14: "ACQUIRE_MEM_CUSTOM",
+    0x15: "WRITE_DATA_CUSTOM",
+    0x17: "FLIP",
+    0x18: "RELEASE_MEM_CUSTOM",
+    0x19: "DMA_DATA_CUSTOM",
+    0x1A: "CONTEXT_STATE",
+}
 
 
 NOT_REGISTER = re.compile(r"_BIT$|^SQ_(?:RSRC|SEL|BUF|IMG)_|_FMT_|_TYPE_\d")
@@ -93,11 +105,23 @@ def build_coverage(model: Model, upstream: Upstream, progress: dict | None, log)
     cov: dict = {"isa": None, "hle": None, "pm4": None, "registers": None}
     if progress:
         sh = progress.get("shaders", {})
-        cov["isa"] = {"done": sh.get("done"), "total": sh.get("total"), "percent": sh.get("percent"),
-                      "groups": [{"encoding": g["name"], "done": g["done"], "todo": g["todo"],
-                                  "percent": round(100 * g["done"] / max(1, g["done"] + g["todo"]), 1),
-                                  "todo_names": g.get("todo_names", [])} for g in sh.get("groups", [])],
-                      "extra": sh.get("extra", []), "source": PROGRESS_URL}
+        cov["isa"] = {
+            "done": sh.get("done"),
+            "total": sh.get("total"),
+            "percent": sh.get("percent"),
+            "groups": [
+                {
+                    "encoding": g["name"],
+                    "done": g["done"],
+                    "todo": g["todo"],
+                    "percent": round(100 * g["done"] / max(1, g["done"] + g["todo"]), 1),
+                    "todo_names": g.get("todo_names", []),
+                }
+                for g in sh.get("groups", [])
+            ],
+            "extra": sh.get("extra", []),
+            "source": PROGRESS_URL,
+        }
         lib = progress.get("libraries", {})
         groups = []
         for g in lib.get("groups", []):
@@ -108,11 +132,25 @@ def build_coverage(model: Model, upstream: Upstream, progress: dict | None, log)
                 hits = sorted(n for n, t in texts.items() if rx.search(t))
                 if hits:
                     asked[name] = hits
-            groups.append({"library": g["name"], "label": g.get("label"), "done": g["done"], "todo": g["todo"],
-                           "percent": round(100 * g["done"] / max(1, g["done"] + g["todo"]), 1),
-                           "requested": asked, "todo_names": todo})
+            groups.append(
+                {
+                    "library": g["name"],
+                    "label": g.get("label"),
+                    "done": g["done"],
+                    "todo": g["todo"],
+                    "percent": round(100 * g["done"] / max(1, g["done"] + g["todo"]), 1),
+                    "requested": asked,
+                    "todo_names": todo,
+                }
+            )
         groups.sort(key=lambda g: (-len(g["requested"]), -g["todo"], g["library"]))
-        cov["hle"] = {"done": lib.get("done"), "total": lib.get("total"), "percent": lib.get("percent"), "groups": groups, "source": PROGRESS_URL}
+        cov["hle"] = {
+            "done": lib.get("done"),
+            "total": lib.get("total"),
+            "percent": lib.get("percent"),
+            "groups": groups,
+            "source": PROGRESS_URL,
+        }
     header = upstream.raw(PM4_HEADER)
     source = upstream.show(PM4_SOURCE) or (upstream.raw(PM4_SOURCE) if not upstream.checkout else None)
     if header:
@@ -128,19 +166,51 @@ def build_coverage(model: Model, upstream: Upstream, progress: dict | None, log)
             refs[o["opcode"]] = sorted(hits)
         rows = []
         for o in ops:
-            status, reason = reasons.get(o["opcode"], reasons.get("default", ("unknown", None))) if reasons else ("unknown", None)
-            rows.append({"opcode": o["opcode"], "hex": f"0x{o['opcode']:02X}", "name": o["name"], "kind": "type-3",
-                         "status": status, "reason": reason, "source_files": refs.get(o["opcode"], []),
-                         "issues": mentions.get(o["name"], [])})
+            status, reason = (
+                reasons.get(o["opcode"], reasons.get("default", ("unknown", None))) if reasons else ("unknown", None)
+            )
+            rows.append(
+                {
+                    "opcode": o["opcode"],
+                    "hex": f"0x{o['opcode']:02X}",
+                    "name": o["name"],
+                    "kind": "type-3",
+                    "status": status,
+                    "reason": reason,
+                    "source_files": refs.get(o["opcode"], []),
+                    "issues": mentions.get(o["name"], []),
+                }
+            )
         for sub, name in CUSTOM_PM4.items():
-            status, reason = reasons.get(("custom", sub), ("rejected", "custom packet has no implemented contract")) if reasons else ("unknown", None)
-            rows.append({"opcode": sub, "hex": f"NOP·0x{sub:02X}", "name": name, "kind": "custom", "status": status,
-                         "reason": reason, "source_files": [], "issues": mentions.get(name, [])})
+            status, reason = (
+                reasons.get(("custom", sub), ("rejected", "custom packet has no implemented contract"))
+                if reasons
+                else ("unknown", None)
+            )
+            rows.append(
+                {
+                    "opcode": sub,
+                    "hex": f"NOP·0x{sub:02X}",
+                    "name": name,
+                    "kind": "custom",
+                    "status": status,
+                    "reason": reason,
+                    "source_files": [],
+                    "issues": mentions.get(name, []),
+                }
+            )
         counts = Counter(r["status"] for r in rows if r["kind"] == "type-3")
-        cov["pm4"] = {"rows": rows, "counts": dict(counts), "total": len(ops),
-                      "rule": "status from the case groups of Pm4::UnsupportedReason() in " + PM4_SOURCE +
-                              "; source_files lists Execution/src files that compare `opcode == 0xNN` or use `case 0xNN:`",
-                      "header": PM4_HEADER, "source": PM4_SOURCE, "classified": bool(reasons)}
+        cov["pm4"] = {
+            "rows": rows,
+            "counts": dict(counts),
+            "total": len(ops),
+            "rule": "status from the case groups of Pm4::UnsupportedReason() in "
+            + PM4_SOURCE
+            + "; source_files lists Execution/src files that compare `opcode == 0xNN` or use `case 0xNN:`",
+            "header": PM4_HEADER,
+            "source": PM4_SOURCE,
+            "classified": bool(reasons),
+        }
     reg_counts: Counter = Counter()
     reg_issues: dict[str, list[int]] = defaultdict(list)
     for n, info in model.issue_info.items():

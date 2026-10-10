@@ -1,0 +1,2 @@
+# Development tooling only. The generator itself needs nothing beyond the Python standard library.
+ruff==0.17.0

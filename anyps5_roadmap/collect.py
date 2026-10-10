@@ -28,7 +28,8 @@ timelineItems(first: 100, itemTypes: [CROSS_REFERENCED_EVENT, CONNECTED_EVENT]) 
 }
 """
 
-ISSUES_QUERY = """
+ISSUES_QUERY = (
+    """
 query($owner: String!, $name: String!, $cursor: String, $states: [IssueState!]) {
   repository(owner: $owner, name: $name) {
     issues(first: 40, after: $cursor, states: $states, orderBy: {field: UPDATED_AT, direction: DESC}) {
@@ -38,7 +39,9 @@ query($owner: String!, $name: String!, $cursor: String, $states: [IssueState!]) 
   }
   rateLimit { cost remaining }
 }
-""" % ISSUE_FIELDS
+"""
+    % ISSUE_FIELDS
+)
 
 PR_FIELDS = """
 number title body url state merged mergedAt closedAt createdAt updatedAt isDraft
@@ -48,7 +51,8 @@ closingIssuesReferences(first: 10) { nodes { number repository { nameWithOwner }
 comments { totalCount }
 """
 
-PRS_QUERY = """
+PRS_QUERY = (
+    """
 query($owner: String!, $name: String!, $cursor: String, $states: [PullRequestState!]) {
   repository(owner: $owner, name: $name) {
     pullRequests(first: 100, after: $cursor, states: $states, orderBy: {field: UPDATED_AT, direction: DESC}) {
@@ -58,7 +62,9 @@ query($owner: String!, $name: String!, $cursor: String, $states: [PullRequestSta
   }
   rateLimit { cost remaining }
 }
-""" % PR_FIELDS
+"""
+    % PR_FIELDS
+)
 
 COMMENTS_QUERY = """
 query($owner: String!, $name: String!, $number: Int!, $cursor: String) {
@@ -78,7 +84,12 @@ def _flatten_issue(node: dict) -> dict:
     comments = node.get("comments") or {}
     node["comment_count"] = comments.get("totalCount", 0)
     node["comments"] = [
-        {"body": c.get("body") or "", "url": c["url"], "createdAt": c["createdAt"], "author": (c.get("author") or {}).get("login")}
+        {
+            "body": c.get("body") or "",
+            "url": c["url"],
+            "createdAt": c["createdAt"],
+            "author": (c.get("author") or {}).get("login"),
+        }
         for c in comments.get("nodes", [])
     ]
     node["_comments_page"] = comments.get("pageInfo", {})
@@ -87,18 +98,33 @@ def _flatten_issue(node: dict) -> dict:
         src = ev.get("source") or ev.get("subject")
         if not src or "number" not in src:
             continue
-        refs.append({
-            "kind": "pr" if src.get("__typename") == "PullRequest" else "issue",
-            "repo": src["repository"]["nameWithOwner"],
-            "number": src["number"], "title": src.get("title"), "url": src.get("url"),
-            "state": src.get("state"), "merged": src.get("merged"), "draft": src.get("isDraft"),
-            "updatedAt": src.get("updatedAt"), "event": ev["__typename"], "createdAt": ev.get("createdAt"),
-            "willClose": ev.get("willCloseTarget", False) or ev["__typename"] == "ConnectedEvent",
-        })
+        refs.append(
+            {
+                "kind": "pr" if src.get("__typename") == "PullRequest" else "issue",
+                "repo": src["repository"]["nameWithOwner"],
+                "number": src["number"],
+                "title": src.get("title"),
+                "url": src.get("url"),
+                "state": src.get("state"),
+                "merged": src.get("merged"),
+                "draft": src.get("isDraft"),
+                "updatedAt": src.get("updatedAt"),
+                "event": ev["__typename"],
+                "createdAt": ev.get("createdAt"),
+                "willClose": ev.get("willCloseTarget", False) or ev["__typename"] == "ConnectedEvent",
+            }
+        )
     node["xrefs"] = refs
     node["closed_by"] = [
-        {"repo": p["repository"]["nameWithOwner"], "number": p["number"], "title": p.get("title"), "url": p["url"],
-         "state": p["state"], "merged": p.get("merged"), "updatedAt": p.get("updatedAt")}
+        {
+            "repo": p["repository"]["nameWithOwner"],
+            "number": p["number"],
+            "title": p.get("title"),
+            "url": p["url"],
+            "state": p["state"],
+            "merged": p.get("merged"),
+            "updatedAt": p.get("updatedAt"),
+        }
         for p in (node.pop("closedByPullRequestsReferences", None) or {}).get("nodes", [])
     ]
     return node
@@ -145,10 +171,17 @@ def collect(repo: str, cutoff: str, curated: dict, log) -> dict:
         page = issue.pop("_comments_page", {})
         cursor = page.get("endCursor")
         while page.get("hasNextPage"):
-            data = gh_graphql(COMMENTS_QUERY, {"owner": owner, "name": name, "number": issue["number"], "cursor": cursor})
+            data = gh_graphql(
+                COMMENTS_QUERY, {"owner": owner, "name": name, "number": issue["number"], "cursor": cursor}
+            )
             conn = data["repository"]["issue"]["comments"]
             issue["comments"] += [
-                {"body": c.get("body") or "", "url": c["url"], "createdAt": c["createdAt"], "author": (c.get("author") or {}).get("login")}
+                {
+                    "body": c.get("body") or "",
+                    "url": c["url"],
+                    "createdAt": c["createdAt"],
+                    "author": (c.get("author") or {}).get("login"),
+                }
                 for c in conn["nodes"]
             ]
             page, cursor = conn["pageInfo"], conn["pageInfo"]["endCursor"]
@@ -170,8 +203,13 @@ def collect(repo: str, cutoff: str, curated: dict, log) -> dict:
         try:
             rows = gh_rest(f"repos/{repo}/issues/{issue['number']}/dependencies/blocked_by?per_page=100")
             deps[str(issue["number"])] = [
-                {"number": r["number"], "url": r.get("html_url"), "state": r.get("state"), "title": r.get("title"),
-                 "repo": (r.get("repository_url") or "").split("/repos/")[-1] or repo}
+                {
+                    "number": r["number"],
+                    "url": r.get("html_url"),
+                    "state": r.get("state"),
+                    "title": r.get("title"),
+                    "repo": (r.get("repository_url") or "").split("/repos/")[-1] or repo,
+                }
                 for r in rows
             ]
         except GhError as e:
@@ -185,8 +223,12 @@ def collect(repo: str, cutoff: str, curated: dict, log) -> dict:
     after = rate_limit()
     return {
         "fetched_at": dt.datetime.now(dt.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
-        "repo": repo, "cutoff": cutoff,
-        "issues": issues, "prs": prs, "dependencies": deps, "external_prs": external,
+        "repo": repo,
+        "cutoff": cutoff,
+        "issues": issues,
+        "prs": prs,
+        "dependencies": deps,
+        "external_prs": external,
         "rate_limit": {"before": before, "after": after},
     }
 
@@ -207,12 +249,24 @@ def collect_external_prs(repo: str, curated: dict, issues: list[dict], log) -> d
     by_repo: dict[str, list[int]] = defaultdict(list)
     for r, n in missing:
         by_repo[r].append(n)
-    out = {k: {"repo": v["repo"], "number": v["number"], "title": v.get("title"), "url": v.get("url"), "state": v.get("state"),
-               "merged": v.get("merged"), "draft": v.get("draft"), "updatedAt": v.get("updatedAt")} for k, v in known.items()}
+    out = {
+        k: {
+            "repo": v["repo"],
+            "number": v["number"],
+            "title": v.get("title"),
+            "url": v.get("url"),
+            "state": v.get("state"),
+            "merged": v.get("merged"),
+            "draft": v.get("draft"),
+            "updatedAt": v.get("updatedAt"),
+        }
+        for k, v in known.items()
+    }
     for r, numbers in by_repo.items():
         owner, name = r.split("/")
         fields = " ".join(
-            f'p{n}: pullRequest(number: {n}) {{ number title url state merged isDraft updatedAt }}' for n in numbers)
+            f"p{n}: pullRequest(number: {n}) {{ number title url state merged isDraft updatedAt }}" for n in numbers
+        )
         try:
             data = gh_graphql(f'query {{ repository(owner: "{owner}", name: "{name}") {{ {fields} }} }}', {})
         except GhError as e:
@@ -221,7 +275,15 @@ def collect_external_prs(repo: str, curated: dict, issues: list[dict], log) -> d
         for n in numbers:
             p = (data.get("repository") or {}).get(f"p{n}")
             if p:
-                out[f"{r}#{n}"] = {"repo": r, "number": n, "title": p["title"], "url": p["url"], "state": p["state"],
-                                   "merged": p["merged"], "draft": p["isDraft"], "updatedAt": p["updatedAt"]}
+                out[f"{r}#{n}"] = {
+                    "repo": r,
+                    "number": n,
+                    "title": p["title"],
+                    "url": p["url"],
+                    "state": p["state"],
+                    "merged": p["merged"],
+                    "draft": p["isDraft"],
+                    "updatedAt": p["updatedAt"],
+                }
     log(f"  external PRs: {len(out)}")
     return out

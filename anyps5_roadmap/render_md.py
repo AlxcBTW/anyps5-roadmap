@@ -40,17 +40,25 @@ def render_markdown(doc: dict) -> str:
     L = []
     a = L.append
     a("# AnyPS5 blocker map\n")
-    a(f"> Generated data, community prototype, not official. Built {doc['generated_at']} from public GitHub data of "
-      f"[{repo}](https://github.com/{repo}) at `{(doc['upstream'].get('commit') or '?')[:8]}` plus `data/blockers.json`.\n")
-    a(f"Issues read: {s['issues_scanned']} · PRs read: {s['prs_scanned']} · titles: {s['titles']} · open blockers: {s['blockers_open']} "
-      f"({s['blockers_ranked']} block at least one title) · curated blockers: {s['blockers_curated']}\n")
-    a("Score = 3 × one_fix_away + 2 × frontier + total. Frontier: titles for which the blocker is the first open one. "
-      "One fix away: titles for which it is the only open one.\n")
+    a(
+        f"> Generated data, community prototype, not official. Built {doc['generated_at']} from public GitHub data of "
+        f"[{repo}](https://github.com/{repo}) at `{(doc['upstream'].get('commit') or '?')[:8]}` plus `data/blockers.json`.\n"
+    )
+    a(
+        f"Issues read: {s['issues_scanned']} · PRs read: {s['prs_scanned']} · titles: {s['titles']} · open blockers: {s['blockers_open']} "
+        f"({s['blockers_ranked']} block at least one title) · curated blockers: {s['blockers_curated']}\n"
+    )
+    a(
+        "Score = 3 × one_fix_away + 2 × frontier + total. Frontier: titles for which the blocker is the first open one. "
+        "One fix away: titles for which it is the only open one.\n"
+    )
     a("## Focus areas\n")
     for i, ar in enumerate(doc["focus"]["areas"], 1):
         tops = ", ".join(md_ref(B[b]) for b in ar["blockers"])
-        a(f"{i}. **{ar['name']}** (score {ar['score']}): {ar['blocker_count']} blockers on {ar['titles']} titles, "
-          f"first stop for {ar['frontier_titles']}; open fix PRs {ar['open_fix_prs']}. Top: {tops}")
+        a(
+            f"{i}. **{ar['name']}** (score {ar['score']}): {ar['blocker_count']} blockers on {ar['titles']} titles, "
+            f"first stop for {ar['frontier_titles']}; open fix PRs {ar['open_fix_prs']}. Top: {tops}"
+        )
     a("")
     a("## Blocker ranking\n")
     a("| # | Blocker | Frontier | One fix away | Total | Score | Area | PRs | Last activity |")
@@ -58,25 +66,45 @@ def render_markdown(doc: dict) -> str:
     ranked = [B[i] for i in doc["ranking"] if B[i]["score"] > 0]
     for n, b in enumerate(ranked, 1):
         prs = ", ".join(f"[{p['ref']}]({p['url']}) {p['state']}" for p in b["prs"][:4]) or "none"
-        a(f"| {n} | {md_ref(b)} {md_cell(b['title'])} ({b['origin']}) | {b['frontier']} | {b['one_fix_away']} | {b['total']} | "
-          f"**{b['score']}** | {area_name(b['area'])} | {md_cell(prs)} | {fmt_date(b.get('last_activity'))} |")
+        a(
+            f"| {n} | {md_ref(b)} {md_cell(b['title'])} ({b['origin']}) | {b['frontier']} | {b['one_fix_away']} | {b['total']} | "
+            f"**{b['score']}** | {area_name(b['area'])} | {md_cell(prs)} | {fmt_date(b.get('last_activity'))} |"
+        )
     a("")
     a("## Titles\n")
-    a("Best stage counts only verified stages: curated, upstream, or mined below Menus. A mined claim of Menus or "
-      "higher that nobody has reviewed is listed as an unverified claim and is not sorted on.\n")
+    a(
+        "Best stage counts only verified stages: curated, upstream, or mined below Menus. A mined claim of Menus or "
+        "higher that nobody has reviewed is listed as an unverified claim and is not sorted on.\n"
+    )
     a("| ID | Title | Best stage | Where | Source | Unverified claim | Open blockers, in order |")
     a("|---|---|---|---|---|---|---|")
     shown = [t for t in doc["titles"] if t["best_stage"] or t["open_blockers"] or t["unverified_claim"]]
-    shown.sort(key=lambda t: (-(STAGES.index(t["best_stage"]["stage"]) if t["best_stage"] else -1), len(t["open_blockers"]), (t["name"] or t["id"]).lower()))
+    shown.sort(
+        key=lambda t: (
+            -(STAGES.index(t["best_stage"]["stage"]) if t["best_stage"] else -1),
+            len(t["open_blockers"]),
+            (t["name"] or t["id"]).lower(),
+        )
+    )
     for t in shown:
         best = t["best_stage"]
         stage = f"{best['stage']} ({best['origin']}{', reviewed' if best.get('review') else ''})" if best else "—"
         where = " · ".join(x for x in [best.get("os"), best.get("gpu"), best.get("build")] if x) if best else ""
-        src = f"[{evidence_label(best['url'], doc['upstream']['repo'])}]({best['url']})" if best and best.get("url") else "—"
+        src = (
+            f"[{evidence_label(best['url'], doc['upstream']['repo'])}]({best['url']})"
+            if best and best.get("url")
+            else "—"
+        )
         claim = t["unverified_claim"]
         claim_md = f"{claim['stage']}, [source]({claim['url']})" if claim else "—"
-        chain = " → ".join(md_ref(B[st["id"]]) + (f" ({'/'.join(st['scope'])})" if st.get("scope") else "") for st in t["open_blockers"][:6] if st["id"] in B)
-        a(f"| `{t['id']}` | {md_cell(t['name'] or '')} | {stage} | {md_cell(where)} | {src} | {claim_md} | {chain or '—'} |")
+        chain = " → ".join(
+            md_ref(B[st["id"]]) + (f" ({'/'.join(st['scope'])})" if st.get("scope") else "")
+            for st in t["open_blockers"][:6]
+            if st["id"] in B
+        )
+        a(
+            f"| `{t['id']}` | {md_cell(t['name'] or '')} | {stage} | {md_cell(where)} | {src} | {claim_md} | {chain or '—'} |"
+        )
     a("")
     cov = doc["coverage"]
     a("## Coverage\n")
@@ -86,11 +114,15 @@ def render_markdown(doc: dict) -> str:
         a(f"- HLE functions: {cov['hle']['done']} of {cov['hle']['total']} ({cov['hle']['percent']}%)")
     if cov.get("pm4"):
         c = cov["pm4"]["counts"]
-        a(f"- PM4 type-3 packets: {c.get('handled', 0)} handled, {c.get('conditional', 0)} conditional, {c.get('rejected', 0)} rejected of {cov['pm4']['total']}")
+        a(
+            f"- PM4 type-3 packets: {c.get('handled', 0)} handled, {c.get('conditional', 0)} conditional, {c.get('rejected', 0)} rejected of {cov['pm4']['total']}"
+        )
         a("\n| Opcode | Packet | Status | Reason | Issues |\n|---|---|---|---|---|")
         for r in cov["pm4"]["rows"]:
             if r["status"] != "handled":
-                a(f"| `{r['hex']}` | `{r['name']}` | {r['status']} | {md_cell(r['reason'] or '')} | {', '.join('#%d' % n for n in r['issues'][:5])} |")
+                a(
+                    f"| `{r['hex']}` | `{r['name']}` | {r['status']} | {md_cell(r['reason'] or '')} | {', '.join('#%d' % n for n in r['issues'][:5])} |"
+                )
     if cov.get("hle"):
         asked = [(g["library"], n, nums) for g in cov["hle"]["groups"] for n, nums in g["requested"].items()]
         if asked:
@@ -135,12 +167,16 @@ def render_llms(doc: dict) -> str:
         "",
     ]
     for b in top:
-        L.append(f"- {md_ref(b)} {b['title']} (score {b['score']}: frontier {b['frontier']}, one fix away {b['one_fix_away']}, total {b['total']})")
+        L.append(
+            f"- {md_ref(b)} {b['title']} (score {b['score']}: frontier {b['frontier']}, one fix away {b['one_fix_away']}, total {b['total']})"
+        )
     L += [
         "",
         "How to read the data:",
         "",
-        "- Stages, lowest to highest: " + ", ".join(STAGES) + ". `best_stage` is the highest verified stage, with os, gpu, build, "
+        "- Stages, lowest to highest: "
+        + ", ".join(STAGES)
+        + ". `best_stage` is the highest verified stage, with os, gpu, build, "
         "a source `url` and `verified` (true for curated and upstream entries, false for mined ones below Menus).",
         "- Verification policy: a mined stage of Menus or higher never becomes `best_stage` until a person reviews it "
         "(`stage_reviews` in data/blockers.json). Until then it is `unverified_claim` = {stage, url, quote}: a claim from "

@@ -15,13 +15,78 @@ NAME_TOKEN = re.compile(r"[A-Z0-9À-ɏ][\w'’&.!:+\-]*")
 NAME_CONNECT = {"of", "the", "and", "&", "a", "in", "for", "to", "de", "-", "–", ":", "vs.", "x"}
 NAME_LABELS = {"title", "game", "titles", "another", "also", "tested", "with", "on", "in", "and", "from", "see"}
 NAME_REJECT = {
-    "windows", "linux", "macos", "nvidia", "amd", "intel", "ue4", "ue5", "unity", "rtx", "gtx", "rx", "main", "the",
-    "title", "game", "id", "release", "build", "ps5", "ps4", "anyps5", "fps", "log", "logs", "with", "on", "and", "or",
-    "pr", "issue", "retail", "homebrew", "app", "a", "an", "it", "this", "that", "note", "update", "result", "fix", "tested",
+    "windows",
+    "linux",
+    "macos",
+    "nvidia",
+    "amd",
+    "intel",
+    "ue4",
+    "ue5",
+    "unity",
+    "rtx",
+    "gtx",
+    "rx",
+    "main",
+    "the",
+    "title",
+    "game",
+    "id",
+    "release",
+    "build",
+    "ps5",
+    "ps4",
+    "anyps5",
+    "fps",
+    "log",
+    "logs",
+    "with",
+    "on",
+    "and",
+    "or",
+    "pr",
+    "issue",
+    "retail",
+    "homebrew",
+    "app",
+    "a",
+    "an",
+    "it",
+    "this",
+    "that",
+    "note",
+    "update",
+    "result",
+    "fix",
+    "tested",
 }
-NAME_REJECT_FIRST = {"unblocks", "unblock", "fixes", "fix", "blocks", "needs", "needed", "affects", "stops", "tested", "with",
-                     "without", "from", "for", "after", "before", "both", "all", "same", "unreal", "unity", "runmultipleframes:"}
-NAME_REJECT_ANY = re.compile(r"\b(?:RTX|GTX|GPU|CPU|Radeon|Laptop|Engine \d|NVIDIA|AMD|Vulkan)\b|PPSA\d{5}|0x[0-9a-f]", re.I)
+NAME_REJECT_FIRST = {
+    "unblocks",
+    "unblock",
+    "fixes",
+    "fix",
+    "blocks",
+    "needs",
+    "needed",
+    "affects",
+    "stops",
+    "tested",
+    "with",
+    "without",
+    "from",
+    "for",
+    "after",
+    "before",
+    "both",
+    "all",
+    "same",
+    "unreal",
+    "unity",
+    "runmultipleframes:",
+}
+NAME_REJECT_ANY = re.compile(
+    r"\b(?:RTX|GTX|GPU|CPU|Radeon|Laptop|Engine \d|NVIDIA|AMD|Vulkan)\b|PPSA\d{5}|0x[0-9a-f]", re.I
+)
 ENGINE_RULES = [
     (re.compile(r"\bUE ?5\b|Unreal Engine 5"), "Unreal Engine 5"),
     (re.compile(r"\bUE ?4\b|Unreal Engine 4"), "Unreal Engine 4"),
@@ -45,36 +110,75 @@ GPU_RULES = [
     (re.compile(r"Intel Arc|\bArc\b|\bIris\b|UHD Graphics|HD Graphics|\bIntel\b"), "Intel"),
     (re.compile(r"lavapipe|llvmpipe"), "software"),
 ]
-NEGATION = re.compile(r"\b(?:never|not|no|nothing|without|cannot|can't|doesn't|does not|didn't|fails? to|before|instead of|until)\b[^.;]{0,30}$", re.I)
+NEGATION = re.compile(
+    r"\b(?:never|not|no|nothing|without|cannot|can't|doesn't|does not|didn't|fails? to|before|instead of|until)\b[^.;]{0,30}$",
+    re.I,
+)
 # "loads story mode until …", "right after loading its first level": the title got to the
 # loading step, not into the stage the keyword names
 LOADING_CONTEXT = re.compile(r"\b(?:loads?|loading|into the|towards?)\b[^.;]{0,30}$", re.I)
 # leading verbs that are not part of a title's name: "Adds LEGO Party! (PPSA29141)",
 # "Seen in PPSA22520 (Animal Well)"
-NAME_LEAD_VERBS = {"adds", "add", "lists", "list", "seen", "measured", "tested", "implements", "supports", "runs", "boots",
-                   "brings", "takes", "took", "makes", "lets", "gets"}
-STOP_WORDS = re.compile(r"\b(?:stops?|stopped|stuck|hangs?|halts?|freezes|crash(?:es|ed)?|aborts?|dies|faults?|segfaults?|fails?|failed|same (?:error|stop|crash|message)|refused|throws?)\b", re.I)
+NAME_LEAD_VERBS = {
+    "adds",
+    "add",
+    "lists",
+    "list",
+    "seen",
+    "measured",
+    "tested",
+    "implements",
+    "supports",
+    "runs",
+    "boots",
+    "brings",
+    "takes",
+    "took",
+    "makes",
+    "lets",
+    "gets",
+}
+STOP_WORDS = re.compile(
+    r"\b(?:stops?|stopped|stuck|hangs?|halts?|freezes|crash(?:es|ed)?|aborts?|dies|faults?|segfaults?|fails?|failed|same (?:error|stop|crash|message)|refused|throws?)\b",
+    re.I,
+)
 REPORT_FIELD = re.compile(r"\s*[-*]?\s*(?:title id|title|game|titles? tested|tested title)\s*:", re.I)
 STAGE_RULES = [
     ("Playable", re.compile(r"(?<!un)(?<!not )\bplayable\b", re.I)),
-    ("Ingame", re.compile(r"\bin-game\b|\bingame\b|\bgameplay\b|\b(?:first|tutorial) level\b|\bminutes of play\b", re.I)),
+    (
+        "Ingame",
+        re.compile(r"\bin-game\b|\bingame\b|\bgameplay\b|\b(?:first|tutorial) level\b|\bminutes of play\b", re.I),
+    ),
     ("Menus", re.compile(r"\b(?:main|title|start|pause|home) (?:menu|screen)\b|\bmenus?\b", re.I)),
-    ("Presents", re.compile(r"\bloading screen\b|\bblack (?:screen|frames?)\b|\bintro (?:video|movie)\b|\bsplash\b|\brenders?\b|\bdraws? (?:its|the) (?:full |complete )?(?:ui|screen|frame)|\b\d+ ?fps\b|\bpresents\b", re.I)),
+    (
+        "Presents",
+        re.compile(
+            r"\bloading screen\b|\bblack (?:screen|frames?)\b|\bintro (?:video|movie)\b|\bsplash\b|\brenders?\b|\bdraws? (?:its|the) (?:full |complete )?(?:ui|screen|frame)|\b\d+ ?fps\b|\bpresents\b",
+            re.I,
+        ),
+    ),
     ("First draw", re.compile(r"\bfirst (?:draw|frame|presentation)\b", re.I)),
     ("Starts", re.compile(r"\bboots?\b|\bstarts up\b", re.I)),
 ]
-PATCHED_BUILD = re.compile(r"\bwith (?:#|PR|AlxcBTW/|the fix|this|these|both|all)|\bplus #|\+ ?#\d|\bon #\d+'s branch|\bthis branch\b|"
-                           r"\blocal(?:ly)?\b|\bfork\b|\bhack\b|#\d+ (?:took|takes|gets|brings)\b|\b(?:integration|test|testing|bring-up|working) (?:branch|stack)\b|\bstacked\b", re.I)
+PATCHED_BUILD = re.compile(
+    r"\bwith (?:#|PR|AlxcBTW/|the fix|this|these|both|all)|\bplus #|\+ ?#\d|\bon #\d+'s branch|\bthis branch\b|"
+    r"\blocal(?:ly)?\b|\bfork\b|\bhack\b|#\d+ (?:took|takes|gets|brings)\b|\b(?:integration|test|testing|bring-up|working) (?:branch|stack)\b|\bstacked\b",
+    re.I,
+)
 
 SIG_START = re.compile(
-    r"FAIL: unresolved ELF import|Failed to load module:|undefined symbol:|what\(\):|presentation failed:|AGC graphics:|ShaderRecompiler::Recompile:")
+    r"FAIL: unresolved ELF import|Failed to load module:|undefined symbol:|what\(\):|presentation failed:|AGC graphics:|ShaderRecompiler::Recompile:"
+)
 SIG_WRAPPER = re.compile(
     r"^(?:what\(\):|presentation failed:|terminate called[^:]*:|(?:compute|pixel|vertex|geometry|hull|domain|mesh|task|export) shader 0x[0-9a-fA-F]+:|"
-    r"AGC graphics:|AGC driver:|ShaderRecompiler::Recompile:|shader info collection failed:)\s*", re.I)
+    r"AGC graphics:|AGC driver:|ShaderRecompiler::Recompile:|shader info collection failed:)\s*",
+    re.I,
+)
 SIG_KEEP_PREFIX = ("AGC graphics:", "AGC driver:", "ShaderRecompiler::Recompile:")
 IMPORT_RE = re.compile(
     r"FAIL: unresolved ELF import\s+`?(?P<nid>[A-Za-z0-9+\-_]{11})`?(?:\s*\(`?(?P<sym>[\w:]+)`?\))?\s+from\s+`?(?P<lib>[\w.\-]+?)(?:\.s?prx)?`?"
-    r"(?=[`'\"\s)|.,;]|$)(?:[`'\"]*\s*\(`(?P<sym2>[\w:]+)`\))?")
+    r"(?=[`'\"\s)|.,;]|$)(?:[`'\"]*\s*\(`(?P<sym2>[\w:]+)`\))?"
+)
 MODULE_RE = re.compile(r"Failed to load module:\s*\S*?[\\/]?(?P<lib>[\w.\-]+\.s?prx)")
 UNDEF_RE = re.compile(r"undefined symbol:\s*`?(?P<nid>[A-Za-z0-9+\-_]{11})")
 QUOTED_RE = re.compile(r"[\"“]([^\"”]{20,160})[\"”]")
@@ -82,10 +186,12 @@ SIG_CUT = re.compile(r"`|\s\|\s|\|$|[\"”]|\s\(#\d|\s—\s|\s–\s")
 
 ISSUE_URL_RE = re.compile(r"https://github\.com/(?P<repo>[\w.\-]+/[\w.\-]+)/(?:issues|pull)/(?P<num>\d+)(?![\w/])")
 SHORT_REF_RE = re.compile(r"(?<![\w/#&])(?:(?P<repo>[\w.\-]+/[\w.\-]+))?#(?P<num>\d{1,6})\b")
-CLOSING_RE = re.compile(r"(?i)\b(?:fix(?:es|ed)?|close[sd]?|resolve[sd]?)\b:?\s+(?P<refs>(?:(?:[\w.\-]+/[\w.\-]+)?#\d+|https://github\.com/[\w.\-]+/[\w.\-]+/issues/\d+)(?:\s*(?:,|and|&)\s*(?:(?:[\w.\-]+/[\w.\-]+)?#\d+|https://github\.com/[\w.\-]+/[\w.\-]+/issues/\d+))*)")
+CLOSING_RE = re.compile(
+    r"(?i)\b(?:fix(?:es|ed)?|close[sd]?|resolve[sd]?)\b:?\s+(?P<refs>(?:(?:[\w.\-]+/[\w.\-]+)?#\d+|https://github\.com/[\w.\-]+/[\w.\-]+/issues/\d+)(?:\s*(?:,|and|&)\s*(?:(?:[\w.\-]+/[\w.\-]+)?#\d+|https://github\.com/[\w.\-]+/[\w.\-]+/issues/\d+))*)"
+)
 REGISTER_RE = re.compile(r"\b(?:SPI|PA|CB|DB|VGT|SQ|GE|COMPUTE|SX|TA|IA|GRBM|RLC)_[A-Z0-9_]{3,}\b")
 
-TRACKER_TITLES = 7   # an issue naming this many titles is treated as a tracker
+TRACKER_TITLES = 7  # an issue naming this many titles is treated as a tracker
 LINE_TITLE_LIMIT = 2  # a stop line naming more titles than this is a table summary
 
 
@@ -112,8 +218,11 @@ def name_before(line: str, pos: int) -> str | None:
         else:
             break
     # out holds the words last-to-first, so out[-1] is the first word of the name
-    while out and (out[-1].lower() in NAME_CONNECT or out[-1].lower().rstrip(":") in NAME_LABELS
-                   or out[-1].lower() in NAME_LEAD_VERBS):
+    while out and (
+        out[-1].lower() in NAME_CONNECT
+        or out[-1].lower().rstrip(":") in NAME_LABELS
+        or out[-1].lower() in NAME_LEAD_VERBS
+    ):
         out.pop()
     while out and out[0].lower() in NAME_CONNECT:
         out.pop(0)
@@ -167,8 +276,8 @@ def title_context(line: str, pos: int, length: int) -> str:
     close_before = line.rfind(")", 0, pos)
     if open_ > close_before:
         end = line.find(")", pos)
-        return line[open_:end + 1 if end >= 0 else len(line)]
-    m = re.match(r"\s*\*{0,2}\s*\(([^)]*)\)", line[pos + length:])
+        return line[open_ : end + 1 if end >= 0 else len(line)]
+    m = re.match(r"\s*\*{0,2}\s*\(([^)]*)\)", line[pos + length :])
     return m.group(1) if m else ""
 
 
@@ -205,7 +314,13 @@ def compute_nid(symbol: str) -> str:
 def import_signature(nid: str, symbol: str | None, library: str | None) -> dict:
     """Import stops are keyed by NID, so a Linux `undefined symbol` line and a
     Windows `FAIL: unresolved ELF import` line for the same function match."""
-    sig = {"family": "import", "key": f"unresolved import {nid}".lower(), "nid": nid, "symbol": symbol, "library": library}
+    sig = {
+        "family": "import",
+        "key": f"unresolved import {nid}".lower(),
+        "nid": nid,
+        "symbol": symbol,
+        "library": library,
+    }
     return name_import(sig)
 
 
@@ -233,8 +348,8 @@ def signature_key(text: str | None) -> str | None:
     if sig:
         return sig["key"]
     rest = text
-    while (w := SIG_WRAPPER.match(rest)):
-        rest = rest[w.end():]
+    while w := SIG_WRAPPER.match(rest):
+        rest = rest[w.end() :]
     return normalise_message(rest).lower() or None
 
 
@@ -242,7 +357,7 @@ def signature_from(line: str, next_line: str = "") -> dict | None:
     m = SIG_START.search(line)
     if not m:
         return None
-    rest = line[m.start():]
+    rest = line[m.start() :]
     im = IMPORT_RE.match(rest)
     if im:
         sym = im.group("sym") or im.group("sym2")
@@ -250,7 +365,12 @@ def signature_from(line: str, next_line: str = "") -> dict | None:
     mm = MODULE_RE.match(rest)
     if mm:
         lib = mm.group("lib")
-        return {"family": "import", "key": f"missing module {lib}".lower(), "display": f"Failed to load module {lib}", "library": lib}
+        return {
+            "family": "import",
+            "key": f"missing module {lib}".lower(),
+            "display": f"Failed to load module {lib}",
+            "library": lib,
+        }
     um = UNDEF_RE.match(rest)
     if um:
         return import_signature(um.group("nid"), None, None)
@@ -264,17 +384,24 @@ def signature_from(line: str, next_line: str = "") -> dict | None:
         for keep in SIG_KEEP_PREFIX:
             if tag.startswith(keep):
                 kept = keep
-        rest = rest[w.end():]
+        rest = rest[w.end() :]
     if not rest.strip() and next_line:
         rest = next_line.strip()
     cut = SIG_CUT.search(rest)
     if cut:
-        rest = rest[:cut.start()]
+        rest = rest[: cut.start()]
     core = normalise_message(rest)
     if len(core) < 12 or not re.search(r"[a-z]{3}", core):
         return None
-    fam = "recompile" if "shaderrecompiler::recompile" in families else "agc" if "agc" in families else \
-        "present" if "presentation" in families else "exception"
+    fam = (
+        "recompile"
+        if "shaderrecompiler::recompile" in families
+        else "agc"
+        if "agc" in families
+        else "present"
+        if "presentation" in families
+        else "exception"
+    )
     return {"family": fam, "key": core.lower(), "display": (kept + " " + core).strip()}
 
 
@@ -318,7 +445,7 @@ def stage_in(line: str, title_pos: int) -> tuple[str, str] | None:
     best = None
     for stage, rx in STAGE_RULES:
         for m in rx.finditer(line):
-            before = line[max(0, m.start() - 40):m.start()]
+            before = line[max(0, m.start() - 40) : m.start()]
             if NEGATION.search(before):
                 continue
             if abs(m.start() - title_pos) > 220:

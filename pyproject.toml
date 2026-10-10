@@ -1,0 +1,27 @@
+[project]
+name = "anyps5-roadmap"
+version = "0.2.0"
+description = "Blocker map for the AnyPS5 PS5 emulator: which open issues stop which games. Community prototype, not official."
+readme = "README.md"
+requires-python = ">=3.11"
+license = "MIT"
+# The generator uses the standard library only. Dev tooling (ruff) is pinned in requirements-dev.txt.
+dependencies = []
+
+[project.urls]
+Homepage = "https://alxcbtw.github.io/anyps5-roadmap/"
+Source = "https://github.com/AlxcBTW/anyps5-roadmap"
+
+[tool.ruff]
+line-length = 120
+target-version = "py311"
+extend-exclude = ["site", "data"]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "UP"]
+ignore = [
+  "E501", # the formatter wraps code; long regexes and URLs stay on one line
+]
+
+[tool.ruff.lint.isort]
+known-first-party = ["anyps5_roadmap", "render_html", "roadmap"]

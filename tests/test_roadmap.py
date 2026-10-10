@@ -28,15 +28,23 @@ class Extraction(unittest.TestCase):
         self.assertEqual(win["library"], "libkernel")
 
     def test_wrappers_and_addresses_are_normalised(self):
-        a = r.signature_from("presentation failed: compute shader 0x2006410000: AGC graphics: storage image access to "
-                             "depth/stencil surface 0x20183b0000 is not implemented")
-        b = r.signature_from("  what():  AGC graphics: storage image access to depth/stencil surface 0x53a500000 is not implemented")
+        a = r.signature_from(
+            "presentation failed: compute shader 0x2006410000: AGC graphics: storage image access to "
+            "depth/stencil surface 0x20183b0000 is not implemented"
+        )
+        b = r.signature_from(
+            "  what():  AGC graphics: storage image access to depth/stencil surface 0x53a500000 is not implemented"
+        )
         self.assertEqual(a["key"], b["key"])
-        self.assertEqual(a["display"], "AGC graphics: storage image access to depth/stencil surface 0x… is not implemented")
+        self.assertEqual(
+            a["display"], "AGC graphics: storage image access to depth/stencil surface 0x… is not implemented"
+        )
 
     def test_signature_keeps_balanced_parentheses_and_cuts_markdown(self):
-        s = r.signature_from("`ShaderRecompiler::Recompile: shader info collection failed: packed pixel ancillary input has an "
-                             "unsupported live use (used by SelectU32 ? ?)`. #1904 made all four compile")
+        s = r.signature_from(
+            "`ShaderRecompiler::Recompile: shader info collection failed: packed pixel ancillary input has an "
+            "unsupported live use (used by SelectU32 ? ?)`. #1904 made all four compile"
+        )
         self.assertTrue(s["key"].endswith("(used by selectu32 ? ?)"), s["key"])
         self.assertEqual(s["family"], "recompile")
 
@@ -55,7 +63,9 @@ class Extraction(unittest.TestCase):
         self.assertIsNone(r.stage_in("it never reaches the main menu", 0))
         self.assertIsNone(r.stage_in("No title calls these during the runs I have, so nothing was tested in-game.", 0))
         # a loading step is not the stage it loads
-        self.assertEqual(r.stage_in("renders the main menu and Settings, and loads story mode until the first shader", 0)[0], "Menus")
+        self.assertEqual(
+            r.stage_in("renders the main menu and Settings, and loads story mode until the first shader", 0)[0], "Menus"
+        )
         self.assertEqual(r.stage_in("PPSA05684 crashed right after loading its first level.", 0)[0], "Menus")
 
     def test_leading_verbs_are_not_part_of_a_name(self):
@@ -72,7 +82,7 @@ class Extraction(unittest.TestCase):
         self.assertEqual(refs, [("example/AnyPS5", 12), ("example/AnyPS5", 34), ("owner/repo", 5)])
 
     def test_pm4_unsupported_reason_parser(self):
-        src = '''
+        src = """
 std::string_view UnsupportedReason(std::uint32_t header) {
     const auto opcode = (header >> 8u) & 0xffu;
     if (opcode == 0x10) {
@@ -90,7 +100,7 @@ std::string_view UnsupportedReason(std::uint32_t header) {
         case 0x8e: return "GPU LOD statistics are not implemented";
         default: return "opcode is not known in the reference";
     }
-}'''
+}"""
         out = r.parse_unsupported_reason(src)
         self.assertEqual(out[0x11][0], "handled")
         self.assertEqual(out[0x10][0], "handled")
@@ -166,15 +176,22 @@ class Ranking(unittest.TestCase):
     def test_stage_review_replaces_the_mined_claim(self):
         sarah = self.t["PPSA02929"]
         best = self.model.best_stage(sarah)
-        self.assertEqual((best["stage"], best["origin"], best["verified"], best["review"]), ("Menus", "curated", True, "confirmed"))
+        self.assertEqual(
+            (best["stage"], best["origin"], best["verified"], best["review"]), ("Menus", "curated", True, "confirmed")
+        )
         self.assertTrue(best["quote"].startswith("Dreaming Sarah"))
         self.assertIsNone(self.model.unverified_claim(sarah))
         self.assertFalse(any(e["origin"] == "mined" and e["url"].endswith("/pull/31") for e in sarah["evidence"]))
 
     def test_unverified_claim_never_drives_sorting_or_ranking(self):
         upstream = r.Upstream(None, "HEAD", "example/AnyPS5", fetch=False, log=lambda m: None)
-        doc = r.assemble(self.model, {"isa": None, "hle": None, "pm4": None, "registers": []},
-                         json.loads((FIX / "raw.json").read_text(encoding="utf-8")), upstream, NOW)
+        doc = r.assemble(
+            self.model,
+            {"isa": None, "hle": None, "pm4": None, "registers": []},
+            json.loads((FIX / "raw.json").read_text(encoding="utf-8")),
+            upstream,
+            NOW,
+        )
         kena = next(t for t in doc["titles"] if t["id"] == "PPSA01746")
         self.assertIsNone(kena["best_stage"])
         self.assertEqual(set(kena["unverified_claim"]), {"stage", "url", "quote"})
@@ -183,10 +200,22 @@ class Ranking(unittest.TestCase):
 
     def test_curated_stage_needs_a_public_url(self):
         import tempfile
+
         bad = {"blockers": [], "titles": [{"id": "PPSA16064", "evidence": [{"stage": "Playable", "url": None}]}]}
-        review = {"blockers": [], "titles": [], "stage_reviews": [
-            {"title": "PPSA01746", "claim": "Ingame", "claim_url": "https://x/pull/1", "verdict": "confirmed", "stage": "Ingame",
-             "url": "https://x/pull/1"}]}
+        review = {
+            "blockers": [],
+            "titles": [],
+            "stage_reviews": [
+                {
+                    "title": "PPSA01746",
+                    "claim": "Ingame",
+                    "claim_url": "https://x/pull/1",
+                    "verdict": "confirmed",
+                    "stage": "Ingame",
+                    "url": "https://x/pull/1",
+                }
+            ],
+        }
         for data in (bad, review):
             with tempfile.TemporaryDirectory() as d:
                 path = Path(d) / "blockers.json"
@@ -196,8 +225,13 @@ class Ranking(unittest.TestCase):
 
     def test_render_outputs(self):
         upstream = r.Upstream(None, "HEAD", "example/AnyPS5", fetch=False, log=lambda m: None)
-        doc = r.assemble(self.model, {"isa": None, "hle": None, "pm4": None, "registers": []},
-                         json.loads((FIX / "raw.json").read_text(encoding="utf-8")), upstream, NOW)
+        doc = r.assemble(
+            self.model,
+            {"isa": None, "hle": None, "pm4": None, "registers": []},
+            json.loads((FIX / "raw.json").read_text(encoding="utf-8")),
+            upstream,
+            NOW,
+        )
         self.assertEqual(doc["schema_version"], r.SCHEMA_VERSION)
         html = r.render_html.Page(doc).render()
         for anchor in ('id="fix-next"', 'id="games"', 'id="data"', 'id="panel"', "not an official AnyPS5 page"):

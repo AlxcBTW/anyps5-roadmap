@@ -27,7 +27,9 @@ def _gh(args: list[str], stdin: str | None = None, attempts: int = 4) -> str:
             status = int(m.group(1))
         if status in (404, 410, 422):
             raise GhError(err.strip(), status)
-        transient = status in (None, 500, 502, 503, 504) or "secondary rate limit" in err.lower() or "timeout" in err.lower()
+        transient = (
+            status in (None, 500, 502, 503, 504) or "secondary rate limit" in err.lower() or "timeout" in err.lower()
+        )
         if not transient or attempt == attempts - 1:
             raise GhError(err.strip(), status)
         time.sleep(delay)
@@ -51,6 +53,10 @@ def rate_limit() -> dict:
     try:
         data = gh_rest("rate_limit")
         res = data.get("resources", {})
-        return {k: {"remaining": res[k]["remaining"], "limit": res[k]["limit"]} for k in ("core", "graphql", "search") if k in res}
+        return {
+            k: {"remaining": res[k]["remaining"], "limit": res[k]["limit"]}
+            for k in ("core", "graphql", "search")
+            if k in res
+        }
     except GhError:
         return {}

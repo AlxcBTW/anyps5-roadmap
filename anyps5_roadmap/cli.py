@@ -41,13 +41,17 @@ def load_curated(path: Path) -> dict:
                 raise SystemExit(f"{path}: title {t['id']} names unknown blocker {step['id']}")
         for ev in t.get("evidence", []):
             if not ev.get("url") or ev.get("stage") not in STAGES:
-                raise SystemExit(f"{path}: title {t['id']}: every curated stage needs a known stage and a public url ({ev})")
+                raise SystemExit(
+                    f"{path}: title {t['id']}: every curated stage needs a known stage and a public url ({ev})"
+                )
     for rv in data.get("stage_reviews", []):
         need = ["title", "claim", "claim_url", "verdict", "quote"]
         if rv.get("verdict") in ("confirmed", "downgraded"):
             need += ["stage", "url"]
         elif rv.get("verdict") != "suppressed":
-            raise SystemExit(f"{path}: stage review for {rv.get('title')}: verdict must be confirmed, downgraded or suppressed")
+            raise SystemExit(
+                f"{path}: stage review for {rv.get('title')}: verdict must be confirmed, downgraded or suppressed"
+            )
         missing = [k for k in need if not rv.get(k)]
         if missing or (rv.get("stage") and rv["stage"] not in STAGES):
             raise SystemExit(f"{path}: stage review for {rv.get('title')} lacks {missing or 'a known stage'}")
@@ -61,8 +65,11 @@ def main(argv=None) -> int:
     ap.add_argument("--curated", default=str(CURATED))
     ap.add_argument("--cache", default=str(CACHE), help="raw API data is written here and read back with --offline")
     ap.add_argument("--offline", action="store_true", help="reuse the cached API data instead of calling GitHub")
-    ap.add_argument("--upstream-checkout", default=os.environ.get("ANYPS5_CHECKOUT"),
-                    help="local clone or worktree of the upstream repo (for git show / git grep)")
+    ap.add_argument(
+        "--upstream-checkout",
+        default=os.environ.get("ANYPS5_CHECKOUT"),
+        help="local clone or worktree of the upstream repo (for git show / git grep)",
+    )
     ap.add_argument("--ref", default="origin/main", help="ref to read inside the checkout")
     ap.add_argument("--no-git-fetch", action="store_true", help="do not run git fetch in the checkout")
     args = ap.parse_args(argv)
@@ -107,8 +114,12 @@ def main(argv=None) -> int:
     if (ROOT / "AGENTS.md").exists():
         shutil.copyfile(ROOT / "AGENTS.md", out / "AGENTS.md")
     (out / ".nojekyll").write_text("", encoding="utf-8")
-    (out / "index.html").write_text(render_html.Page(doc, out).render(), **lf)  # last: it lists the sizes of the other files
+    (out / "index.html").write_text(
+        render_html.Page(doc, out).render(), **lf
+    )  # last: it lists the sizes of the other files
     s = doc["stats"]
-    log(f"issues {s['issues_scanned']} (open {s['issues_open']}), PRs {s['prs_scanned']}, titles {s['titles']}, "
-        f"open blockers {s['blockers_open']} ({s['blockers_ranked']} ranked), wrote {out}")
+    log(
+        f"issues {s['issues_scanned']} (open {s['issues_open']}), PRs {s['prs_scanned']}, titles {s['titles']}, "
+        f"open blockers {s['blockers_open']} ({s['blockers_ranked']} ranked), wrote {out}"
+    )
     return 0

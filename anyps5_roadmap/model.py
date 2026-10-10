@@ -8,10 +8,36 @@ from collections import Counter, defaultdict
 
 from .config import STAGES, VERIFY_FROM
 from .mine import (
-    GPU_RULES, LINE_TITLE_LIMIT, OS_RULES, ENGINE_RULES, PATCHED_BUILD, QUOTED_RE, REGISTER_RE, REPORT_FIELD, SIG_START,
-    STOP_WORDS, TITLE_RE, TRACKER_TITLES, classify, clean_name, clip, closing_refs, compute_nid, name_after, name_before,
-    name_import, normalise_message, refs_in, sig_match, signature_from, signature_key, signatures_in, stage_in,
-    stop_title, strip_md, title_context,
+    GPU_RULES,
+    LINE_TITLE_LIMIT,
+    OS_RULES,
+    ENGINE_RULES,
+    PATCHED_BUILD,
+    QUOTED_RE,
+    REGISTER_RE,
+    REPORT_FIELD,
+    SIG_START,
+    STOP_WORDS,
+    TITLE_RE,
+    TRACKER_TITLES,
+    classify,
+    clean_name,
+    clip,
+    closing_refs,
+    compute_nid,
+    name_after,
+    name_before,
+    name_import,
+    normalise_message,
+    refs_in,
+    sig_match,
+    signature_from,
+    signature_key,
+    signatures_in,
+    stage_in,
+    stop_title,
+    strip_md,
+    title_context,
 )
 
 
@@ -35,12 +61,19 @@ def short_ref(key: str, upstream: str) -> str:
 
 
 class Model:
-    def __init__(self, raw: dict, curated: dict, repo: str, now: dt.datetime, compat_md: str | None = None,
-                 progress: dict | None = None):
+    def __init__(
+        self,
+        raw: dict,
+        curated: dict,
+        repo: str,
+        now: dt.datetime,
+        compat_md: str | None = None,
+        progress: dict | None = None,
+    ):
         self.raw, self.curated, self.repo, self.now = raw, curated, repo, now
         self.issues = {i["number"]: i for i in raw["issues"]}
         self.prs: dict[str, dict] = {}
-        self.links: dict[int, dict[str, str]] = defaultdict(dict)   # issue -> {pr key: fixes|mentions}
+        self.links: dict[int, dict[str, str]] = defaultdict(dict)  # issue -> {pr key: fixes|mentions}
         self.titles: dict[str, dict] = {}
         self.blockers: dict[str, dict] = {}
         self.issue_info: dict[int, dict] = {}
@@ -86,10 +119,14 @@ class Model:
         key = key_of(repo, number)
         cur = self.prs.get(key, {})
         rec = {
-            "key": key, "repo": repo, "number": number, "title": title or cur.get("title"),
+            "key": key,
+            "repo": repo,
+            "number": number,
+            "title": title or cur.get("title"),
             "url": url or cur.get("url") or f"https://github.com/{repo}/pull/{number}",
             "state": pr_state(state, merged, draft) if state else cur.get("state", "unknown"),
-            "updated": updated or cur.get("updated"), "labels": labels if labels is not None else cur.get("labels", []),
+            "updated": updated or cur.get("updated"),
+            "labels": labels if labels is not None else cur.get("labels", []),
             "author": author or cur.get("author"),
         }
         self.prs[key] = rec
@@ -97,13 +134,42 @@ class Model:
 
     def _index_prs(self):
         for p in self.raw.get("external_prs", {}).values():
-            self._put_pr(p["repo"], p["number"], p.get("title"), p.get("url"), p.get("state"), p.get("merged"), p.get("draft"), p.get("updatedAt"))
+            self._put_pr(
+                p["repo"],
+                p["number"],
+                p.get("title"),
+                p.get("url"),
+                p.get("state"),
+                p.get("merged"),
+                p.get("draft"),
+                p.get("updatedAt"),
+            )
         for i in self.raw["issues"]:
             for x in i["xrefs"] + i["closed_by"]:
                 if x.get("kind", "pr") == "pr" and key_of(x["repo"], x["number"]) not in self.prs:
-                    self._put_pr(x["repo"], x["number"], x.get("title"), x.get("url"), x.get("state"), x.get("merged"), x.get("draft"), x.get("updatedAt"))
+                    self._put_pr(
+                        x["repo"],
+                        x["number"],
+                        x.get("title"),
+                        x.get("url"),
+                        x.get("state"),
+                        x.get("merged"),
+                        x.get("draft"),
+                        x.get("updatedAt"),
+                    )
         for p in self.raw["prs"]:
-            rec = self._put_pr(self.repo, p["number"], p["title"], p["url"], p["state"], p["merged"], p["isDraft"], p["updatedAt"], p["labels"], p.get("author"))
+            rec = self._put_pr(
+                self.repo,
+                p["number"],
+                p["title"],
+                p["url"],
+                p["state"],
+                p["merged"],
+                p["isDraft"],
+                p["updatedAt"],
+                p["labels"],
+                p.get("author"),
+            )
             rec["merged_at"] = p.get("mergedAt")
 
     def _add_link(self, issue: int, pr_key: str, kind: str):
@@ -118,7 +184,9 @@ class Model:
                 self._add_link(i["number"], key_of(x["repo"], x["number"]), "fixes")
             for x in i["xrefs"]:
                 if x["kind"] == "pr":
-                    self._add_link(i["number"], key_of(x["repo"], x["number"]), "fixes" if x.get("willClose") else "mentions")
+                    self._add_link(
+                        i["number"], key_of(x["repo"], x["number"]), "fixes" if x.get("willClose") else "mentions"
+                    )
         for p in self.raw["prs"]:
             pk = key_of(self.repo, p["number"])
             text = f"{p['title']}\n{p.get('body') or ''}"
@@ -135,9 +203,21 @@ class Model:
     def title(self, tid: str) -> dict:
         if tid not in self.titles:
             self.titles[tid] = {
-                "id": tid, "names": Counter(), "engines": Counter(), "kinds": Counter(),
-                "evidence": [], "assoc": {}, "mentions": [], "stops": [], "curated": False,
-                "name": None, "engine": None, "kind": None, "paths": None, "chain": [], "open_chain": [],
+                "id": tid,
+                "names": Counter(),
+                "engines": Counter(),
+                "kinds": Counter(),
+                "evidence": [],
+                "assoc": {},
+                "mentions": [],
+                "stops": [],
+                "curated": False,
+                "name": None,
+                "engine": None,
+                "kind": None,
+                "paths": None,
+                "chain": [],
+                "open_chain": [],
             }
         return self.titles[tid]
 
@@ -150,11 +230,25 @@ class Model:
 
     def _sources(self, item: dict, kind: str):
         number = item["number"]
-        yield {"kind": kind, "number": number, "url": item["url"], "date": item["createdAt"], "author": item.get("author"),
-               "text": f"{item['title']}\n{item.get('body') or ''}", "part": "body"}
+        yield {
+            "kind": kind,
+            "number": number,
+            "url": item["url"],
+            "date": item["createdAt"],
+            "author": item.get("author"),
+            "text": f"{item['title']}\n{item.get('body') or ''}",
+            "part": "body",
+        }
         for c in item.get("comments", []) if isinstance(item.get("comments"), list) else []:
-            yield {"kind": kind, "number": number, "url": c["url"], "date": c["createdAt"], "author": c.get("author"),
-                   "text": c.get("body") or "", "part": "comment"}
+            yield {
+                "kind": kind,
+                "number": number,
+                "url": c["url"],
+                "date": c["createdAt"],
+                "author": c.get("author"),
+                "text": c.get("body") or "",
+                "part": "comment",
+            }
 
     def _mine_text(self, src: dict, info: dict | None):
         text = src["text"]
@@ -163,7 +257,9 @@ class Model:
         src_gpu = classify(GPU_RULES, text)
         for idx, line in enumerate(lines):
             ids = list(dict.fromkeys(TITLE_RE.findall(line)))
-            sig = signature_from(line, lines[idx + 1] if idx + 1 < len(lines) else "") if SIG_START.search(line) else None
+            sig = (
+                signature_from(line, lines[idx + 1] if idx + 1 < len(lines) else "") if SIG_START.search(line) else None
+            )
             if sig:
                 self.resolve_sig(sig)
             if not ids:
@@ -191,22 +287,60 @@ class Model:
                         t["kinds"]["retail"] += 1
                     if re.search(r"homebrew|github\.com/[\w.\-]+/[\w.\-]+", ctx, re.I) or tid.startswith("PPSA99"):
                         t["kinds"]["homebrew"] += 1
-                t["mentions"].append({"kind": src["kind"], "number": src["number"], "url": src["url"], "date": src["date"]})
+                t["mentions"].append(
+                    {"kind": src["kind"], "number": src["number"], "url": src["url"], "date": src["date"]}
+                )
                 if len(ids) <= LINE_TITLE_LIMIT:
                     os_ = classify(OS_RULES, line) or src_os
                     gpu = classify(GPU_RULES, line) or src_gpu
-                    build = ("PR #%d" % src["number"]) if src["kind"] == "pr" else ("main + patches" if PATCHED_BUILD.search(line) else "main")
+                    build = (
+                        ("PR #%d" % src["number"])
+                        if src["kind"] == "pr"
+                        else ("main + patches" if PATCHED_BUILD.search(line) else "main")
+                    )
                     st = stage_in(line, pos)
                     quote = clip(re.sub(r"\s+", " ", strip_md(line)).strip(), 280)
                     if st:
-                        t["evidence"].append({"stage": st[0], "os": os_, "gpu": gpu, "build": build, "url": src["url"], "date": src["date"],
-                                              "note": f"“{st[1]}”", "quote": quote, "origin": "mined", "verified": False})
+                        t["evidence"].append(
+                            {
+                                "stage": st[0],
+                                "os": os_,
+                                "gpu": gpu,
+                                "build": build,
+                                "url": src["url"],
+                                "date": src["date"],
+                                "note": f"“{st[1]}”",
+                                "quote": quote,
+                                "origin": "mined",
+                                "verified": False,
+                            }
+                        )
                     if sig:
                         floor = "Converts" if sig["family"] == "import" else "Starts"
-                        t["evidence"].append({"stage": floor, "os": os_, "gpu": gpu, "build": build, "url": src["url"], "date": src["date"],
-                                              "note": "stops at: " + sig["display"], "quote": quote, "origin": "mined", "verified": False})
-                        t["stops"].append({"sig": sig, "url": src["url"], "date": src["date"], "issue": src["number"] if src["kind"] == "issue" else None,
-                                           "os": os_, "gpu": gpu})
+                        t["evidence"].append(
+                            {
+                                "stage": floor,
+                                "os": os_,
+                                "gpu": gpu,
+                                "build": build,
+                                "url": src["url"],
+                                "date": src["date"],
+                                "note": "stops at: " + sig["display"],
+                                "quote": quote,
+                                "origin": "mined",
+                                "verified": False,
+                            }
+                        )
+                        t["stops"].append(
+                            {
+                                "sig": sig,
+                                "url": src["url"],
+                                "date": src["date"],
+                                "issue": src["number"] if src["kind"] == "issue" else None,
+                                "os": os_,
+                                "gpu": gpu,
+                            }
+                        )
                 if info is None:
                     continue
                 if info["tracker"]:
@@ -240,7 +374,9 @@ class Model:
                 primary = next(s for s in sigs if counts[s["key"]] == best)
                 if sigs[0]["family"] == "title":
                     # prefer a full log line that the quoted title fragment belongs to
-                    full = next((s for s in sigs[1:] if sig_match(s["key"], sigs[0]["key"]) or sigs[0]["key"] in s["key"]), None)
+                    full = next(
+                        (s for s in sigs[1:] if sig_match(s["key"], sigs[0]["key"]) or sigs[0]["key"] in s["key"]), None
+                    )
                     primary = full or sigs[0]
             later = [self.resolve_sig(s) for t in texts[2:] for _, s in signatures_in(t)]
             registers = Counter()
@@ -248,17 +384,30 @@ class Model:
                 for r in set(REGISTER_RE.findall(t)):
                     registers[r] += 1
             self.issue_info[number] = {
-                "titles": sorted(all_ids), "tracker": len(all_ids) >= TRACKER_TITLES,
-                "signature": primary, "signatures": list({s["key"]: s for s in sigs + later}.values())[:12],
-                "text": "\n".join(texts), "registers": registers,
+                "titles": sorted(all_ids),
+                "tracker": len(all_ids) >= TRACKER_TITLES,
+                "signature": primary,
+                "signatures": list({s["key"]: s for s in sigs + later}.values())[:12],
+                "text": "\n".join(texts),
+                "registers": registers,
             }
             for src in self._sources(issue, "issue"):
                 self._mine_text(src, self.issue_info[number])
 
     def _mine_prs(self):
         for p in self.raw["prs"]:
-            self._mine_text({"kind": "pr", "number": p["number"], "url": p["url"], "date": p["createdAt"],
-                             "author": p.get("author"), "text": f"{p['title']}\n{p.get('body') or ''}", "part": "body"}, None)
+            self._mine_text(
+                {
+                    "kind": "pr",
+                    "number": p["number"],
+                    "url": p["url"],
+                    "date": p["createdAt"],
+                    "author": p.get("author"),
+                    "text": f"{p['title']}\n{p.get('body') or ''}",
+                    "part": "body",
+                },
+                None,
+            )
 
     def _mine_compat(self):
         if not self.compat_md:
@@ -280,10 +429,20 @@ class Model:
                 status = row.get(os_name, "")
                 st = stage_in(status, 0) if status and status != "?" else None
                 if st:
-                    t["evidence"].append({"stage": st[0], "os": os_name, "gpu": None, "build": "main",
-                                          "url": f"https://github.com/{self.repo}/blob/main/docs/user/COMPATIBILITY.md",
-                                          "date": None, "note": f"COMPATIBILITY.md: {status}", "quote": line.strip(),
-                                          "origin": "upstream", "verified": True})
+                    t["evidence"].append(
+                        {
+                            "stage": st[0],
+                            "os": os_name,
+                            "gpu": None,
+                            "build": "main",
+                            "url": f"https://github.com/{self.repo}/blob/main/docs/user/COMPATIBILITY.md",
+                            "date": None,
+                            "note": f"COMPATIBILITY.md: {status}",
+                            "quote": line.strip(),
+                            "origin": "upstream",
+                            "verified": True,
+                        }
+                    )
 
     def _apply_curated_titles(self):
         for ct in self.curated.get("titles", []):
@@ -293,8 +452,14 @@ class Model:
                 if ct.get(k):
                     t[k] = ct[k]
             for ev in ct.get("evidence", []):
-                t["evidence"].append({**{"os": None, "gpu": None, "build": "main", "note": "", "quote": None}, **ev,
-                                      "origin": "curated", "verified": True})
+                t["evidence"].append(
+                    {
+                        **{"os": None, "gpu": None, "build": "main", "note": "", "quote": None},
+                        **ev,
+                        "origin": "curated",
+                        "verified": True,
+                    }
+                )
         self._apply_stage_reviews()
         for t in self.titles.values():
             if not t["name"] and t["names"]:
@@ -311,8 +476,18 @@ class Model:
         out = []
         for key, kind in self.links.get(number, {}).items():
             pr = self.prs[key]
-            out.append({"key": key, "ref": short_ref(key, self.repo), "url": pr["url"], "title": pr["title"],
-                        "state": pr["state"], "link": kind, "updated": pr["updated"], "origin": "mined"})
+            out.append(
+                {
+                    "key": key,
+                    "ref": short_ref(key, self.repo),
+                    "url": pr["url"],
+                    "title": pr["title"],
+                    "state": pr["state"],
+                    "link": kind,
+                    "updated": pr["updated"],
+                    "origin": "mined",
+                }
+            )
         rank = {"open": 0, "draft": 1, "merged": 2, "closed": 3, "unknown": 4}
         out.sort(key=lambda p: (p["link"] != "fixes", rank.get(p["state"], 4), -(int(p["key"].split("#")[1]))))
         return out
@@ -327,8 +502,13 @@ class Model:
         if votes:
             return votes.most_common(1)[0][0]
         title = (issue or {}).get("title", "")
-        for rx, area in [(r"^(Recompiler|Structurizer|Shader|SPIR-V|v_|s_)", "shader"), (r"^(AGC|Layered|Vulkan|NVIDIA|Intel)", "agc"),
-                         (r"^Relinker", "relinker"), (r"^(libkernel|Kernel)", "libkernel"), (r"^(libc|LibcInternal)", "libc")]:
+        for rx, area in [
+            (r"^(Recompiler|Structurizer|Shader|SPIR-V|v_|s_)", "shader"),
+            (r"^(AGC|Layered|Vulkan|NVIDIA|Intel)", "agc"),
+            (r"^Relinker", "relinker"),
+            (r"^(libkernel|Kernel)", "libkernel"),
+            (r"^(libc|LibcInternal)", "libc"),
+        ]:
             if re.search(rx, title, re.I):
                 return area
         if sig:
@@ -339,7 +519,12 @@ class Model:
             if sig["family"] == "import":
                 lib = (sig.get("library") or "").lower()
                 sym = sig.get("symbol") or ""
-                if lib.startswith("libkernel") or (not lib and re.match(r"(pthread_|sig|_umtx|sysctl|sched_|sceKernel|cpuset|_?fstat|kqueue|kevent|mmap|munmap)", sym)):
+                if lib.startswith("libkernel") or (
+                    not lib
+                    and re.match(
+                        r"(pthread_|sig|_umtx|sysctl|sched_|sceKernel|cpuset|_?fstat|kqueue|kevent|mmap|munmap)", sym
+                    )
+                ):
                     return "libkernel"
                 if "libc" in lib or "posix" in lib or (not lib and sym and not sym.startswith("sce")):
                     return "libc"
@@ -356,10 +541,22 @@ class Model:
             prs = []
             for ref in cb.get("fix_prs", []) + cb.get("related_prs", []):
                 key = key_of(ref.get("repo", self.repo), int(ref["number"]))
-                pr = self.prs.get(key) or self._put_pr(ref.get("repo", self.repo), int(ref["number"]), None, None, None, None, None, None)
-                prs.append({"key": key, "ref": short_ref(key, self.repo), "url": pr["url"], "title": pr["title"], "state": pr["state"],
-                            "link": "fixes" if ref in cb.get("fix_prs", []) else "related", "updated": pr["updated"],
-                            "note": ref.get("note"), "origin": "curated"})
+                pr = self.prs.get(key) or self._put_pr(
+                    ref.get("repo", self.repo), int(ref["number"]), None, None, None, None, None, None
+                )
+                prs.append(
+                    {
+                        "key": key,
+                        "ref": short_ref(key, self.repo),
+                        "url": pr["url"],
+                        "title": pr["title"],
+                        "state": pr["state"],
+                        "link": "fixes" if ref in cb.get("fix_prs", []) else "related",
+                        "updated": pr["updated"],
+                        "note": ref.get("note"),
+                        "origin": "curated",
+                    }
+                )
             mined = self._issue_prs(cb["issue"]) if issue else []
             seen = {p["key"] for p in prs}
             prs += [p for p in mined if p["key"] not in seen]
@@ -370,18 +567,32 @@ class Model:
                 if issue:
                     status = "open" if issue["state"] == "OPEN" else "resolved"
                 else:
-                    status = "resolved" if any(p["state"] == "merged" and p["link"] == "fixes" and not p.get("note") for p in prs) else "open"
+                    status = (
+                        "resolved"
+                        if any(p["state"] == "merged" and p["link"] == "fixes" and not p.get("note") for p in prs)
+                        else "open"
+                    )
             self.blockers[bid] = {
-                "id": bid, "issue": cb.get("issue"), "url": issue["url"] if issue else (prs[0]["url"] if prs else (cb.get("sources") or [None])[0]),
+                "id": bid,
+                "issue": cb.get("issue"),
+                "url": issue["url"] if issue else (prs[0]["url"] if prs else (cb.get("sources") or [None])[0]),
                 "title": cb.get("title") or (issue["title"] if issue else bid),
                 "signature": cb.get("signature") or (sig["display"] if sig else None),
                 "signature_key": signature_key(cb.get("signature")) or (sig["key"] if sig else None),
-                "area": cb.get("area") or self._area(issue, prs, sig), "status": status,
-                "prs": prs, "next": cb.get("next"), "help_wanted": cb.get("help_wanted"), "notes": cb.get("notes"),
+                "area": cb.get("area") or self._area(issue, prs, sig),
+                "status": status,
+                "prs": prs,
+                "next": cb.get("next"),
+                "help_wanted": cb.get("help_wanted"),
+                "notes": cb.get("notes"),
                 "owner": cb.get("owner") or (", ".join(issue.get("assignees", [])) if issue else None) or None,
-                "origin": "curated", "tracker": False,
+                "origin": "curated",
+                "tracker": False,
                 "created": issue["createdAt"] if issue else None,
-                "last_activity": max([d for d in [issue["updatedAt"] if issue else None] + [p["updated"] for p in prs] if d] or [None], key=lambda d: d or ""),
+                "last_activity": max(
+                    [d for d in [issue["updatedAt"] if issue else None] + [p["updated"] for p in prs] if d] or [None],
+                    key=lambda d: d or "",
+                ),
                 "labels": issue["labels"] if issue else [],
             }
             if cb.get("issue"):
@@ -392,17 +603,29 @@ class Model:
             if number in curated_by_issue or number in ignored:
                 continue
             info = self.issue_info[number]
-            has_titles = any(number in t["assoc"] and t["assoc"][number]["level"] != "mention" for t in self.titles.values())
+            has_titles = any(
+                number in t["assoc"] and t["assoc"][number]["level"] != "mention" for t in self.titles.values()
+            )
             if not (info["signature"] or has_titles):
                 continue
             prs = self._issue_prs(number)
             sig = info["signature"]
             self.blockers[str(number)] = {
-                "id": str(number), "issue": number, "url": issue["url"], "title": issue["title"],
-                "signature": sig["display"] if sig else None, "signature_key": sig["key"] if sig else None,
-                "area": self._area(issue, prs, sig), "status": "open" if issue["state"] == "OPEN" else "resolved",
-                "prs": prs, "next": None, "help_wanted": None, "notes": None,
-                "owner": ", ".join(issue.get("assignees", [])) or None, "origin": "mined", "tracker": info["tracker"],
+                "id": str(number),
+                "issue": number,
+                "url": issue["url"],
+                "title": issue["title"],
+                "signature": sig["display"] if sig else None,
+                "signature_key": sig["key"] if sig else None,
+                "area": self._area(issue, prs, sig),
+                "status": "open" if issue["state"] == "OPEN" else "resolved",
+                "prs": prs,
+                "next": None,
+                "help_wanted": None,
+                "notes": None,
+                "owner": ", ".join(issue.get("assignees", [])) or None,
+                "origin": "mined",
+                "tracker": info["tracker"],
                 "created": issue["createdAt"],
                 "last_activity": max([issue["updatedAt"]] + [p["updated"] for p in prs if p["updated"]]),
                 "labels": issue["labels"],
@@ -412,8 +635,11 @@ class Model:
     # -- chains -------------------------------------------------------------
     def _build_chains(self):
         deps = self.raw.get("dependencies", {})
-        sig_index = [(b["signature_key"], bid) for bid, b in self.blockers.items()
-                     if b["signature_key"] and b["status"] == "open" and not b["tracker"]]
+        sig_index = [
+            (b["signature_key"], bid)
+            for bid, b in self.blockers.items()
+            if b["signature_key"] and b["status"] == "open" and not b["tracker"]
+        ]
         curated_chains = {ct["id"]: ct.get("blockers", []) for ct in self.curated.get("titles", [])}
         for tid, t in self.titles.items():
             steps: list[dict] = []
@@ -434,17 +660,25 @@ class Model:
             # the latest recorded stop decides which mined blocker comes first
             latest = sorted(t["stops"], key=lambda s: s["date"] or "", reverse=True)
             for stop in latest[:1]:
-                hit = next((bid for key, bid in sig_index if sig_match(key, stop["sig"]["key"]) or key == stop["sig"]["key"]), None)
+                hit = next(
+                    (bid for key, bid in sig_index if sig_match(key, stop["sig"]["key"]) or key == stop["sig"]["key"]),
+                    None,
+                )
                 if hit:
                     add(hit, "mined", "latest recorded stop matches its signature")
                     if self.blockers[hit]["issue"]:
-                        t["assoc"].setdefault(self.blockers[hit]["issue"], {"level": "signature", "url": stop["url"], "date": stop["date"]})
+                        t["assoc"].setdefault(
+                            self.blockers[hit]["issue"],
+                            {"level": "signature", "url": stop["url"], "date": stop["date"]},
+                        )
                 elif stop["issue"] and self.issue_info.get(stop["issue"], {}).get("tracker"):
                     vid = self._virtual_blocker(stop["issue"], stop)
                     sig_index.append((self.blockers[vid]["signature_key"], vid))
                     add(vid, "mined", f"latest recorded stop, listed in tracker #{stop['issue']}")
-            strong = sorted(((n, a) for n, a in t["assoc"].items() if a["level"] != "mention"),
-                            key=lambda na: self.issues.get(na[0], {}).get("createdAt", ""))
+            strong = sorted(
+                ((n, a) for n, a in t["assoc"].items() if a["level"] != "mention"),
+                key=lambda na: self.issues.get(na[0], {}).get("createdAt", ""),
+            )
             for number, a in strong:
                 bid = self.issue_to_blocker.get(number)
                 if not bid:
@@ -454,15 +688,25 @@ class Model:
                     dbid = self.issue_to_blocker.get(dep["number"]) if dep.get("repo", self.repo) == self.repo else None
                     if dbid:
                         add(dbid, "github", f"#{number} is blocked by #{dep['number']} (GitHub dependency)")
-                add(bid, "mined", {"report": "reported on this issue", "stop-line": "a comment names it at this stop",
-                                   "signature": "stop signature matches", "tracker-row": "tracker row"}.get(a["level"], a["level"]))
+                add(
+                    bid,
+                    "mined",
+                    {
+                        "report": "reported on this issue",
+                        "stop-line": "a comment names it at this stop",
+                        "signature": "stop signature matches",
+                        "tracker-row": "tracker row",
+                    }.get(a["level"], a["level"]),
+                )
             t["chain"] = steps
 
     def _virtual_blocker(self, number: int, stop: dict) -> str:
         """A crash site that only lives as a row in a tracker issue becomes its own
         blocker, keyed by signature, so one tracker does not swallow every title."""
         sig = stop["sig"]
-        slug = sig.get("symbol") or sig.get("nid") or sig.get("library") or re.sub(r"\W+", "-", sig["key"])[:40].strip("-")
+        slug = (
+            sig.get("symbol") or sig.get("nid") or sig.get("library") or re.sub(r"\W+", "-", sig["key"])[:40].strip("-")
+        )
         bid = f"{number}~{slug}"
         if bid in self.blockers:
             return bid
@@ -472,19 +716,44 @@ class Model:
             rx = re.compile(r"(?<![\w])" + re.escape(symbol) + r"(?![\w])")
             for pr in self.prs.values():
                 if pr["repo"] == self.repo and pr["title"] and rx.search(pr["title"]):
-                    prs.append({"key": pr["key"], "ref": short_ref(pr["key"], self.repo), "url": pr["url"], "title": pr["title"],
-                                "state": pr["state"], "link": "related", "updated": pr["updated"], "origin": "mined"})
+                    prs.append(
+                        {
+                            "key": pr["key"],
+                            "ref": short_ref(pr["key"], self.repo),
+                            "url": pr["url"],
+                            "title": pr["title"],
+                            "state": pr["state"],
+                            "link": "related",
+                            "updated": pr["updated"],
+                            "origin": "mined",
+                        }
+                    )
         rank = {"open": 0, "draft": 1, "merged": 2, "closed": 3}
         prs.sort(key=lambda p: (rank.get(p["state"], 4), -(int(p["key"].split("#")[1]))))
-        merged_after = any(p["state"] == "merged" and (self.prs[p["key"]].get("merged_at") or "") > (stop["date"] or "") for p in prs)
+        merged_after = any(
+            p["state"] == "merged" and (self.prs[p["key"]].get("merged_at") or "") > (stop["date"] or "") for p in prs
+        )
         parent = self.issues[number]
         self.blockers[bid] = {
-            "id": bid, "issue": None, "parent": number, "url": stop["url"],
-            "title": stop_title(sig), "signature": sig["display"], "signature_key": sig["key"],
-            "area": self._area(None, prs, sig), "status": "resolved" if merged_after or parent["state"] != "OPEN" else "open",
-            "prs": prs[:6], "next": None, "help_wanted": None, "notes": f"Tracked as a row in #{number}: {parent['title']}",
-            "owner": None, "origin": "mined", "tracker": False, "created": stop["date"],
-            "last_activity": max([stop["date"] or ""] + [p["updated"] or "" for p in prs]) or None, "labels": [],
+            "id": bid,
+            "issue": None,
+            "parent": number,
+            "url": stop["url"],
+            "title": stop_title(sig),
+            "signature": sig["display"],
+            "signature_key": sig["key"],
+            "area": self._area(None, prs, sig),
+            "status": "resolved" if merged_after or parent["state"] != "OPEN" else "open",
+            "prs": prs[:6],
+            "next": None,
+            "help_wanted": None,
+            "notes": f"Tracked as a row in #{number}: {parent['title']}",
+            "owner": None,
+            "origin": "mined",
+            "tracker": False,
+            "created": stop["date"],
+            "last_activity": max([stop["date"] or ""] + [p["updated"] or "" for p in prs]) or None,
+            "labels": [],
         }
         return bid
 
@@ -501,13 +770,30 @@ class Model:
         for rv in self.curated.get("stage_reviews", []):
             t = self.title(rv["title"])
             claim = rv["claim_url"].rstrip("/")
-            t["evidence"] = [e for e in t["evidence"]
-                             if not (e["origin"] == "mined" and (e["url"] or "").split("#")[0].rstrip("/") == claim)]
-            t.setdefault("reviews", []).append({k: rv.get(k) for k in ("claim", "claim_url", "verdict", "stage", "url", "quote", "reason")})
+            t["evidence"] = [
+                e
+                for e in t["evidence"]
+                if not (e["origin"] == "mined" and (e["url"] or "").split("#")[0].rstrip("/") == claim)
+            ]
+            t.setdefault("reviews", []).append(
+                {k: rv.get(k) for k in ("claim", "claim_url", "verdict", "stage", "url", "quote", "reason")}
+            )
             if rv["verdict"] in ("confirmed", "downgraded"):
-                t["evidence"].append({"stage": rv["stage"], "os": rv.get("os"), "gpu": rv.get("gpu"), "build": rv.get("build") or "main",
-                                      "url": rv["url"], "date": rv.get("date"), "note": rv["quote"], "quote": rv["quote"],
-                                      "origin": "curated", "verified": True, "review": rv["verdict"]})
+                t["evidence"].append(
+                    {
+                        "stage": rv["stage"],
+                        "os": rv.get("os"),
+                        "gpu": rv.get("gpu"),
+                        "build": rv.get("build") or "main",
+                        "url": rv["url"],
+                        "date": rv.get("date"),
+                        "note": rv["quote"],
+                        "quote": rv["quote"],
+                        "origin": "curated",
+                        "verified": True,
+                        "review": rv["verdict"],
+                    }
+                )
 
     def best_stage(self, t: dict) -> dict | None:
         """The best verified stage. Curated evidence wins; without it, upstream and mined
@@ -527,8 +813,11 @@ class Model:
         is above the best verified stage. Shown as a claim, never sorted or ranked on."""
         best = self.best_stage(t)
         floor = STAGES.index(best["stage"]) if best else -1
-        claims = [e for e in t["evidence"] if e["origin"] == "mined" and STAGES.index(e["stage"]) >= VERIFY_FROM
-                  and STAGES.index(e["stage"]) > floor]
+        claims = [
+            e
+            for e in t["evidence"]
+            if e["origin"] == "mined" and STAGES.index(e["stage"]) >= VERIFY_FROM and STAGES.index(e["stage"]) > floor
+        ]
         if not claims:
             return None
         c = max(claims, key=lambda e: (STAGES.index(e["stage"]), e.get("date") or ""))
@@ -536,7 +825,16 @@ class Model:
 
     def _rank(self):
         for b in self.blockers.values():
-            b.update({"frontier": 0, "one_fix_away": 0, "total": 0, "titles": [], "frontier_titles": [], "one_fix_titles": []})
+            b.update(
+                {
+                    "frontier": 0,
+                    "one_fix_away": 0,
+                    "total": 0,
+                    "titles": [],
+                    "frontier_titles": [],
+                    "one_fix_titles": [],
+                }
+            )
         for tid, t in self.titles.items():
             best = self.best_stage(t)
             done = best is not None and best["stage"] == "Playable"
