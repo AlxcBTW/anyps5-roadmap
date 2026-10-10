@@ -259,7 +259,15 @@
     {"title": "PPSA36082", "claim": "Ingame", "claim_url": "https://github.com/boykopovar/AnyPS5/pull/2169",
      "verdict": "suppressed",
      "quote": "Tested this with Hades II (PPSA36082) on Linux / RTX 4090. … it renders correctly in gameplay with no refusals in the log. (Stack: #419 plus my #2121 and #2132.)",
-     "reason": "Gameplay on a stack of open PRs."}
+     "reason": "Gameplay on a stack of open PRs."},
+    {"title": "PPSA03748", "claim": "Ingame", "claim_url": "https://github.com/boykopovar/AnyPS5/pull/1985#issuecomment-6074542370",
+     "verdict": "suppressed",
+     "quote": "The KytyPS5 logs I cited show both NIDs imported but never called: Kerbal Space Program (PPSA03748, KytyPS5#895) reaches gameplay with `BsE-m8JxIOg` and `EHQEDVXZ0TI` patched to stubs and no `Unresolved import stub called` line for either.",
+     "reason": "Gameplay was reached in another emulator (KytyPS5), not in AnyPS5."},
+    {"title": "PPSA26344", "claim": "Ingame", "claim_url": "https://github.com/boykopovar/AnyPS5/pull/757#issuecomment-6080729041",
+     "verdict": "suppressed",
+     "quote": "sharpemu/sharpemu#926 (\"Ghost of Yōtei: rendering up to the gamma screen and difficulty menu\") boots PPSA26344 to gameplay, and its first shader item describes the mechanism this PR implements:",
+     "reason": "Gameplay was reached in another emulator (sharpemu); the same comment says AnyPS5 main stops at GetImageResource dword 0."}
   ],
   "titles": [
     {

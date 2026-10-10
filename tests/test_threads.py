@@ -100,6 +100,27 @@ class DeepModel(unittest.TestCase):
         self.assertEqual(self.model.best_stage(self.ghost)["stage"], "Presents")
         self.assertEqual(self.model.unverified_claim(self.ghost)["stage"], "Menus")
 
+    def test_a_review_of_one_comment_drops_only_that_comment(self):
+        raw = json.loads((FIX / "threads_raw.json").read_text(encoding="utf-8"))
+        review = {
+            "title": GHOST,
+            "claim": "Menus",
+            "claim_url": "https://github.com/example/AnyPS5/pull/50#issuecomment-501",
+            "verdict": "suppressed",
+            "quote": "With this PR, Ghostrunner (PPSA01999) reaches the main menu.",
+            "reason": "fixture",
+        }
+        curated = {"blockers": [], "titles": [], "not_blockers": [], "stage_reviews": [review]}
+        m = r.Model(raw, curated, "example/AnyPS5", NOW)
+        urls = {e["url"] for e in m.titles[GHOST]["evidence"]}
+        self.assertNotIn("https://github.com/example/AnyPS5/pull/50#issuecomment-501", urls)
+        self.assertIn("https://github.com/example/AnyPS5/pull/50#discussion_r503", urls)  # same PR, other comment
+        self.assertIsNone(m.unverified_claim(m.titles[GHOST]))
+        # without an anchor the whole thread is dropped, as before
+        review["claim_url"] = "https://github.com/example/AnyPS5/pull/50"
+        m = r.Model(raw, curated, "example/AnyPS5", NOW)
+        self.assertFalse(any("/pull/50" in e["url"] for e in m.titles[GHOST]["evidence"]))
+
     def test_links_record_how_they_are_known(self):
         b40 = {p["ref"]: p for p in self.model.blockers["40"]["prs"]}
         self.assertEqual((b40["#51"]["link"], b40["#51"]["via"]), ("fixes", ["closing"]))

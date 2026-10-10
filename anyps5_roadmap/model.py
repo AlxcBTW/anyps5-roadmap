@@ -829,15 +829,17 @@ class Model:
     def _apply_stage_reviews(self):
         """Hand verdicts on mined stages (data/blockers.json stage_reviews). The quoted
         source is dropped for that title; confirmed and downgraded verdicts add a
-        curated stage with its own source and quote."""
+        curated stage with its own source and quote. A claim_url with a comment or review
+        anchor drops that comment only; without one, the whole issue or PR thread."""
         for rv in self.curated.get("stage_reviews", []):
             t = self.title(rv["title"])
             claim = rv["claim_url"].rstrip("/")
-            t["evidence"] = [
-                e
-                for e in t["evidence"]
-                if not (e["origin"] == "mined" and (e["url"] or "").split("#")[0].rstrip("/") == claim)
-            ]
+
+            def reviewed(url: str | None, claim=claim) -> bool:
+                url = (url or "").rstrip("/")
+                return url == claim if "#" in claim else url.split("#")[0].rstrip("/") == claim
+
+            t["evidence"] = [e for e in t["evidence"] if not (e["origin"] == "mined" and reviewed(e["url"]))]
             t.setdefault("reviews", []).append(
                 {k: rv.get(k) for k in ("claim", "claim_url", "verdict", "stage", "url", "quote", "reason")}
             )
