@@ -19,8 +19,8 @@ def http_get(url: str, timeout: int = 60) -> bytes:
 class Upstream:
     """Reads upstream files from a local checkout at a fixed ref (git show)."""
 
-    def __init__(self, checkout: Path | None, ref: str, repo: str, fetch: bool, log):
-        self.checkout, self.ref, self.repo, self.log = checkout, ref, repo, log
+    def __init__(self, checkout: Path | None, ref: str, repo: str, fetch: bool, log, network: bool = True):
+        self.checkout, self.ref, self.repo, self.log, self.network = checkout, ref, repo, log, network
         self.commit = None
         if checkout:
             if fetch:
@@ -71,7 +71,9 @@ class Upstream:
         return out
 
     def raw(self, path: str) -> str | None:
-        """Fetch a file raw from GitHub main; fall back to the checkout."""
+        """Fetch a file raw from GitHub main; fall back to the checkout (always the checkout without network)."""
+        if not self.network:
+            return self.show(path)
         try:
             return http_get(RAW_URL.format(repo=self.repo, path=path)).decode("utf-8")
         except (urllib.error.URLError, TimeoutError) as e:

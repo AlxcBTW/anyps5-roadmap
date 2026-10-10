@@ -9,6 +9,7 @@ import argparse
 import datetime as dt
 import json
 import os
+import re
 import shutil
 import sys
 import urllib.error
@@ -25,37 +26,115 @@ from .model import Model
 from .render_md import render_llms, render_markdown
 from .upstream import Upstream, http_get
 
+AREAS = ("shader", "agc", "libkernel", "libc", "relinker", "prx")
+VERDICTS = ("confirmed", "downgraded", "suppressed")
+TITLE_ID = re.compile(r"PPSA\d{5}")
 
-def load_curated(path: Path) -> dict:
-    if not path.exists():
-        return {"schema_version": 1, "blockers": [], "titles": [], "not_blockers": []}
-    data = json.loads(path.read_text(encoding="utf-8"))
-    ids = [str(b["id"]) for b in data.get("blockers", [])]
-    dupes = [i for i, c in Counter(ids).items() if c > 1]
-    if dupes:
-        raise SystemExit(f"duplicate blocker ids in {path}: {dupes}")
+
+def _where(kind: str, i: int, item: dict, key: str = "id") -> str:
+    label = item.get(key) if isinstance(item, dict) else None
+    return f"{kind}[{i}]" + (f" ({label})" if label else "")
+
+
+def validate_curated(data: dict) -> list[str]:
+    """Every rule from AGENTS.md that a machine can check. Returns readable errors, empty when valid."""
+    if not isinstance(data, dict):
+        return ["the top level must be a JSON object"]
+    errors: list[str] = []
+    blockers = data.get("blockers", [])
+    ids = [str(b.get("id")) for b in blockers]
+    for dupe in sorted(i for i, c in Counter(ids).items() if c > 1):
+        errors.append(f"blocker id {dupe!r} is used more than once; ids must be unique")
+    for i, b in enumerate(blockers):
+        at = _where("blockers", i, b)
+        if not b.get("id"):
+            errors.append(f"{at}: needs an id (the upstream issue number as a string, pr-N or a short slug)")
+        if b.get("issue") is not None and not isinstance(b["issue"], int):
+            errors.append(f"{at}: issue must be a number or null, not {b['issue']!r}")
+        if b.get("area") and b["area"] not in AREAS:
+            errors.append(f"{at}: area {b['area']!r} is not one of {', '.join(AREAS)}")
+        if b.get("status") and b["status"] not in ("open", "resolved"):
+            errors.append(f"{at}: status must be open or resolved, not {b['status']!r}")
+        for field in ("fix_prs", "related_prs"):
+            for j, ref in enumerate(b.get(field, [])):
+                if not isinstance(ref, dict) or not str(ref.get("number", "")).isdigit():
+                    errors.append(f'{at}: {field}[{j}] needs a PR number, e.g. {{"number": 454}}')
     known = set(ids)
-    for t in data.get("titles", []):
-        for step in t.get("blockers", []):
-            if str(step["id"]) not in known:
-                raise SystemExit(f"{path}: title {t['id']} names unknown blocker {step['id']}")
-        for ev in t.get("evidence", []):
-            if not ev.get("url") or ev.get("stage") not in STAGES:
-                raise SystemExit(
-                    f"{path}: title {t['id']}: every curated stage needs a known stage and a public url ({ev})"
-                )
-    for rv in data.get("stage_reviews", []):
+    for i, t in enumerate(data.get("titles", [])):
+        at = _where("titles", i, t)
+        if not TITLE_ID.fullmatch(str(t.get("id", ""))):
+            errors.append(f"{at}: id must be a PS5 title ID, PPSA plus five digits")
+        for j, step in enumerate(t.get("blockers", [])):
+            if str(step.get("id")) not in known:
+                errors.append(f"{at}: blockers[{j}] names blocker {step.get('id')!r}, which is not in blockers[]")
+        for j, ev in enumerate(t.get("evidence", [])):
+            if ev.get("stage") not in STAGES:
+                errors.append(f"{at}: evidence[{j}] has stage {ev.get('stage')!r}; use one of {', '.join(STAGES)}")
+            if not ev.get("url"):
+                errors.append(f"{at}: evidence[{j}] has no url; a stage without a public source cannot be added")
+    for i, rv in enumerate(data.get("stage_reviews", [])):
+        at = _where("stage_reviews", i, rv, "title")
         need = ["title", "claim", "claim_url", "verdict", "quote"]
         if rv.get("verdict") in ("confirmed", "downgraded"):
             need += ["stage", "url"]
-        elif rv.get("verdict") != "suppressed":
-            raise SystemExit(
-                f"{path}: stage review for {rv.get('title')}: verdict must be confirmed, downgraded or suppressed"
-            )
+        elif rv.get("verdict") not in VERDICTS:
+            errors.append(f"{at}: verdict must be confirmed, downgraded or suppressed, not {rv.get('verdict')!r}")
         missing = [k for k in need if not rv.get(k)]
-        if missing or (rv.get("stage") and rv["stage"] not in STAGES):
-            raise SystemExit(f"{path}: stage review for {rv.get('title')} lacks {missing or 'a known stage'}")
+        if missing:
+            errors.append(f"{at}: missing {', '.join(missing)}")
+        for key in ("claim", "stage"):
+            if rv.get(key) and rv[key] not in STAGES:
+                errors.append(f"{at}: {key} {rv[key]!r} is not a stage; use one of {', '.join(STAGES)}")
+    for i, nb in enumerate(data.get("not_blockers", [])):
+        if not isinstance(nb.get("issue"), int):
+            errors.append(f"{_where('not_blockers', i, nb, 'issue')}: issue must be an upstream issue number")
+    return errors
+
+
+def load_curated(path: Path) -> dict:
+    """Read data/blockers.json; stop with every rule it breaks, one per line."""
+    if not path.exists():
+        return {"schema_version": 1, "blockers": [], "titles": [], "not_blockers": []}
+    try:
+        data = json.loads(path.read_text(encoding="utf-8"))
+    except json.JSONDecodeError as e:
+        raise SystemExit(f"{path}:{e.lineno}:{e.colno}: not valid JSON: {e.msg}") from None
+    errors = validate_curated(data)
+    if errors:
+        head = f"{path}: {len(errors)} problem{'s' if len(errors) != 1 else ''}:"
+        raise SystemExit("\n".join([head] + [f"  - {e}" for e in errors]))
     return data
+
+
+def validate_command(path: Path) -> int:
+    """--validate: check the curated file and say what it holds. Annotates the file on GitHub Actions."""
+    try:
+        data = load_curated(path)
+    except SystemExit as e:
+        print(e, file=sys.stderr)
+        if os.environ.get("GITHUB_ACTIONS") == "true":
+            for line in str(e).splitlines()[1:] or [str(e)]:
+                print(f"::error file={path.as_posix()}::{line.strip().removeprefix('- ')}")
+        return 1
+    counts = {k: len(data.get(k, [])) for k in ("blockers", "titles", "stage_reviews", "not_blockers")}
+    print(f"{path}: valid ({', '.join(f'{n} {k}' for k, n in counts.items())})")
+    return 0
+
+
+def read_cached_or_fetch(cache_dir: Path, name: str, fetch, offline: bool, network: bool, log) -> str | None:
+    """Upstream inputs (progress.json, COMPATIBILITY.md) are saved next to the API cache on a live run,
+    so an offline build reads the same snapshot. Without a saved copy, fetch it unless the network is off."""
+    saved = cache_dir / name
+    if offline and saved.exists():
+        return saved.read_text(encoding="utf-8")
+    if not network:
+        log(f"{name}: no saved copy in {cache_dir} and --no-network is set; skipped")
+        return None
+    text = fetch()
+    if text is not None and not offline:
+        saved.parent.mkdir(parents=True, exist_ok=True)
+        saved.write_text(text, encoding="utf-8", newline="\n")
+    return text
 
 
 def main(argv=None) -> int:
@@ -72,7 +151,17 @@ def main(argv=None) -> int:
     )
     ap.add_argument("--ref", default="origin/main", help="ref to read inside the checkout")
     ap.add_argument("--no-git-fetch", action="store_true", help="do not run git fetch in the checkout")
+    ap.add_argument(
+        "--no-network",
+        action="store_true",
+        help="with --offline: never touch the network; progress.json and COMPATIBILITY.md come from the cache directory",
+    )
+    ap.add_argument("--validate", action="store_true", help="only check the curated file (--curated) and exit")
     args = ap.parse_args(argv)
+    if args.validate:
+        return validate_command(Path(args.curated))
+    if args.no_network and not args.offline:
+        ap.error("--no-network needs --offline: a live run reads GitHub")
     if hasattr(sys.stdout, "reconfigure"):
         sys.stdout.reconfigure(encoding="utf-8")
 
@@ -93,15 +182,28 @@ def main(argv=None) -> int:
         cache.write_text(json.dumps(raw), encoding="utf-8")
         log(f"rate limit before/after: {raw['rate_limit']}")
     checkout = Path(args.upstream_checkout) if args.upstream_checkout else None
-    upstream = Upstream(checkout, args.ref, args.repo, fetch=not (args.offline or args.no_git_fetch), log=log)
+    network = not args.no_network
+    fetch = not (args.offline or args.no_git_fetch)
+    upstream = Upstream(checkout, args.ref, args.repo, fetch=fetch, log=log, network=network)
     if not checkout:
         log("no --upstream-checkout: PM4 handler status and source counts are skipped")
+
+    def fetch_progress() -> str | None:
+        try:
+            return http_get(PROGRESS_URL).decode("utf-8")
+        except (urllib.error.URLError, TimeoutError, UnicodeDecodeError) as e:
+            log(f"progress.json unavailable: {e}")
+            return None
+
+    progress_text = read_cached_or_fetch(cache.parent, "progress.json", fetch_progress, args.offline, network, log)
     try:
-        progress = json.loads(http_get(PROGRESS_URL))
-    except (urllib.error.URLError, TimeoutError, json.JSONDecodeError) as e:
-        log(f"progress.json unavailable: {e}")
+        progress = json.loads(progress_text) if progress_text else None
+    except json.JSONDecodeError as e:
+        log(f"progress.json is not valid JSON: {e}")
         progress = None
-    compat = upstream.raw("docs/user/COMPATIBILITY.md")
+    compat = read_cached_or_fetch(
+        cache.parent, "COMPATIBILITY.md", lambda: upstream.raw("docs/user/COMPATIBILITY.md"), args.offline, network, log
+    )
     model = Model(raw, curated, args.repo, now, compat, progress)
     coverage = build_coverage(model, upstream, progress, log)
     doc = assemble(model, coverage, raw, upstream, now)

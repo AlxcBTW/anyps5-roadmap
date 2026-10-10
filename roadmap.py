@@ -20,7 +20,7 @@ import sys
 
 import render_html
 from anyps5_roadmap.assemble import KNOWN_GAPS, assemble, focus_areas
-from anyps5_roadmap.cli import load_curated, main
+from anyps5_roadmap.cli import load_curated, main, validate_curated
 from anyps5_roadmap.collect import collect
 from anyps5_roadmap.config import SCHEMA_VERSION, STAGES, VERIFY_FROM
 from anyps5_roadmap.coverage import build_coverage, parse_pm4_opcodes, parse_unsupported_reason
@@ -68,6 +68,7 @@ __all__ = [
     "signature_key",
     "signatures_in",
     "stage_in",
+    "validate_curated",
 ]
 
 if __name__ == "__main__":

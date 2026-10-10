@@ -381,7 +381,7 @@ class Model:
             later = [self.resolve_sig(s) for t in texts[2:] for _, s in signatures_in(t)]
             registers = Counter()
             for t in texts:
-                for r in set(REGISTER_RE.findall(t)):
+                for r in sorted(set(REGISTER_RE.findall(t))):
                     registers[r] += 1
             self.issue_info[number] = {
                 "titles": sorted(all_ids),

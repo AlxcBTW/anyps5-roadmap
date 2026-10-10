@@ -223,6 +223,37 @@ class Ranking(unittest.TestCase):
                 with self.assertRaises(SystemExit):
                     r.load_curated(path)
 
+    def test_validation_lists_every_problem_at_once(self):
+        data = {
+            "blockers": [{"id": "1", "area": "gpu", "fix_prs": [{"repo": "x/y"}]}, {"id": "1"}],
+            "titles": [{"id": "PPSA123", "blockers": [{"id": "9"}], "evidence": [{"stage": "Boots", "url": ""}]}],
+            "stage_reviews": [{"title": "PPSA01746", "verdict": "maybe"}],
+        }
+        errors = r.validate_curated(data)
+        joined = "\n".join(errors)
+        for needle in (
+            "blocker id '1' is used more than once",
+            "area 'gpu' is not one of",
+            "fix_prs[0] needs a PR number",
+            "PPSA plus five digits",
+            "names blocker '9', which is not in blockers[]",
+            "stage 'Boots'",
+            "has no url",
+            "verdict must be confirmed, downgraded or suppressed",
+        ):
+            self.assertIn(needle, joined)
+        self.assertEqual(r.validate_curated(r.load_curated(FIX / "curated.json")), [])
+
+    def test_invalid_json_names_line_and_column(self):
+        import tempfile
+
+        with tempfile.TemporaryDirectory() as d:
+            path = Path(d) / "blockers.json"
+            path.write_text('{\n  "blockers": [,]\n}', encoding="utf-8")
+            with self.assertRaises(SystemExit) as cm:
+                r.load_curated(path)
+            self.assertIn(":2:16: not valid JSON", str(cm.exception))
+
     def test_render_outputs(self):
         upstream = r.Upstream(None, "HEAD", "example/AnyPS5", fetch=False, log=lambda m: None)
         doc = r.assemble(
