@@ -42,7 +42,10 @@ such a claim gets settled.
    showed one more stage review and PPSA14632's claim going from Ingame to Menus: the Ingame claim from
    PR #2791 is gone, and the next one, from a comment on AnyPS5 issue #476, waits for its own review.
    The built site is attached to the run as the `site-preview` artifact if you want to click through
-   it. A labeler adds `data-correction`.
+   it. A labeler adds `data-correction`. A later fix of the same kind,
+   [PR #8](https://github.com/AlxcBTW/anyps5-roadmap/pull/8), shows the whole round trip: its
+   [CI run](https://github.com/AlxcBTW/anyps5-roadmap/actions/runs/38090418475) lists one unverified
+   claim fewer and the two titles that change, and the labeler added `data-correction` and `mining`.
 5. **Merge.** Every push to `main` that touches `data/` rebuilds and deploys the page, so the fix is
    live a few minutes later.
 
