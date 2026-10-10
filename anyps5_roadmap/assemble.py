@@ -59,7 +59,7 @@ def focus_areas(model: Model, ranking: list[dict]) -> dict:
         if b.get("help_wanted"):
             reason = b["help_wanted"]
         elif "help wanted" in b["labels"] or "good first issue" in b["labels"]:
-            reason = "Labelled " + ", ".join(l for l in b["labels"] if l in ("help wanted", "good first issue"))
+            reason = "Labelled " + ", ".join(lb for lb in b["labels"] if lb in ("help wanted", "good first issue"))
         elif b["frontier"] > 0 and not has_fix:
             reason = f"First open blocker for {b['frontier']} title{'s' if b['frontier'] != 1 else ''}; no open fix PR"
         if reason:

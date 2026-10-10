@@ -8,7 +8,6 @@ import re
 
 from .config import STAGES
 
-
 TITLE_RE = re.compile(r"\bPPSA\d{5}\b")
 MD_NOISE = re.compile(r"[*_`\[\]]|\]\([^)]*\)")
 NAME_TOKEN = re.compile(r"[A-Z0-9À-ɏ][\w'’&.!:+\-]*")

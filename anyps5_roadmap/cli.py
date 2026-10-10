@@ -19,7 +19,7 @@ import render_html
 
 from .assemble import assemble
 from .collect import collect
-from .config import CACHE, CURATED, ROOT, STAGES, UPSTREAM, WINDOW_DAYS, PROGRESS_URL
+from .config import CACHE, CURATED, PROGRESS_URL, ROOT, STAGES, UPSTREAM, WINDOW_DAYS
 from .coverage import build_coverage
 from .model import Model
 from .render_md import render_llms, render_markdown
@@ -79,7 +79,7 @@ def main(argv=None) -> int:
     def log(msg):
         print(msg, flush=True)
 
-    now = dt.datetime.now(dt.timezone.utc).replace(microsecond=0)
+    now = dt.datetime.now(dt.UTC).replace(microsecond=0)
     curated = load_curated(Path(args.curated))
     cache = Path(args.cache)
     if args.offline:

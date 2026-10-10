@@ -12,7 +12,7 @@ sys.path.insert(0, str(HERE.parent))
 import roadmap as r  # noqa: E402
 
 FIX = HERE / "fixtures"
-NOW = dt.datetime(2026, 10, 10, 12, 0, tzinfo=dt.timezone.utc)
+NOW = dt.datetime(2026, 10, 10, 12, 0, tzinfo=dt.UTC)
 
 
 class Extraction(unittest.TestCase):

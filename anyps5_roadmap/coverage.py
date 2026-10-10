@@ -156,7 +156,6 @@ def build_coverage(model: Model, upstream: Upstream, progress: dict | None, log)
     if header:
         ops = parse_pm4_opcodes(header)
         reasons = parse_unsupported_reason(source or "")
-        exec_files = [f for f in upstream.files(DRIVER_DIR + "/Execution/src") if f.endswith(".cpp")]
         names = [o["name"] for o in ops] + list(CUSTOM_PM4.values())
         mentions = mention_count(names, texts)
         refs = {}

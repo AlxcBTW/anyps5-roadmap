@@ -20,7 +20,8 @@ extend-exclude = ["site", "data"]
 [tool.ruff.lint]
 select = ["E", "F", "W", "I", "B", "UP"]
 ignore = [
-  "E501", # the formatter wraps code; long regexes and URLs stay on one line
+  "E501",  # the formatter wraps code; long regexes and URLs stay on one line
+  "UP031", # %-formatting keeps GraphQL and regex templates readable (their braces would need escaping)
 ]
 
 [tool.ruff.lint.isort]

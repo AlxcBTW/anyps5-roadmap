@@ -8,10 +8,10 @@ from collections import Counter, defaultdict
 
 from .config import STAGES, VERIFY_FROM
 from .mine import (
+    ENGINE_RULES,
     GPU_RULES,
     LINE_TITLE_LIMIT,
     OS_RULES,
-    ENGINE_RULES,
     PATCHED_BUILD,
     QUOTED_RE,
     REGISTER_RE,
@@ -421,7 +421,7 @@ class Model:
             ids = TITLE_RE.findall(line)
             if not ids or not header:
                 continue
-            row = dict(zip(header, cells))
+            row = dict(zip(header, cells, strict=False))
             t = self.title(ids[0])
             if row.get("Game"):
                 t["names"][row["Game"]] += 5
@@ -645,7 +645,7 @@ class Model:
             steps: list[dict] = []
             seen: set[str] = set()
 
-            def add(bid, origin, why, scope=None, at=None):
+            def add(bid, origin, why, scope=None, at=None, steps=steps, seen=seen):
                 if bid in seen or bid not in self.blockers:
                     return
                 seen.add(bid)
@@ -849,7 +849,7 @@ class Model:
             if done:
                 continue
             front, single = set(), set()
-            for scope, chain in self.paths(t).items():
+            for chain in self.paths(t).values():
                 open_steps = [s["blocker"] for s in chain if self.blockers[s["blocker"]]["status"] == "open"]
                 if open_steps:
                     front.add(open_steps[0])

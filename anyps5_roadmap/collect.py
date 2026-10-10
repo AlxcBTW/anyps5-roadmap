@@ -7,7 +7,6 @@ from collections import defaultdict
 
 from .github import GhError, gh_graphql, gh_rest, rate_limit
 
-
 ISSUE_FIELDS = """
 number title body url state stateReason createdAt updatedAt closedAt
 author { login }
@@ -78,7 +77,7 @@ query($owner: String!, $name: String!, $number: Int!, $cursor: String) {
 
 
 def _flatten_issue(node: dict) -> dict:
-    node["labels"] = [l["name"] for l in node.get("labels", {}).get("nodes", [])]
+    node["labels"] = [lb["name"] for lb in node.get("labels", {}).get("nodes", [])]
     node["author"] = (node.get("author") or {}).get("login")
     node["assignees"] = [a["login"] for a in (node.get("assignees") or {}).get("nodes", [])]
     comments = node.get("comments") or {}
@@ -131,7 +130,7 @@ def _flatten_issue(node: dict) -> dict:
 
 
 def _flatten_pr(node: dict) -> dict:
-    node["labels"] = [l["name"] for l in node.get("labels", {}).get("nodes", [])]
+    node["labels"] = [lb["name"] for lb in node.get("labels", {}).get("nodes", [])]
     node["author"] = (node.get("author") or {}).get("login")
     node["closes"] = [
         {"repo": n["repository"]["nameWithOwner"], "number": n["number"]}
@@ -222,7 +221,7 @@ def collect(repo: str, cutoff: str, curated: dict, log) -> dict:
     external = collect_external_prs(repo, curated, issues, log)
     after = rate_limit()
     return {
-        "fetched_at": dt.datetime.now(dt.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+        "fetched_at": dt.datetime.now(dt.UTC).strftime("%Y-%m-%dT%H:%M:%SZ"),
         "repo": repo,
         "cutoff": cutoff,
         "issues": issues,

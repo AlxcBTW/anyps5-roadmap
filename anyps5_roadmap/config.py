@@ -4,7 +4,6 @@ from __future__ import annotations
 
 from pathlib import Path
 
-
 SCHEMA_VERSION = 1
 ROOT = Path(__file__).resolve().parent.parent  # the repository root
 DATA = ROOT / "data"

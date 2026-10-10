@@ -35,7 +35,6 @@ def md_cell(text) -> str:
 def render_markdown(doc: dict) -> str:
     repo = doc["upstream"]["repo"]
     B = {b["id"]: b for b in doc["blockers"]}
-    T = {t["id"]: t for t in doc["titles"]}
     s = doc["stats"]
     L = []
     a = L.append
