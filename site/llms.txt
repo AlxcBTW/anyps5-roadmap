@@ -2,13 +2,13 @@
 
 > Generated technical roadmap for the AnyPS5 PS5 emulator (https://github.com/boykopovar/AnyPS5): which open issues block which PS5 titles, ranked by how many titles a fix would move, plus HLE, RDNA ISA and PM4 coverage. Community prototype, not official; regenerated from GitHub data by roadmap.py.
 
-Snapshot 2026-10-10T19:04:58Z, upstream commit 3cb317fc. 65 open blockers, 154 titles. Top of the ranking:
+Snapshot 2026-10-10T21:43:48Z, upstream commit 262c0316. 71 open blockers, 164 titles. Top of the ranking:
 
 - [#2548](https://github.com/boykopovar/AnyPS5/issues/2548) Packed pixel ancillary word read whole after its VGPR is reused (score 33: frontier 6, one fix away 5, total 6)
 - [PR #2106](https://github.com/boykopovar/AnyPS5/pull/2106) pthread_sigmask is not exported (libkernel) (score 31: frontier 5, one fix away 5, total 6)
-- [PR #1482](https://github.com/boykopovar/AnyPS5/pull/1482) _umtx_op wait and wake are not implemented (score 16: frontier 3, one fix away 2, total 4)
+- [#2591](https://github.com/boykopovar/AnyPS5/issues/2591) Road of Death (PPSA07286) fails on startup: missing libSceXml.prx (score 18: frontier 4, one fix away 2, total 4)
 - [#1409](https://github.com/boykopovar/AnyPS5/issues/1409) Storage image access to a depth/stencil surface (score 13: frontier 2, one fix away 2, total 3)
-- [PR #1872](https://github.com/boykopovar/AnyPS5/pull/1872) pthread_set_name_np is not exported (libkernel) (score 13: frontier 2, one fix away 2, total 3)
+- [PR #1482](https://github.com/boykopovar/AnyPS5/pull/1482) _umtx_op wait and wake are not implemented (score 13: frontier 2, one fix away 2, total 3)
 
 How to read the data:
 
@@ -16,6 +16,8 @@ How to read the data:
 - Verification policy: a mined stage of Menus or higher never becomes `best_stage` until a person reviews it (`stage_reviews` in data/blockers.json). Until then it is `unverified_claim` = {stage, url, quote}: a claim from issue or PR text, often made on a branch with open PRs. Do not report an unverified claim as the title's stage, and do not rank or sort titles by it. Only main, or main plus PRs that are merged, counts as reaching a stage.
 - `stage_reviews` on a title lists the hand verdicts (confirmed, downgraded, suppressed) with the quote they rest on.
 - A title's `open_blockers` are ordered: the first entry is where it stops now. `scope` limits a step to an OS/GPU path.
+- `confidence` on a title counts reports, it does not verify them: `reports_on_main` is the number of distinct GitHub accounts whose own text puts the title at its best stage (or higher) on main; `claim.reports_on_main` and `claim.reports_on_branches` do the same for the unverified claim on main and on PR branches or patched builds.
+- Each mined evidence item has an `author`, a `part` (body, comment or review) and a `build` (`main`, `main + patches` or `PR #N`). A PR link on a blocker has `via`: `closing` (GitHub's closing references), `xref` (a timeline cross-reference) or `text` (read from PR text).
 - `origin` is `curated` (data/blockers.json, reviewed by a person), `mined` (regex rules over issue and PR text), `upstream` (docs/user/COMPATIBILITY.md) or `github` (native blocked-by links). Prefer curated facts when they conflict.
 - Blocker ids are upstream issue numbers, `pr-N` for blockers known only through a PR, `N~symbol` for a crash site that only appears as a row in tracker issue N, or a slug.
 - Import signatures are keyed by NID, so `undefined symbol: X` (Linux) and `FAIL: unresolved ELF import X ...` (Windows) match.
@@ -30,6 +32,7 @@ How to read the data:
 ## Curation
 
 - [AGENTS.md](AGENTS.md): how to add or correct curated blockers and title chains in data/blockers.json, and how to verify them.
+- Report a wrong entry: https://github.com/AlxcBTW/anyps5-roadmap/issues/new/choose (issue forms for a wrong or missing stage, a missing or wrong blocker, and a mining bug; a public source link is required).
 
 ## Optional
 
