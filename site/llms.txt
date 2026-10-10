@@ -2,13 +2,13 @@
 
 > Generated technical roadmap for the AnyPS5 PS5 emulator (https://github.com/boykopovar/AnyPS5): which open issues block which PS5 titles, ranked by how many titles a fix would move, plus HLE, RDNA ISA and PM4 coverage. Community prototype, not official; regenerated from GitHub data by roadmap.py.
 
-Snapshot 2026-10-10T18:16:33Z, upstream commit 9f87be5c. 64 open blockers, 153 titles. Top of the ranking:
+Snapshot 2026-10-10T18:44:31Z, upstream commit 29380369. 65 open blockers, 154 titles. Top of the ranking:
 
 - [#2548](https://github.com/boykopovar/AnyPS5/issues/2548) Packed pixel ancillary word read whole after its VGPR is reused (score 33: frontier 6, one fix away 5, total 6)
-- [pr-2106](https://github.com/boykopovar/AnyPS5/pull/2106) pthread_sigmask is not exported (libkernel) (score 31: frontier 5, one fix away 5, total 6)
-- [pr-1482](https://github.com/boykopovar/AnyPS5/pull/1482) _umtx_op wait and wake are not implemented (score 16: frontier 3, one fix away 2, total 4)
+- [PR #2106](https://github.com/boykopovar/AnyPS5/pull/2106) pthread_sigmask is not exported (libkernel) (score 31: frontier 5, one fix away 5, total 6)
+- [PR #1482](https://github.com/boykopovar/AnyPS5/pull/1482) _umtx_op wait and wake are not implemented (score 16: frontier 3, one fix away 2, total 4)
 - [#1409](https://github.com/boykopovar/AnyPS5/issues/1409) Storage image access to a depth/stencil surface (score 13: frontier 2, one fix away 2, total 3)
-- [pr-1872](https://github.com/boykopovar/AnyPS5/pull/1872) pthread_set_name_np is not exported (libkernel) (score 13: frontier 2, one fix away 2, total 3)
+- [PR #1872](https://github.com/boykopovar/AnyPS5/pull/1872) pthread_set_name_np is not exported (libkernel) (score 13: frontier 2, one fix away 2, total 3)
 
 How to read the data:
 

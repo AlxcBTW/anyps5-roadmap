@@ -586,6 +586,16 @@ def name_import(sig: dict) -> dict:
     return sig
 
 
+def stop_title(sig: dict) -> str:
+    """A short human title for a crash site known only by its signature."""
+    if sig.get("family") == "import" and sig.get("nid"):
+        what = f"{sig['symbol']} ({sig['nid']})" if sig.get("symbol") else f"NID {sig['nid']}"
+        return f"{what} is not exported" + (f" by {sig['library']}" if sig.get("library") else "")
+    if sig.get("family") == "import" and sig.get("library"):
+        return f"Module {sig['library']} is missing"
+    return sig["display"]
+
+
 def signature_key(text: str | None) -> str | None:
     """Key for a curated signature string, written either as a log line or as plain text."""
     if not text:
@@ -1050,14 +1060,14 @@ class Model:
                 else:
                     status = "resolved" if any(p["state"] == "merged" and p["link"] == "fixes" and not p.get("note") for p in prs) else "open"
             self.blockers[bid] = {
-                "id": bid, "issue": cb.get("issue"), "url": issue["url"] if issue else (prs[0]["url"] if prs else None),
+                "id": bid, "issue": cb.get("issue"), "url": issue["url"] if issue else (prs[0]["url"] if prs else (cb.get("sources") or [None])[0]),
                 "title": cb.get("title") or (issue["title"] if issue else bid),
                 "signature": cb.get("signature") or (sig["display"] if sig else None),
                 "signature_key": signature_key(cb.get("signature")) or (sig["key"] if sig else None),
                 "area": cb.get("area") or self._area(issue, prs, sig), "status": status,
                 "prs": prs, "next": cb.get("next"), "help_wanted": cb.get("help_wanted"), "notes": cb.get("notes"),
                 "owner": cb.get("owner") or (", ".join(issue.get("assignees", [])) if issue else None) or None,
-                "origin": "curated", "tracker": info.get("tracker", False),
+                "origin": "curated", "tracker": False,
                 "created": issue["createdAt"] if issue else None,
                 "last_activity": max([d for d in [issue["updatedAt"] if issue else None] + [p["updated"] for p in prs] if d] or [None], key=lambda d: d or ""),
                 "labels": issue["labels"] if issue else [],
@@ -1158,7 +1168,7 @@ class Model:
         parent = self.issues[number]
         self.blockers[bid] = {
             "id": bid, "issue": None, "parent": number, "url": stop["url"],
-            "title": f"{sig['display']} (row in #{number})", "signature": sig["display"], "signature_key": sig["key"],
+            "title": stop_title(sig), "signature": sig["display"], "signature_key": sig["key"],
             "area": self._area(None, prs, sig), "status": "resolved" if merged_after or parent["state"] != "OPEN" else "open",
             "prs": prs[:6], "next": None, "help_wanted": None, "notes": f"Tracked as a row in #{number}: {parent['title']}",
             "owner": None, "origin": "mined", "tracker": False, "created": stop["date"],
@@ -1375,8 +1385,8 @@ def build_coverage(model: Model, upstream: Upstream, progress: dict | None, log)
 # Focus areas and help wanted
 # --------------------------------------------------------------------------
 
-AREA_NAMES = {"shader": "Shader recompiler", "agc": "AGC driver (GPU)", "libkernel": "libkernel", "libc": "libc",
-              "relinker": "Relinker", "prx": "HLE modules", None: "Unsorted"}
+AREA_NAMES = {"shader": "Shader recompiler", "agc": "AGC driver", "libkernel": "libkernel", "libc": "libc",
+              "relinker": "Relinker", "prx": "HLE libraries"}
 
 
 def focus_areas(model: Model, ranking: list[dict]) -> dict:
@@ -1482,6 +1492,9 @@ KNOWN_GAPS = [
     "Discord reports are invisible unless someone copies them into GitHub or the curated file.",
     "Signatures are matched by prefix after hex addresses and long numbers are masked; reworded messages split into separate keys.",
     "PM4 status reads Pm4::UnsupportedReason(); a packet can pass that check and still be emulated partially.",
+    "Stages mined from PR bodies describe the PR branch (build “PR #N”), not main.",
+    "An issue that names seven or more titles is treated as a tracker: only its per-title stop rows count, as separate blockers.",
+    "HLE “named in issues” counts any mention of a missing function, including lists of imports that were never reached.",
 ]
 
 
@@ -1497,7 +1510,6 @@ def fmt_date(iso: str | None) -> str:
     return iso[:10] if iso else "—"
 
 
-AREA_LABEL = {"shader": "shader", "agc": "agc", "libkernel": "libkernel", "libc": "libc", "relinker": "relinker", "prx": "prx"}
 PR_CHIP = {"merged": ("ok", "merged"), "open": ("active", "open"), "draft": ("idle", "draft"),
            "closed": ("idle", "closed"), "unknown": ("idle", "unknown")}
 PM4_CHIP = {"handled": ("ok", "handled"), "conditional": ("active", "conditional"), "rejected": ("bad", "rejected"),
@@ -1521,6 +1533,7 @@ CSS = """
   --idle-fg: oklch(0.42 0.012 255); --idle-bg: oklch(0.955 0.005 255); --idle-border: oklch(0.85 0.008 255);
   --pip-on: oklch(0.35 0.02 255); --pip-off: oklch(0.86 0.008 255);
   --bar: oklch(0.55 0.12 150); --bar-track: oklch(0.92 0.006 250);
+  --scroll-shadow: oklch(0 0 0 / 0.14);
   --mono: ui-monospace, "Cascadia Mono", "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
   --sans: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
 }
@@ -1541,6 +1554,7 @@ CSS = """
     --idle-fg: oklch(0.82 0.01 255); --idle-bg: oklch(0.27 0.01 255); --idle-border: oklch(0.40 0.012 255);
     --pip-on: oklch(0.88 0.01 255); --pip-off: oklch(0.38 0.012 255);
     --bar: oklch(0.72 0.13 150); --bar-track: oklch(0.30 0.01 255);
+    --scroll-shadow: oklch(0 0 0 / 0.5);
   }
 }
 *, *::before, *::after { box-sizing: border-box; }
@@ -1562,21 +1576,22 @@ a { color: var(--link); text-decoration-line: underline; text-decoration-thickne
 @media (min-width: 48rem) { .wrap { padding-inline: 24px; } }
 h1, h2, h3 { color: var(--text); text-wrap: balance; margin: 0; }
 h1 { font-size: 1.625rem; line-height: 1.15; font-weight: 650; letter-spacing: -0.012em; }
-h2 { font-size: 1.25rem; line-height: 1.2; font-weight: 620; letter-spacing: -0.006em; }
-h3 { font-size: 0.9375rem; line-height: 1.3; font-weight: 620; }
+h2 { font-size: 1.25rem; line-height: 1.2; font-weight: 650; letter-spacing: -0.006em; }
+h3 { font-size: 0.9375rem; line-height: 1.3; font-weight: 600; }
 p { margin: 0; max-width: 78ch; text-wrap: pretty; }
 .muted { color: var(--text-muted); }
 
 header.site { border-bottom: 1px solid var(--border); background: var(--surface); }
-header.site .wrap { padding-block: 24px 16px; display: grid; gap: 12px; }
+header.site .wrap { padding-block: 24px 16px; display: grid; grid-template-columns: minmax(0, 1fr); gap: 12px; }
 .title-row { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; }
 .lede { color: var(--text-muted); font-size: 0.9375rem; }
-.facts { display: flex; flex-wrap: wrap; gap: 8px 28px; margin: 4px 0 0; }
-.facts div { display: grid; gap: 0; }
+.facts { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 8rem), 1fr)); gap: 8px 24px; margin: 4px 0 0; max-width: 64rem; }
+.facts .wide { grid-column: span 2; }
+.facts div { display: grid; gap: 0; min-width: 0; }
 .facts dt { font-size: 0.75rem; color: var(--text-muted); }
 .facts dd { margin: 0; font-weight: 600; font-variant-numeric: tabular-nums; }
 nav.sections ul { list-style: none; margin: 4px 0 0; padding: 0; display: flex; flex-wrap: wrap; gap: 4px 20px; }
-nav.sections a { display: inline-block; padding-block: 4px; font-weight: 500; }
+nav.sections a { display: inline-block; padding-block: 4px; }
 
 main { padding-block: 8px 64px; }
 section { padding-top: 40px; scroll-margin-top: 16px; }
@@ -1586,11 +1601,21 @@ section { padding-top: 40px; scroll-margin-top: 16px; }
 .sub > h3 { margin-bottom: 8px; }
 .sub > p { margin-bottom: 8px; color: var(--text-muted); }
 
-.table-scroll { overflow: auto; max-height: min(80vh, 60rem); border: 1px solid var(--border); border-radius: 8px;
-                background: var(--surface); overscroll-behavior-x: contain; }
+/* Tables scroll inside their own box. Shadows at the edges show that more content is hidden. */
+.table-scroll {
+  overflow: auto; max-height: min(80vh, 60rem); border: 1px solid var(--border); border-radius: 8px;
+  overscroll-behavior-x: contain; scroll-padding-block-start: 2.5rem;
+  background:
+    linear-gradient(to right, var(--surface) 40%, transparent) left / 2rem 100% no-repeat local,
+    linear-gradient(to left, var(--surface) 40%, transparent) right / 2rem 100% no-repeat local,
+    linear-gradient(to top, var(--surface) 40%, transparent) bottom / 100% 2rem no-repeat local,
+    radial-gradient(farthest-side at 0 50%, var(--scroll-shadow), transparent) left / 10px 100% no-repeat scroll,
+    radial-gradient(farthest-side at 100% 50%, var(--scroll-shadow), transparent) right / 10px 100% no-repeat scroll,
+    radial-gradient(farthest-side at 50% 100%, var(--scroll-shadow), transparent) bottom / 100% 10px no-repeat scroll,
+    var(--surface);
+}
 .table-scroll.short { max-height: none; }
-.scroll-hint { display: none; font-size: 0.75rem; color: var(--text-muted); margin: 0 0 6px; }
-@media (max-width: 60rem) { .scroll-hint { display: block; } }
+@media (max-width: 40rem), (pointer: coarse) { .table-scroll { max-height: none; } }
 table.data { border-collapse: separate; border-spacing: 0; width: 100%; font-size: 0.8125rem; font-variant-numeric: tabular-nums; }
 .data th, .data td { padding: 7px 10px; border-bottom: 1px solid var(--border); text-align: start; vertical-align: top; }
 .data thead th { position: sticky; top: 0; z-index: 1; background: var(--surface-sunken); color: var(--text-muted);
@@ -1603,24 +1628,33 @@ table.data { border-collapse: separate; border-spacing: 0; width: 100%; font-siz
 .data .strong { font-weight: 650; color: var(--text); }
 .data .nowrap { white-space: nowrap; }
 .data ul, .data ol { margin: 0; padding: 0; list-style: none; display: grid; gap: 3px; }
-.data ol.chain { counter-reset: step; }
-.data ol.chain li { counter-increment: step; display: flex; gap: 6px; align-items: baseline; }
-.data ol.chain li::before { content: counter(step); color: var(--text-muted); font-size: 0.6875rem; min-width: 1ch; }
-.b-cell { min-width: 17rem; max-width: 30rem; }
-.b-title { display: block; color: var(--text); font-weight: 550; overflow-wrap: anywhere; }
-.b-meta { display: flex; flex-wrap: wrap; gap: 4px 8px; margin-top: 3px; color: var(--text-muted); font-size: 0.75rem; }
+.data ol.chain { counter-reset: step; gap: 4px; }
+.data ol.chain li { counter-increment: step; display: grid; grid-template-columns: 1.25ch 1fr; column-gap: 6px; }
+.data ol.chain li::before { content: counter(step); color: var(--text-muted); font-size: 0.75rem; line-height: 1.6; }
+.data ol.chain .why { grid-column: 2; font-size: 0.75rem; color: var(--text-muted); }
+a.jump { color: var(--text-muted); text-decoration-style: dotted; text-decoration-color: currentColor; }
+.data details.more { margin-top: 2px; }
+.data details.more > summary { font-weight: 400; color: var(--text-muted); padding-block: 2px; }
+.data details.more[open] > summary { margin-bottom: 3px; }
+.b-cell { min-width: min(17rem, 100vw - 6.5rem); max-width: 30rem; }
+.b-title { display: block; color: var(--text); font-weight: 600; overflow-wrap: anywhere; }
+.b-meta { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 8px; margin-top: 3px; color: var(--text-muted); font-size: 0.75rem; }
+.b-meta details.more { margin-top: 0; }
 .b-next { margin-top: 4px; font-size: 0.75rem; color: var(--text-muted); max-width: 60ch; }
+.b-score { display: none; margin-top: 4px; font-size: 0.75rem; color: var(--text-muted); font-variant-numeric: tabular-nums; }
+@media (max-width: 40rem) { .b-score { display: block; } }
 .sig { min-width: 14rem; max-width: 24rem; }
 .sig code { font-size: 0.75rem; overflow-wrap: anywhere; color: var(--text); }
-.prs { min-width: 11rem; }
+.prs { min-width: 12rem; max-width: 22rem; }
 .prs li { display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px 6px; }
-.title-name { color: var(--text); font-weight: 550; }
+.pr-note { flex-basis: 100%; font-size: 0.75rem; color: var(--text-muted); }
+.title-name { color: var(--text); font-weight: 600; }
 .title-sub { color: var(--text-muted); font-size: 0.75rem; }
 .ev { font-size: 0.75rem; color: var(--text-muted); margin-top: 2px; max-width: 40ch; }
 
 .chip { display: inline-flex; align-items: center; padding: 0 6px; border-radius: 999px; border: 1px solid var(--idle-border);
-        background: var(--idle-bg); color: var(--idle-fg); font-size: 0.6875rem; line-height: 1.125rem; font-weight: 550;
-        white-space: nowrap; letter-spacing: 0.01em; }
+        background: var(--idle-bg); color: var(--idle-fg); font-size: 0.75rem; line-height: 1.125rem; font-weight: 600;
+        white-space: nowrap; }
 .chip.ok { color: var(--ok-fg); background: var(--ok-bg); border-color: var(--ok-border); }
 .chip.active { color: var(--active-fg); background: var(--active-bg); border-color: var(--active-border); }
 .chip.bad { color: var(--bad-fg); background: var(--bad-bg); border-color: var(--bad-border); }
@@ -1642,32 +1676,33 @@ table.data { border-collapse: separate; border-spacing: 0; width: 100%; font-siz
 .stat { border: 1px solid var(--border); border-radius: 8px; background: var(--surface); padding: 12px 14px; display: grid; gap: 4px; }
 .stat .label { font-size: 0.75rem; color: var(--text-muted); }
 .stat .value { font-size: 1.25rem; font-weight: 650; font-variant-numeric: tabular-nums; }
-.stat .value small { font-size: 0.8125rem; font-weight: 500; color: var(--text-muted); }
 
-.areas { display: grid; grid-template-columns: repeat(auto-fill, minmax(18rem, 1fr)); gap: 12px; }
+.areas { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 18rem), 1fr)); gap: 12px; }
 .area { border: 1px solid var(--border); border-radius: 8px; background: var(--surface); padding: 14px 16px; display: grid; gap: 8px; align-content: start; }
+.area > * { min-width: 0; overflow-wrap: anywhere; }
 .area-head { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
 .area-head .score { color: var(--text-muted); font-size: 0.75rem; font-variant-numeric: tabular-nums; white-space: nowrap; }
 .area p { color: var(--text-muted); font-size: 0.8125rem; }
 .area ol { margin: 0; padding-inline-start: 18px; display: grid; gap: 4px; font-size: 0.8125rem; }
-.help { margin: 0; padding: 0; list-style: none; display: grid; gap: 8px; }
-.help li { display: grid; gap: 2px; padding: 10px 12px; border: 1px solid var(--border); border-radius: 8px; background: var(--surface); }
+.help { margin: 0; padding: 0; list-style: none; display: grid; gap: 8px 12px; grid-template-columns: repeat(auto-fill, minmax(min(100%, 26rem), 1fr)); }
+.help li { display: grid; gap: 2px; align-content: start; padding: 10px 12px; border: 1px solid var(--border); border-radius: 8px; background: var(--surface); }
 .help li > * { min-width: 0; overflow-wrap: anywhere; }
-.area > * { min-width: 0; overflow-wrap: anywhere; }
 .help .why { color: var(--text-muted); font-size: 0.8125rem; }
 
 details { margin-top: 12px; }
-details > summary { cursor: pointer; color: var(--text); font-weight: 550; padding-block: 4px; width: fit-content; }
+details > summary { cursor: pointer; color: var(--text); font-weight: 600; padding-block: 4px; width: fit-content; }
 details[open] > summary { margin-bottom: 8px; }
 .prose { display: grid; gap: 10px; }
 .prose ul { margin: 0; padding-inline-start: 20px; display: grid; gap: 4px; max-width: 78ch; }
 .prose dl { margin: 0; display: grid; grid-template-columns: max-content 1fr; gap: 4px 16px; max-width: 78ch; }
 .prose dt { font-weight: 600; }
 .prose dd { margin: 0; color: var(--text-muted); }
-.disclaimer { border: 1px solid var(--active-border); background: var(--active-bg); color: var(--text);
+.disclaimer { border: 1px solid var(--border-strong); background: var(--surface); color: var(--text);
               border-radius: 8px; padding: 12px 14px; max-width: 78ch; }
 footer { border-top: 1px solid var(--border); padding-block: 16px 32px; color: var(--text-muted); font-size: 0.8125rem; }
 """
+
+NONE = '<span class="muted">none</span>'
 
 
 def chip(text: str, kind: str = "", title: str | None = None) -> str:
@@ -1681,36 +1716,68 @@ def pips(stage: str | None) -> str:
     return f'<span class="pips" aria-hidden="true">{cells}</span>'
 
 
+def overflow(items: list[str], n: int, tag: str = "ul", cls: str = "") -> str:
+    """Show the first n items; the rest stay one click away in a native disclosure."""
+    if not items:
+        return NONE
+    c = f' class="{cls}"' if cls else ""
+    head, rest = items[:n], items[n:]
+    out = f'<{tag}{c} role="list">{"".join(head)}</{tag}>'
+    if rest:
+        start = f' start="{n + 1}"' if tag == "ol" else ""
+        out += (f'<details class="more"><summary>{len(rest)} more</summary>'
+                f'<{tag}{c}{start} role="list" style="counter-reset: step {n}">{"".join(rest)}</{tag}></details>')
+    return out
+
+
+def inline_overflow(items: list[str], n: int) -> str:
+    """Comma-separated variant for short inline lists such as the titles a blocker stops."""
+    head, rest = items[:n], items[n:]
+    out = ", ".join(head)
+    if rest:
+        out += f'<details class="more"><summary>{len(rest)} more</summary>{", ".join(rest)}</details>'
+    return out
+
+
 def pr_item(p: dict) -> str:
     kind, label = PR_CHIP.get(p["state"], ("idle", p["state"]))
     role = {"fixes": "fix", "related": "related", "mentions": "mentions"}.get(p.get("link"), "")
-    tip = (p.get("title") or "") + (f" — {p['note']}" if p.get("note") else "")
-    return (f'<li><a href="{esc(p["url"])}" title="{esc(tip)}">{esc(p["ref"])}</a>{chip(label, kind)}'
-            f'<span class="muted">{esc(role)}</span></li>')
+    note = f'<span class="pr-note">{esc(p["note"])}</span>' if p.get("note") else ""
+    return (f'<li><a href="{esc(p["url"])}" title="{esc(p.get("title") or "")}">{esc(p["ref"])}</a>{chip(label, kind)}'
+            f'<span class="muted">{esc(role)}</span>{note}</li>')
 
 
-def blocker_link(b: dict, upstream: str) -> str:
+def blocker_ref(b: dict) -> str:
     if b.get("issue"):
-        return f'<a href="{esc(b["url"])}">#{b["issue"]}</a>'
+        return f"#{b['issue']}"
     if b.get("parent"):
-        return f'<a href="{esc(b["url"])}">row in #{b["parent"]}</a>'
-    label = f'PR #{b["id"][3:]}' if re.fullmatch(r"pr-\d+", b["id"]) else b["id"]
-    return f'<a href="{esc(b["url"])}">{esc(label)}</a>' if b.get("url") else esc(label)
+        return f"row in #{b['parent']}"
+    return f"PR #{b['id'][3:]}" if re.fullmatch(r"pr-\d+", b["id"]) else b["id"]
+
+
+def blocker_link(b: dict, upstream: str = "") -> str:
+    """Always points at GitHub (or the curated source), never at this page."""
+    label = esc(blocker_ref(b))
+    return f'<a href="{esc(b["url"])}">{label}</a>' if b.get("url") else label
 
 
 def title_label(t: dict | None, tid: str) -> str:
     return (t or {}).get("name") or tid
 
 
+def area_name(area: str | None) -> str:
+    return AREA_NAMES.get(area, area) if area else "—"
+
+
 def render_html(doc: dict) -> str:
     repo = doc["upstream"]["repo"]
     B = {b["id"]: b for b in doc["blockers"]}
-    T = {t["id"]: t for t in doc["titles"]}
     s = doc["stats"]
     commit = doc["upstream"].get("commit")
     gen = doc["generated_at"].replace("T", " ").replace("Z", " UTC")
     out: list[str] = []
     w = out.append
+    issue_url = f"https://github.com/{esc(repo)}/issues/"
 
     w('<!doctype html>\n<html lang="en">\n<head>\n<meta charset="utf-8">\n'
       '<meta name="viewport" content="width=device-width, initial-scale=1">\n'
@@ -1724,16 +1791,15 @@ def render_html(doc: dict) -> str:
 
     # header
     w('<header class="site"><div class="wrap">')
-    w(f'<div class="title-row"><h1>AnyPS5 blocker map</h1>{chip("Community prototype", "active")}</div>')
+    w(f'<div class="title-row"><h1>AnyPS5 blocker map</h1>{chip("Community prototype")}</div>')
     w('<p class="lede">Open issues that stop PS5 titles from reaching their next stage, ranked by how many titles '
       'a fix would move. Generated from public GitHub data; not an official AnyPS5 page.</p>')
     commit_html = (f'<a href="https://github.com/{esc(repo)}/commit/{esc(commit)}"><code>{esc(commit[:8])}</code></a>' if commit else "—")
-    facts = [("Generated", f'<time datetime="{esc(doc["generated_at"])}">{esc(gen)}</time>'),
-             ("Upstream main", commit_html),
-             ("Issues read", f'{s["issues_scanned"]:,}'), ("PRs read", f'{s["prs_scanned"]:,}'),
-             ("Titles", f'{s["titles"]:,}'), ("Open blockers", f'{s["blockers_open"]:,}'),
-             ("Curated entries", f'{s["blockers_curated"]:,}')]
-    w('<dl class="facts">' + "".join(f"<div><dt>{k}</dt><dd>{v}</dd></div>" for k, v in facts) + "</dl>")
+    facts = [("Open blockers", f'{s["blockers_open"]:,}', ""), ("Titles", f'{s["titles"]:,}', ""),
+             ("Curated entries", f'{s["blockers_curated"]:,}', ""), ("Issues read", f'{s["issues_scanned"]:,}', ""),
+             ("PRs read", f'{s["prs_scanned"]:,}', ""), ("Upstream main", commit_html, ""),
+             ("Generated", f'<time datetime="{esc(doc["generated_at"])}">{esc(gen)}</time>', "wide")]
+    w('<dl class="facts">' + "".join(f'<div{f" class={c}" if c else ""}><dt>{k}</dt><dd>{v}</dd></div>' for k, v, c in facts) + "</dl>")
     w('<nav class="sections" aria-label="Sections"><ul>'
       '<li><a href="#ranking">Blocker ranking</a></li><li><a href="#titles">Titles</a></li>'
       '<li><a href="#coverage">Coverage</a></li><li><a href="#focus">Focus areas</a></li>'
@@ -1743,49 +1809,50 @@ def render_html(doc: dict) -> str:
     # (1) ranking
     ranked = [B[i] for i in doc["ranking"] if B[i]["score"] > 0]
     unranked = [B[i] for i in doc["ranking"] if B[i]["score"] == 0]
-    w('<section id="ranking" aria-labelledby="ranking-h"><div class="section-head">'
+    w('<section id="ranking"><div class="section-head">'
       '<h2 id="ranking-h">Blocker ranking</h2>'
-      f'<p>{len(ranked)} open blockers stop at least one title. Score = 3 × one fix away + 2 × frontier + total. '
+      f'<p>{len(ranked)} of {len(ranked) + len(unranked)} open blockers stop at least one title'
+      + (f'; the other {len(unranked)} are listed below the table' if unranked else "") + '. '
+      'Score = 3 × one fix away + 2 × frontier + total. '
       '<b>Frontier</b>: titles for which this is the first open blocker. <b>One fix away</b>: titles for which it is the only one. '
       '<b>Total</b>: titles that list it anywhere. Titles already playable count only toward the total.</p></div>')
-    w('<p class="scroll-hint">Scroll the table sideways for more columns.</p>')
-    w('<div class="table-scroll" role="region" aria-labelledby="ranking-h" tabindex="0"><table class="data">'
-      '<thead><tr><th scope="col" class="num">#</th><th scope="col">Blocker</th>'
-      '<th scope="col" class="num">Frontier</th><th scope="col" class="num">One fix away</th>'
-      '<th scope="col" class="num">Total</th><th scope="col" class="num">Score</th>'
+    w('<div class="table-scroll" role="region" aria-labelledby="ranking-h" tabindex="0"><table class="data" aria-labelledby="ranking-h">'
+      '<thead><tr><th scope="col" class="num">#</th><th scope="col">Blocker</th><th scope="col" class="num">Score</th>'
+      '<th scope="col" class="num">Frontier</th><th scope="col" class="num">One fix away</th><th scope="col" class="num">Total</th>'
       '<th scope="col">Signature</th><th scope="col">Area</th><th scope="col">PRs</th>'
       '<th scope="col">Last activity</th></tr></thead><tbody>')
+    # two region IDs of one game share a name; show the ID where that happens
+    name_count = Counter(title_label(t, t["id"]) for t in doc["titles"])
+    names = {t["id"]: title_label(t, t["id"]) + (f' ({t["id"]})' if name_count[title_label(t, t["id"])] > 1 else "")
+             for t in doc["titles"]}
     for rank, b in enumerate(ranked, 1):
-        titles = b["titles"]
-        tl = ", ".join(f'<a href="#t-{esc(t)}">{esc(title_label(T.get(t), t))}</a>' for t in titles[:4])
-        more = f' <span class="muted">+{len(titles) - 4} more</span>' if len(titles) > 4 else ""
+        title_links = [f'<a href="#t-{esc(t)}">{esc(names[t])}</a>' for t in b["titles"]]
         meta = [chip(b["origin"], "plain", "Curated in data/blockers.json" if b["origin"] == "curated" else "Mined from issue text")]
         if b.get("tracker"):
             meta.append(chip("tracker", "plain", "This issue tracks many titles"))
-        meta.append(f"<span>Blocks {tl}{more}</span>")
+        meta.append(f"<span>Blocks {inline_overflow(title_links, 4)}</span>")
         nxt = f'<div class="b-next">Next: {esc(b["next"])}</div>' if b.get("next") else ""
-        prs = b["prs"][:5]
-        pr_html = ("<ul>" + "".join(pr_item(p) for p in prs) + "</ul>" +
-                   (f'<span class="muted">+{len(b["prs"]) - 5} more</span>' if len(b["prs"]) > 5 else "")) if prs else '<span class="muted">none</span>'
         sig = f'<code>{esc(b["signature"])}</code>' if b.get("signature") else '<span class="muted">—</span>'
         w(f'<tr id="b-{esc(b["id"])}"><td class="num muted">{rank}</td>'
-          f'<th scope="row" class="b-cell">{blocker_link(b, repo)} <span class="b-title">{esc(b["title"])}</span>'
-          f'<div class="b-meta">{"".join(meta)}</div>{nxt}</th>'
+          f'<th scope="row" class="b-cell">{blocker_link(b)} <span class="b-title">{esc(b["title"])}</span>'
+          f'<div class="b-meta">{"".join(meta)}</div>{nxt}'
+          f'<span class="b-score" aria-hidden="true">Score {b["score"]} · frontier {b["frontier"]} · one fix away {b["one_fix_away"]} · total {b["total"]}</span></th>'
+          f'<td class="num strong">{b["score"]}</td>'
           f'<td class="num">{b["frontier"]}</td><td class="num">{b["one_fix_away"]}</td><td class="num">{b["total"]}</td>'
-          f'<td class="num strong">{b["score"]}</td><td class="sig">{sig}</td>'
-          f'<td class="nowrap">{esc(AREA_LABEL.get(b["area"], "—") if b["area"] else "—")}</td>'
-          f'<td class="prs">{pr_html}</td><td class="nowrap">{esc(fmt_date(b.get("last_activity")))}</td></tr>')
+          f'<td class="sig">{sig}</td><td class="nowrap">{esc(area_name(b["area"]))}</td>'
+          f'<td class="prs">{overflow([pr_item(p) for p in b["prs"]], 5)}</td>'
+          f'<td class="nowrap">{esc(fmt_date(b.get("last_activity")))}</td></tr>')
     w("</tbody></table></div>")
     if unranked:
         w(f'<details><summary>Open crash sites with no title attached ({len(unranked)})</summary>'
           '<div class="table-scroll" role="region" aria-label="Open crash sites with no title attached" tabindex="0">'
-          '<table class="data"><thead><tr><th scope="col">Issue</th><th scope="col">Signature</th><th scope="col">Area</th>'
-          '<th scope="col">PRs</th><th scope="col">Last activity</th></tr></thead><tbody>')
+          '<table class="data" aria-label="Open crash sites with no title attached"><thead><tr><th scope="col">Issue</th>'
+          '<th scope="col">Signature</th><th scope="col">Area</th><th scope="col">PRs</th><th scope="col">Last activity</th></tr></thead><tbody>')
         for b in unranked:
             sig = f'<code>{esc(b["signature"])}</code>' if b.get("signature") else '<span class="muted">—</span>'
-            pr_html = "<ul>" + "".join(pr_item(p) for p in b["prs"][:3]) + "</ul>" if b["prs"] else '<span class="muted">none</span>'
-            w(f'<tr id="b-{esc(b["id"])}"><th scope="row" class="b-cell">{blocker_link(b, repo)} <span class="b-title">{esc(b["title"])}</span></th>'
-              f'<td class="sig">{sig}</td><td class="nowrap">{esc(b["area"] or "—")}</td><td class="prs">{pr_html}</td>'
+            w(f'<tr id="b-{esc(b["id"])}"><th scope="row" class="b-cell">{blocker_link(b)} <span class="b-title">{esc(b["title"])}</span></th>'
+              f'<td class="sig">{sig}</td><td class="nowrap">{esc(area_name(b["area"]))}</td>'
+              f'<td class="prs">{overflow([pr_item(p) for p in b["prs"]], 3)}</td>'
               f'<td class="nowrap">{esc(fmt_date(b.get("last_activity")))}</td></tr>')
         w("</tbody></table></div></details>")
     w("</section>")
@@ -1795,44 +1862,40 @@ def render_html(doc: dict) -> str:
     hidden = [t for t in doc["titles"] if not (t["best_stage"] or t["open_blockers"])]
     shown.sort(key=lambda t: (-(STAGES.index(t["best_stage"]["stage"]) if t["best_stage"] else -1), len(t["open_blockers"]),
                               (t["name"] or t["id"]).lower()))
-    w('<section id="titles" aria-labelledby="titles-h"><div class="section-head"><h2 id="titles-h">Titles</h2>'
+    w('<section id="titles"><div class="section-head"><h2 id="titles-h">Titles</h2>'
       f'<p>{len(shown)} titles with a recorded stage or an open blocker, highest stage first. The stage is the best one reported, '
-      'with the OS, GPU and build it was reported on. Curated evidence wins over mined evidence.</p></div>')
+      'with the OS, GPU and build it was reported on. Curated evidence wins over mined evidence. '
+      'In the blocker list, the number opens GitHub and the dotted text jumps to its row in the ranking.</p></div>')
     w('<details><summary>Stage definitions</summary><div class="prose"><dl>' +
       "".join(f"<dt>{esc(st['name'])}</dt><dd>{esc(st['meaning'])}</dd>" for st in doc["stages"]) + "</dl></div></details>")
-    w('<p class="scroll-hint">Scroll the table sideways for more columns.</p>')
-    w('<div class="table-scroll" role="region" aria-labelledby="titles-h" tabindex="0"><table class="data">'
+    w('<div class="table-scroll" role="region" aria-labelledby="titles-h" tabindex="0"><table class="data" aria-labelledby="titles-h">'
       '<thead><tr><th scope="col">ID</th><th scope="col">Title</th><th scope="col">Best stage</th>'
       '<th scope="col">Open blockers, in order</th><th scope="col">Last evidence</th></tr></thead><tbody>')
     for t in shown:
         best = t["best_stage"]
         if best:
             where = " · ".join(x for x in [best.get("os"), best.get("gpu"), best.get("build")] if x)
-            src = f'<a href="{esc(best["url"])}">source</a>' if best.get("url") else "no public link"
+            src = (f'<a href="{esc(best["url"])}">{esc(evidence_label(best["url"], repo))}</a>' if best.get("url")
+                   else "no public link")
             stage_html = (f'<span class="stage">{pips(best["stage"])}<span class="stage-name">{esc(best["stage"])}</span>'
                           f'{chip(best["origin"], "plain")}</span>'
                           f'<div class="ev">{esc(where)}{" — " if where else ""}{esc(best.get("note") or "")} ({src})</div>')
         else:
-            stage_html = f'<span class="stage">{pips(None)}<span class="muted">No report</span></span>'
+            stage_html = f'<span class="stage">{pips(None)}<span class="muted">no report</span></span>'
         chain = []
-        for step in t["open_blockers"][:6]:
+        for step in t["open_blockers"]:
             b = B.get(step["id"])
             if not b:
                 continue
             scope = "".join(chip(sc, "plain") for sc in (step.get("scope") or []))
-            label = f"#{b['issue']}" if b.get("issue") else (f"row in #{b['parent']}" if b.get("parent") else
-                                                             f"PR #{b['id'][3:]}" if re.fullmatch(r"pr-\d+", b["id"]) else b["id"])
-            tip = b["title"] + (f" — {step['why']}" if step.get("why") else "")
-            chain.append(f'<li><a href="#b-{esc(b["id"])}" title="{esc(tip)}">{esc(label)}</a>'
-                         f'<span class="muted">{esc(clip(b["title"], 64))}</span>{scope}</li>')
-        more = len(t["open_blockers"]) - 6
-        chain_html = (f'<ol class="chain">{"".join(chain)}</ol>' + (f'<span class="muted">+{more} more</span>' if more > 0 else "")) \
-            if chain else '<span class="muted">none recorded</span>'
+            why = f'<span class="why">{esc(step["why"])}</span>' if step.get("origin") == "curated" and step.get("why") else ""
+            chain.append(f'<li><span>{blocker_link(b)} <a class="jump" href="#b-{esc(b["id"])}">{esc(clip(b["title"], 64))}</a> {scope}</span>{why}</li>')
+        chain_html = overflow(chain, 6, "ol", "chain")
         sub = " · ".join(x for x in [t.get("engine"), t.get("kind")] if x)
-        name = esc(t["name"]) if t["name"] else '<span class="muted">Unnamed</span>'
+        name = esc(t["name"]) if t["name"] else '<span class="muted">unnamed</span>'
         last = t.get("last_evidence")
         last_html = (f'<a href="{esc(last["url"])}">{esc(evidence_label(last["url"], repo))}</a><div class="title-sub">{esc(fmt_date(last.get("date")))}</div>'
-                     if last and last.get("url") else '<span class="muted">—</span>')
+                     if last and last.get("url") else NONE)
         w(f'<tr id="t-{esc(t["id"])}"><td class="nowrap"><code>{esc(t["id"])}</code></td>'
           f'<th scope="row"><span class="title-name">{name}</span>'
           f'{"<div class=title-sub>" + esc(sub) + "</div>" if sub else ""}</th>'
@@ -1845,8 +1908,8 @@ def render_html(doc: dict) -> str:
 
     # (3) coverage
     cov = doc["coverage"]
-    w('<section id="coverage" aria-labelledby="coverage-h"><div class="section-head"><h2 id="coverage-h">Coverage</h2>'
-      '<p>What the emulator implements, measured from upstream sources, next to how often issues ask for it.</p></div>')
+    w('<section id="coverage"><div class="section-head"><h2 id="coverage-h">Coverage</h2>'
+      '<p>What the emulator implements, measured from upstream sources, next to how often issues name it.</p></div>')
     stats = []
     if cov.get("isa"):
         i = cov["isa"]
@@ -1862,24 +1925,26 @@ def render_html(doc: dict) -> str:
         f'<div class="stat"><span class="label">{esc(a)}</span><span class="value">{esc(b)}</span><span class="muted">{esc(c)}</span></div>'
         for a, b, c in stats) + "</div>")
 
+    def issue_links(nums: list[int], n: int) -> str:
+        links = [f'<a href="{issue_url}{x}">#{x}</a>' for x in nums]
+        return inline_overflow(links, n) if links else '<span class="muted">0</span>'
+
     if cov.get("pm4"):
         p = cov["pm4"]
         w('<div class="sub"><h3 id="pm4-h">PM4 packets</h3>'
           f'<p>Status comes from <code>Pm4::UnsupportedReason()</code> in <a href="https://github.com/{esc(repo)}/blob/main/{esc(p["source"])}">{esc(p["source"].rsplit("/", 1)[-1])}</a>; '
           f'opcode names from <a href="https://github.com/{esc(repo)}/blob/main/{esc(p["header"])}">{esc(p["header"].rsplit("/", 1)[-1])}</a>. '
           'Source files count Execution/src files that compare the opcode. Issues count mentions of the packet name.</p>')
-        w('<div class="table-scroll" role="region" aria-labelledby="pm4-h" tabindex="0"><table class="data">'
+        w('<div class="table-scroll" role="region" aria-labelledby="pm4-h" tabindex="0"><table class="data" aria-labelledby="pm4-h">'
           '<thead><tr><th scope="col">Opcode</th><th scope="col">Packet</th><th scope="col">Status</th><th scope="col">Reason</th>'
           '<th scope="col" class="num">Source files</th><th scope="col">Issues</th></tr></thead><tbody>')
         order = {"rejected": 0, "conditional": 1, "unknown": 2, "handled": 3}
         for r in sorted(p["rows"], key=lambda r: (order.get(r["status"], 4), -len(r["issues"]), r["kind"] != "type-3", r["opcode"])):
             kind, label = PM4_CHIP.get(r["status"], ("idle", r["status"]))
-            iss = " ".join(f'<a href="https://github.com/{esc(repo)}/issues/{n}">#{n}</a>' for n in r["issues"][:6])
-            iss += f' <span class="muted">+{len(r["issues"]) - 6}</span>' if len(r["issues"]) > 6 else ""
             w(f'<tr><td class="nowrap"><code>{esc(r["hex"])}</code></td><th scope="row"><code>{esc(r["name"])}</code></th>'
               f'<td>{chip(label, kind)}</td><td class="muted">{esc(r["reason"] or "")}</td>'
               f'<td class="num">{len(r["source_files"]) if r["kind"] == "type-3" else "—"}</td>'
-              f'<td>{iss or "<span class=muted>0</span>"}</td></tr>')
+              f'<td>{issue_links(r["issues"], 6)}</td></tr>')
         w("</tbody></table></div></div>")
 
     if cov.get("hle"):
@@ -1887,22 +1952,16 @@ def render_html(doc: dict) -> str:
         gaps_ = [g for g in h["groups"] if g["todo"] > 0]
         full = [g for g in h["groups"] if g["todo"] == 0]
         w('<div class="sub"><h3 id="hle-h">HLE libraries</h3>'
-          f'<p>From <a href="{esc(h["source"])}">progress.json</a>. Libraries with missing functions, those that issues ask for first. '
-          'The last column lists missing functions that issue text names.</p>')
-        w('<div class="table-scroll" role="region" aria-labelledby="hle-h" tabindex="0"><table class="data">'
+          f'<p>From <a href="{esc(h["source"])}">progress.json</a>. Libraries with missing functions, sorted by how many of '
+          'those functions issue text names. The last column lists them with the issues that name them.</p>')
+        w('<div class="table-scroll" role="region" aria-labelledby="hle-h" tabindex="0"><table class="data" aria-labelledby="hle-h">'
           '<thead><tr><th scope="col">Library</th><th scope="col" class="num">Done</th><th scope="col" class="num">Missing</th>'
           '<th scope="col">Coverage</th><th scope="col">Missing, named in issues</th></tr></thead><tbody>')
         for g in gaps_:
-            asked = []
-            for name, nums in list(g["requested"].items())[:4]:
-                links = " ".join(f'<a href="https://github.com/{esc(repo)}/issues/{n}">#{n}</a>' for n in nums[:3])
-                asked.append(f"<li><code>{esc(name)}</code> {links}</li>")
-            asked_html = f'<ul>{"".join(asked)}</ul>' if asked else '<span class="muted">—</span>'
-            if len(g["requested"]) > 4:
-                asked_html += f'<span class="muted">+{len(g["requested"]) - 4} more</span>'
+            asked = [f"<li><code>{esc(name)}</code> {issue_links(nums, 3)}</li>" for name, nums in g["requested"].items()]
             w(f'<tr><th scope="row"><code>{esc(g["library"])}</code></th><td class="num">{g["done"]}</td><td class="num">{g["todo"]}</td>'
               f'<td class="nowrap"><span class="bar" aria-hidden="true"><span style="width:{g["percent"]}%"></span></span> {g["percent"]:.1f}%</td>'
-              f'<td>{asked_html}</td></tr>')
+              f'<td>{overflow(asked, 4)}</td></tr>')
         w("</tbody></table></div>")
         if full:
             w(f'<details><summary>Complete libraries ({len(full)})</summary><p>' +
@@ -1918,7 +1977,7 @@ def render_html(doc: dict) -> str:
           + 'Decoding is not the same as correct translation; the ranking above is where translation still fails.</p>')
         if complete:
             w(f'<details><summary>Opcodes per encoding ({len(i["groups"])})</summary>')
-        w('<div class="table-scroll short" role="region" aria-labelledby="isa-h" tabindex="0"><table class="data">'
+        w('<div class="table-scroll short" role="region" aria-labelledby="isa-h" tabindex="0"><table class="data" aria-labelledby="isa-h">'
           '<thead><tr><th scope="col">Encoding</th><th scope="col" class="num">Decoded</th><th scope="col" class="num">Missing</th>'
           '<th scope="col">Coverage</th></tr></thead><tbody>')
         for g in i["groups"]:
@@ -1927,30 +1986,31 @@ def render_html(doc: dict) -> str:
         w("</tbody></table></div>" + ("</details>" if complete else "") + "</div>")
 
     if cov.get("registers"):
+        regs = cov["registers"][:20]
         w('<div class="sub"><h3 id="reg-h">Registers named in issues</h3>'
-          '<p>GPU register names that issues mention most, and how many driver source files name them. '
+          f'<p>The {len(regs)} GPU register names that issues mention most, and how many driver source files name them. '
           'The driver mostly addresses registers by offset, so a zero here does not mean unhandled.</p>')
-        w('<div class="table-scroll" role="region" aria-labelledby="reg-h" tabindex="0"><table class="data">'
-          '<thead><tr><th scope="col">Register</th><th scope="col" class="num">Issues</th><th scope="col">Where</th>'
+        w('<div class="table-scroll" role="region" aria-labelledby="reg-h" tabindex="0"><table class="data" aria-labelledby="reg-h">'
+          '<thead><tr><th scope="col">Register</th><th scope="col" class="num">Issue count</th><th scope="col">Issues</th>'
           '<th scope="col" class="num">Driver files naming it</th></tr></thead><tbody>')
-        for r in cov["registers"][:20]:
-            iss = " ".join(f'<a href="https://github.com/{esc(repo)}/issues/{n}">#{n}</a>' for n in r["issues"][:5])
-            w(f'<tr><th scope="row"><code>{esc(r["name"])}</code></th><td class="num">{r["issue_count"]}</td><td>{iss}</td>'
-              f'<td class="num">{r["source_files"]}</td></tr>')
+        for r in regs:
+            w(f'<tr><th scope="row"><code>{esc(r["name"])}</code></th><td class="num">{r["issue_count"]}</td>'
+              f'<td>{issue_links(r["issues"], 5)}</td><td class="num">{r["source_files"]}</td></tr>')
         w("</tbody></table></div></div>")
     w("</section>")
 
     # (4) focus areas
     f = doc["focus"]
-    w('<section id="focus" aria-labelledby="focus-h"><div class="section-head"><h2 id="focus-h">Focus areas</h2>'
+    w('<section id="focus"><div class="section-head"><h2 id="focus-h">Focus areas</h2>'
       '<p>Areas whose ranked blockers carry the most score. Computed from the ranking above, not set by the maintainers.</p></div>')
     w('<div class="areas">')
     for a in f["areas"]:
         items = "".join(
-            f'<li>{blocker_link(B[bid], repo)} {esc(clip(B[bid]["title"], 72))} <span class="muted">({B[bid]["score"]})</span></li>'
+            f'<li>{blocker_link(B[bid])} {esc(clip(B[bid]["title"], 72))} <span class="muted">(score {B[bid]["score"]})</span></li>'
             for bid in a["blockers"])
-        w(f'<article class="area" aria-labelledby="area-{esc(a["area"] or "none")}">'
-          f'<div class="area-head"><h3 id="area-{esc(a["area"] or "none")}">{esc(a["name"])}</h3><span class="score">score {a["score"]}</span></div>'
+        hid = f'area-{esc(a["area"] or "none")}'
+        w(f'<article class="area" aria-labelledby="{hid}">'
+          f'<div class="area-head"><h3 id="{hid}">{esc(a["name"])}</h3><span class="score">score {a["score"]}</span></div>'
           f'<p>{a["blocker_count"]} ranked blocker{"s" if a["blocker_count"] != 1 else ""} on {a["titles"]} title{"s" if a["titles"] != 1 else ""}; '
           f'first stop for {a["frontier_titles"]}. Open fix PRs: {a["open_fix_prs"]}.</p><ol>{items}</ol></article>')
     w("</div>")
@@ -1959,18 +2019,21 @@ def render_html(doc: dict) -> str:
           '<p>Ranked blockers with no open fix PR, explicit asks from the curated file, and issues labelled for help.</p><ul class="help">')
         for hw in f["help_wanted"]:
             b = B[hw["blocker"]]
-            w(f'<li><span>{blocker_link(b, repo)} {esc(b["title"])}</span><span class="why">{esc(hw["reason"])}</span></li>')
+            w(f'<li><span>{blocker_link(b)} {esc(b["title"])}</span><span class="why">{esc(hw["reason"])}</span></li>')
         w("</ul></div>")
     w("</section>")
 
     # (5) about / disclaimer
-    w('<section id="about" aria-labelledby="about-h"><div class="section-head"><h2 id="about-h">About this data</h2></div><div class="prose">')
+    w('<section id="about"><div class="section-head"><h2 id="about-h">About this data</h2></div><div class="prose">')
     w('<p class="disclaimer"><b>Generated data, community prototype, not official.</b> This page is built by a script from public '
       f'GitHub issues and PRs of <a href="https://github.com/{esc(repo)}">{esc(repo)}</a> plus a small curated file. '
       'The maintainers have not reviewed it. Mined entries can be wrong; check the linked source before you act on one.</p>')
     w(f'<p>Issues and PRs come from the GitHub API: all open ones and those closed in the last {doc["window"]["days"]} days. '
-      'Title IDs, names, stages and error signatures are mined from issue and PR text. GitHub “blocked by” links are used where they exist. '
-      'Entries marked <b>curated</b> come from <code>data/blockers.json</code> and win over mined ones.</p>')
+      'GitHub “blocked by” links are used where they exist.</p>')
+    w('<dl><dt>curated</dt><dd>Written by a person in <code>data/blockers.json</code>, with a source link. Wins over mined data.</dd>'
+      '<dt>mined</dt><dd>Found by text rules in issue and PR text: title IDs, names, stages and error signatures.</dd>'
+      '<dt>upstream</dt><dd>Taken from the maintainers’ <code>docs/user/COMPATIBILITY.md</code>.</dd>'
+      '<dt>tracker</dt><dd>An issue that names seven or more titles. Each title’s stop listed there becomes its own blocker.</dd></dl>')
     w('<ul><li><a href="roadmap.json">roadmap.json</a>: everything on this page, with a schema version</li>'
       '<li><a href="ROADMAP.md">ROADMAP.md</a>: the same as Markdown</li>'
       '<li><a href="llms.txt">llms.txt</a>: a guide to these files for AI agents</li>'
@@ -2021,7 +2084,7 @@ def render_markdown(doc: dict) -> str:
     for n, b in enumerate(ranked, 1):
         prs = ", ".join(f"[{p['ref']}]({p['url']}) {p['state']}" for p in b["prs"][:4]) or "none"
         a(f"| {n} | {md_ref(b)} {md_cell(b['title'])} ({b['origin']}) | {b['frontier']} | {b['one_fix_away']} | {b['total']} | "
-          f"**{b['score']}** | {b['area'] or '—'} | {md_cell(prs)} | {fmt_date(b.get('last_activity'))} |")
+          f"**{b['score']}** | {area_name(b['area'])} | {md_cell(prs)} | {fmt_date(b.get('last_activity'))} |")
     a("")
     a("## Titles\n")
     a("| ID | Title | Best stage | Where | Open blockers, in order |")
@@ -2072,7 +2135,8 @@ def md_ref(b: dict) -> str:
         return f"[#{b['issue']}]({b['url']})"
     if b.get("parent"):
         return f"[row in #{b['parent']}]({b['url']})"
-    return f"[{b['id']}]({b['url']})" if b.get("url") else f"`{b['id']}`"
+    label = f"PR #{b['id'][3:]}" if re.fullmatch(r"pr-[0-9]+", b["id"]) else b["id"]
+    return f"[{label}]({b['url']})" if b.get("url") else f"`{label}`"
 
 
 def render_llms(doc: dict) -> str:
@@ -2192,10 +2256,11 @@ def main(argv=None) -> int:
     doc = assemble(model, coverage, raw, upstream, now)
     out = Path(args.out)
     out.mkdir(parents=True, exist_ok=True)
-    (out / "roadmap.json").write_text(json.dumps(doc, indent=1, ensure_ascii=False) + "\n", encoding="utf-8")
-    (out / "ROADMAP.md").write_text(render_markdown(doc), encoding="utf-8")
-    (out / "index.html").write_text(render_html(doc), encoding="utf-8")
-    (out / "llms.txt").write_text(render_llms(doc), encoding="utf-8")
+    lf = {"encoding": "utf-8", "newline": "\n"}  # same bytes on Windows and on the Actions runner
+    (out / "roadmap.json").write_text(json.dumps(doc, indent=1, ensure_ascii=False) + "\n", **lf)
+    (out / "ROADMAP.md").write_text(render_markdown(doc), **lf)
+    (out / "index.html").write_text(render_html(doc), **lf)
+    (out / "llms.txt").write_text(render_llms(doc), **lf)
     if (ROOT / "AGENTS.md").exists():
         shutil.copyfile(ROOT / "AGENTS.md", out / "AGENTS.md")
     (out / ".nojekyll").write_text("", encoding="utf-8")

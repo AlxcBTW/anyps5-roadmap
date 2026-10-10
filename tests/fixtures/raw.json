@@ -43,7 +43,7 @@
     {
       "number": 13, "state": "OPEN", "stateReason": null,
       "title": "Homebrew catalog: where each title stops",
-      "body": "| Title | Stop |\n|---|---|\n| PPSA99001 | `FAIL: unresolved ELF import JZKw5+Wrnaw from libkernel.prx` |\n| PPSA99002 | `FAIL: unresolved ELF import JZKw5+Wrnaw from libkernel.prx` |\n| PPSA99003 | `FAIL: unresolved ELF import JZKw5+Wrnaw from libkernel.prx` |\n| PPSA99004 | `FAIL: unresolved ELF import JZKw5+Wrnaw from libkernel.prx` |\n| PPSA99005 | `FAIL: unresolved ELF import uEtgPWgPxOk from libScePosixForWebKit.prx` |\n| PPSA99006 | `FAIL: unresolved ELF import uEtgPWgPxOk from libScePosixForWebKit.prx` |",
+      "body": "| Title | Stop |\n|---|---|\n| PPSA99001 | `FAIL: unresolved ELF import JZKw5+Wrnaw from libkernel.prx` |\n| PPSA99002 | `FAIL: unresolved ELF import JZKw5+Wrnaw from libkernel.prx` |\n| PPSA99003 | `FAIL: unresolved ELF import JZKw5+Wrnaw from libkernel.prx` |\n| PPSA99004 | `FAIL: unresolved ELF import JZKw5+Wrnaw from libkernel.prx` |\n| PPSA99005 | `FAIL: unresolved ELF import uEtgPWgPxOk from libScePosixForWebKit.prx` |\n| PPSA99006 | `FAIL: unresolved ELF import uEtgPWgPxOk from libScePosixForWebKit.prx` |\n| PPSA99008 | `FAIL: unresolved ELF import uEtgPWgPxOk from libScePosixForWebKit.prx` |",
       "url": "https://github.com/example/AnyPS5/issues/13",
       "createdAt": "2026-10-04T10:00:00Z", "updatedAt": "2026-10-08T10:00:00Z", "closedAt": null,
       "author": "frank", "assignees": [], "labels": [],

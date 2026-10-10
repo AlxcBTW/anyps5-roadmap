@@ -1,15 +1,15 @@
 {
  "schema_version": 1,
- "generated_at": "2026-10-10T18:16:33Z",
- "fetched_at": "2026-10-10T18:17:55Z",
+ "generated_at": "2026-10-10T18:44:31Z",
+ "fetched_at": "2026-10-10T18:45:51Z",
  "upstream": {
   "repo": "boykopovar/AnyPS5",
   "ref": "origin/main",
-  "commit": "9f87be5cc0e9d853db847acc8ccee77ebef2cf96"
+  "commit": "29380369ad1ad803bb9bc3e3d6ab6c464468f343"
  },
  "window": {
   "days": 60,
-  "since": "2026-08-11T18:16:33Z"
+  "since": "2026-08-11T18:44:31Z"
  },
  "stages": [
   {
@@ -61,13 +61,13 @@
   "excluded": "titles whose best stage is Playable count only towards total"
  },
  "stats": {
-  "issues_scanned": 280,
-  "issues_open": 111,
-  "prs_scanned": 2556,
-  "titles": 153,
-  "titles_with_open_blockers": 56,
+  "issues_scanned": 284,
+  "issues_open": 112,
+  "prs_scanned": 2597,
+  "titles": 154,
+  "titles_with_open_blockers": 55,
   "titles_with_stage": 69,
-  "blockers_open": 64,
+  "blockers_open": 65,
   "blockers_ranked": 57,
   "blockers_curated": 15,
   "rate_limit": {
@@ -77,7 +77,7 @@
      "limit": 5000
     },
     "graphql": {
-     "remaining": 5000,
+     "remaining": 4986,
      "limit": 5000
     },
     "search": {
@@ -91,7 +91,7 @@
      "limit": 5000
     },
     "graphql": {
-     "remaining": 4994,
+     "remaining": 4974,
      "limit": 5000
     },
     "search": {
@@ -113,6 +113,7 @@
   "2871",
   "2701",
   "2621",
+  "2908",
   "2886",
   "2809",
   "2776",
@@ -121,7 +122,6 @@
   "2686",
   "2591",
   "2552",
-  "2476",
   "1973",
   "1930",
   "1497",
@@ -130,14 +130,13 @@
   "1033",
   "1578~libSceOpusDec.prx",
   "1578~gethostname",
-  "1578~_fstatfs",
   "1578~atoll",
   "1578~arc4random_buf",
-  "1578~cpuset_getaffinity",
   "2523",
   "2783",
   "pr-2471",
   "siglongjmp",
+  "2476",
   "1920",
   "479",
   "2631",
@@ -145,6 +144,7 @@
   "2642",
   "pr-2054",
   "pr-425",
+  "2914",
   "2811",
   "2775",
   "2774",
@@ -159,6 +159,7 @@
   "1970",
   "865",
   "665",
+  "2942",
   "2866",
   "2767",
   "2746",
@@ -234,9 +235,9 @@
    "notes": null,
    "owner": null,
    "origin": "curated",
-   "tracker": true,
+   "tracker": false,
    "created": "2026-10-10T04:29:11Z",
-   "last_activity": "2026-10-10T18:16:16Z",
+   "last_activity": "2026-10-10T18:24:00Z",
    "labels": [],
    "frontier": 6,
    "one_fix_away": 5,
@@ -422,7 +423,7 @@
      "title": "fix(libkernel): map direct memory as write-watched private pages until it is aliased",
      "state": "open",
      "link": "mentions",
-     "updated": "2026-10-10T17:25:25Z",
+     "updated": "2026-10-10T18:36:00Z",
      "origin": "mined"
     },
     {
@@ -432,7 +433,7 @@
      "title": "feat(agc): depth surfaces read as textures and storage images",
      "state": "open",
      "link": "mentions",
-     "updated": "2026-10-10T17:25:33Z",
+     "updated": "2026-10-10T18:34:03Z",
      "origin": "mined"
     },
     {
@@ -473,7 +474,7 @@
    "origin": "curated",
    "tracker": false,
    "created": "2026-10-08T02:46:05Z",
-   "last_activity": "2026-10-10T17:25:33Z",
+   "last_activity": "2026-10-10T18:36:00Z",
    "labels": [],
    "frontier": 2,
    "one_fix_away": 2,
@@ -557,7 +558,7 @@
      "title": "feat(agc): depth surfaces read as textures and storage images",
      "state": "open",
      "link": "mentions",
-     "updated": "2026-10-10T17:25:33Z",
+     "updated": "2026-10-10T18:34:03Z",
      "origin": "mined"
     },
     {
@@ -598,7 +599,7 @@
    "origin": "curated",
    "tracker": false,
    "created": "2026-10-09T08:38:14Z",
-   "last_activity": "2026-10-10T17:25:33Z",
+   "last_activity": "2026-10-10T18:34:03Z",
    "labels": [],
    "frontier": 3,
    "one_fix_away": 0,
@@ -623,7 +624,7 @@
    "url": "https://github.com/boykopovar/AnyPS5/issues/1794",
    "title": "Dying Light 2 (PPSA02262) on Windows: what stops it between conversion and its own startup",
    "signature": "Failed to load module: ...\\libs\\EOSSDK-PS5-Shipping.debug_prx",
-   "area": "libkernel",
+   "area": null,
    "status": "open",
    "prs": [
     {
@@ -631,9 +632,9 @@
      "ref": "#2129",
      "url": "https://github.com/boykopovar/AnyPS5/pull/2129",
      "title": "feat(libkernel): implement sceKernelFdatasync",
-     "state": "open",
+     "state": "merged",
      "link": "mentions",
-     "updated": "2026-10-10T16:53:41Z",
+     "updated": "2026-10-10T18:19:46Z",
      "origin": "mined"
     },
     {
@@ -664,7 +665,7 @@
    "origin": "mined",
    "tracker": false,
    "created": "2026-10-08T19:23:20Z",
-   "last_activity": "2026-10-10T16:53:41Z",
+   "last_activity": "2026-10-10T18:19:46Z",
    "labels": [],
    "frontier": 2,
    "one_fix_away": 1,
@@ -776,7 +777,28 @@
    "signature": "ShaderRecompiler::Recompile: SPIR-V validation before optimization failed",
    "area": "shader",
    "status": "open",
-   "prs": [],
+   "prs": [
+    {
+     "key": "boykopovar/AnyPS5#2937",
+     "ref": "#2937",
+     "url": "https://github.com/boykopovar/AnyPS5/pull/2937",
+     "title": "fix(shader): drop s_barrier in vertex programs that share nothing between waves",
+     "state": "open",
+     "link": "fixes",
+     "updated": "2026-10-10T18:38:53Z",
+     "origin": "mined"
+    },
+    {
+     "key": "boykopovar/AnyPS5#2936",
+     "ref": "#2936",
+     "url": "https://github.com/boykopovar/AnyPS5/pull/2936",
+     "title": "fix(shader): give an emulated comparison of a 2D-array access a plain 2D mode",
+     "state": "open",
+     "link": "mentions",
+     "updated": "2026-10-10T18:38:46Z",
+     "origin": "mined"
+    }
+   ],
    "next": null,
    "help_wanted": null,
    "notes": null,
@@ -784,7 +806,7 @@
    "origin": "mined",
    "tracker": false,
    "created": "2026-10-10T17:13:33Z",
-   "last_activity": "2026-10-10T17:13:33Z",
+   "last_activity": "2026-10-10T18:38:53Z",
    "labels": [],
    "frontier": 1,
    "one_fix_away": 1,
@@ -850,7 +872,7 @@
      "title": "feat(agc): implement image and sampler tables indexed at runtime offsets",
      "state": "open",
      "link": "mentions",
-     "updated": "2026-10-10T17:41:15Z",
+     "updated": "2026-10-10T18:34:09Z",
      "origin": "mined"
     }
    ],
@@ -861,7 +883,7 @@
    "origin": "mined",
    "tracker": false,
    "created": "2026-10-10T08:28:57Z",
-   "last_activity": "2026-10-10T17:41:15Z",
+   "last_activity": "2026-10-10T18:34:09Z",
    "labels": [],
    "frontier": 1,
    "one_fix_away": 1,
@@ -877,6 +899,38 @@
     "PPSA04540"
    ],
    "score": 7
+  },
+  {
+   "id": "2908",
+   "issue": 2908,
+   "url": "https://github.com/boykopovar/AnyPS5/issues/2908",
+   "title": "ProsperoStore (PPSA99000): startup stop on unresolved sceKernelGetSystemSwVersion",
+   "signature": "unresolved ELF import Mv1zUObHvXI (sceKernelGetSystemSwVersion)",
+   "area": "libkernel",
+   "status": "open",
+   "prs": [],
+   "next": null,
+   "help_wanted": null,
+   "notes": null,
+   "owner": null,
+   "origin": "mined",
+   "tracker": false,
+   "created": "2026-10-10T18:23:15Z",
+   "last_activity": "2026-10-10T18:23:15Z",
+   "labels": [],
+   "frontier": 1,
+   "one_fix_away": 1,
+   "total": 1,
+   "titles": [
+    "PPSA99000"
+   ],
+   "frontier_titles": [
+    "PPSA99000"
+   ],
+   "one_fix_titles": [
+    "PPSA99000"
+   ],
+   "score": 6
   },
   {
    "id": "2886",
@@ -1033,7 +1087,7 @@
      "title": "feat(libkernel): implement mutex priority ceiling attributes",
      "state": "open",
      "link": "fixes",
-     "updated": "2026-10-10T18:13:28Z",
+     "updated": "2026-10-10T18:33:46Z",
      "origin": "mined"
     }
    ],
@@ -1044,7 +1098,7 @@
    "origin": "mined",
    "tracker": false,
    "created": "2026-10-10T10:56:09Z",
-   "last_activity": "2026-10-10T18:13:28Z",
+   "last_activity": "2026-10-10T18:33:46Z",
    "labels": [],
    "frontier": 1,
    "one_fix_away": 1,
@@ -1157,38 +1211,6 @@
    "score": 6
   },
   {
-   "id": "2476",
-   "issue": 2476,
-   "url": "https://github.com/boykopovar/AnyPS5/issues/2476",
-   "title": "Windows: Astro's Playroom (PPSA01325) fails to load libSceJobManager.prx (error 126)",
-   "signature": "Failed to load module",
-   "area": null,
-   "status": "open",
-   "prs": [],
-   "next": null,
-   "help_wanted": null,
-   "notes": null,
-   "owner": null,
-   "origin": "mined",
-   "tracker": false,
-   "created": "2026-10-09T22:37:23Z",
-   "last_activity": "2026-10-10T18:02:30Z",
-   "labels": [],
-   "frontier": 1,
-   "one_fix_away": 1,
-   "total": 1,
-   "titles": [
-    "PPSA01325"
-   ],
-   "frontier_titles": [
-    "PPSA01325"
-   ],
-   "one_fix_titles": [
-    "PPSA01325"
-   ],
-   "score": 6
-  },
-  {
    "id": "1973",
    "issue": 1973,
    "url": "https://github.com/boykopovar/AnyPS5/issues/1973",
@@ -1268,7 +1290,7 @@
      "title": "fix(relinker): keep Linux imports declared from host modules off guest exports",
      "state": "open",
      "link": "fixes",
-     "updated": "2026-10-10T11:31:29Z",
+     "updated": "2026-10-10T18:32:51Z",
      "origin": "mined"
     },
     {
@@ -1278,7 +1300,7 @@
      "title": "fix(relinker): treat address-taken code as reachable in unused-filter=1",
      "state": "open",
      "link": "mentions",
-     "updated": "2026-10-10T18:06:18Z",
+     "updated": "2026-10-10T18:33:15Z",
      "origin": "mined"
     },
     {
@@ -1298,7 +1320,7 @@
      "title": "docs: record DOOM homebrew integration compatibility",
      "state": "open",
      "link": "mentions",
-     "updated": "2026-10-10T15:41:28Z",
+     "updated": "2026-10-10T18:34:08Z",
      "origin": "mined"
     },
     {
@@ -1328,7 +1350,7 @@
      "title": "fix(relinker): skip zero-return guest libc exports for internal libc imports",
      "state": "closed",
      "link": "mentions",
-     "updated": "2026-10-10T14:16:02Z",
+     "updated": "2026-10-10T18:24:00Z",
      "origin": "mined"
     }
    ],
@@ -1339,7 +1361,7 @@
    "origin": "mined",
    "tracker": false,
    "created": "2026-10-08T09:22:50Z",
-   "last_activity": "2026-10-10T18:06:18Z",
+   "last_activity": "2026-10-10T18:34:08Z",
    "labels": [],
    "frontier": 1,
    "one_fix_away": 1,
@@ -1529,7 +1551,7 @@
    "issue": null,
    "parent": 1578,
    "url": "https://github.com/boykopovar/AnyPS5/issues/1578",
-   "title": "Failed to load module libSceOpusDec.prx (row in #1578)",
+   "title": "Module libSceOpusDec.prx is missing",
    "signature": "Failed to load module libSceOpusDec.prx",
    "area": "prx",
    "status": "open",
@@ -1562,7 +1584,7 @@
    "issue": null,
    "parent": 1578,
    "url": "https://github.com/boykopovar/AnyPS5/issues/1578#issuecomment-6092658382",
-   "title": "unresolved ELF import -nvxBWa0iDs (gethostname) (row in #1578)",
+   "title": "gethostname (-nvxBWa0iDs) is not exported",
    "signature": "unresolved ELF import -nvxBWa0iDs (gethostname)",
    "area": "libc",
    "status": "open",
@@ -1574,7 +1596,7 @@
      "title": "feat(libc): implement guest gethostname",
      "state": "closed",
      "link": "related",
-     "updated": "2026-10-10T17:36:50Z",
+     "updated": "2026-10-10T18:32:05Z",
      "origin": "mined"
     },
     {
@@ -1605,7 +1627,7 @@
    "origin": "mined",
    "tracker": false,
    "created": "2026-10-10T02:20:30Z",
-   "last_activity": "2026-10-10T17:36:50Z",
+   "last_activity": "2026-10-10T18:32:05Z",
    "labels": [],
    "frontier": 1,
    "one_fix_away": 1,
@@ -1618,50 +1640,6 @@
    ],
    "one_fix_titles": [
     "PPSA19111"
-   ],
-   "score": 6
-  },
-  {
-   "id": "1578~_fstatfs",
-   "issue": null,
-   "parent": 1578,
-   "url": "https://github.com/boykopovar/AnyPS5/issues/1578#issuecomment-6092658382",
-   "title": "unresolved ELF import 17Mfe1B3X6U (_fstatfs) (row in #1578)",
-   "signature": "unresolved ELF import 17Mfe1B3X6U (_fstatfs)",
-   "area": "libkernel",
-   "status": "open",
-   "prs": [
-    {
-     "key": "boykopovar/AnyPS5#2858",
-     "ref": "#2858",
-     "url": "https://github.com/boykopovar/AnyPS5/pull/2858",
-     "title": "feat(libkernel): implement _fstatfs",
-     "state": "open",
-     "link": "related",
-     "updated": "2026-10-10T17:35:17Z",
-     "origin": "mined"
-    }
-   ],
-   "next": null,
-   "help_wanted": null,
-   "notes": "Tracked as a row in #1578: Four open-source homebrew titles stop at start-up on unresolved imports (sysctl, pthread_set_name_np, isatty, mkstemp, signal sets, Opus decoders)",
-   "owner": null,
-   "origin": "mined",
-   "tracker": false,
-   "created": "2026-10-10T02:20:30Z",
-   "last_activity": "2026-10-10T17:35:17Z",
-   "labels": [],
-   "frontier": 1,
-   "one_fix_away": 1,
-   "total": 1,
-   "titles": [
-    "PPSA74126"
-   ],
-   "frontier_titles": [
-    "PPSA74126"
-   ],
-   "one_fix_titles": [
-    "PPSA74126"
    ],
    "score": 6
   },
@@ -1670,11 +1648,21 @@
    "issue": null,
    "parent": 1578,
    "url": "https://github.com/boykopovar/AnyPS5/issues/1578#issuecomment-6091750552",
-   "title": "unresolved ELF import fLcU5G6Qrjs (atoll) (row in #1578)",
+   "title": "atoll (fLcU5G6Qrjs) is not exported",
    "signature": "unresolved ELF import fLcU5G6Qrjs (atoll)",
    "area": "libc",
    "status": "open",
    "prs": [
+    {
+     "key": "boykopovar/AnyPS5#2932",
+     "ref": "#2932",
+     "url": "https://github.com/boykopovar/AnyPS5/pull/2932",
+     "title": "feat(libc): implement atol and atoll",
+     "state": "open",
+     "link": "related",
+     "updated": "2026-10-10T18:33:46Z",
+     "origin": "mined"
+    },
     {
      "key": "boykopovar/AnyPS5#2186",
      "ref": "#2186",
@@ -1682,7 +1670,7 @@
      "title": "feat(libc): implement atol and atoll",
      "state": "closed",
      "link": "related",
-     "updated": "2026-10-10T02:25:46Z",
+     "updated": "2026-10-10T18:34:34Z",
      "origin": "mined"
     },
     {
@@ -1713,7 +1701,7 @@
    "origin": "mined",
    "tracker": false,
    "created": "2026-10-10T00:42:26Z",
-   "last_activity": "2026-10-10T02:25:46Z",
+   "last_activity": "2026-10-10T18:34:34Z",
    "labels": [],
    "frontier": 1,
    "one_fix_away": 1,
@@ -1734,7 +1722,7 @@
    "issue": null,
    "parent": 1578,
    "url": "https://github.com/boykopovar/AnyPS5/issues/1578#issuecomment-6092658382",
-   "title": "unresolved ELF import n1KOc0lTUEs (arc4random_buf) (row in #1578)",
+   "title": "arc4random_buf (n1KOc0lTUEs) is not exported",
    "signature": "unresolved ELF import n1KOc0lTUEs (arc4random_buf)",
    "area": "prx",
    "status": "open",
@@ -1784,60 +1772,6 @@
    "score": 6
   },
   {
-   "id": "1578~cpuset_getaffinity",
-   "issue": null,
-   "parent": 1578,
-   "url": "https://github.com/boykopovar/AnyPS5/issues/1578#issuecomment-6092658382",
-   "title": "unresolved ELF import Pdgml4rbxYk (cpuset_getaffinity) (row in #1578)",
-   "signature": "unresolved ELF import Pdgml4rbxYk (cpuset_getaffinity)",
-   "area": "libkernel",
-   "status": "open",
-   "prs": [
-    {
-     "key": "boykopovar/AnyPS5#2859",
-     "ref": "#2859",
-     "url": "https://github.com/boykopovar/AnyPS5/pull/2859",
-     "title": "feat(libkernel): implement cpuset_getaffinity for the calling thread",
-     "state": "open",
-     "link": "related",
-     "updated": "2026-10-10T17:35:15Z",
-     "origin": "mined"
-    },
-    {
-     "key": "boykopovar/AnyPS5#2516",
-     "ref": "#2516",
-     "url": "https://github.com/boykopovar/AnyPS5/pull/2516",
-     "title": "feat(libkernel): implement cpuset_getaffinity for the calling thread",
-     "state": "closed",
-     "link": "related",
-     "updated": "2026-10-10T00:22:26Z",
-     "origin": "mined"
-    }
-   ],
-   "next": null,
-   "help_wanted": null,
-   "notes": "Tracked as a row in #1578: Four open-source homebrew titles stop at start-up on unresolved imports (sysctl, pthread_set_name_np, isatty, mkstemp, signal sets, Opus decoders)",
-   "owner": null,
-   "origin": "mined",
-   "tracker": false,
-   "created": "2026-10-10T02:20:30Z",
-   "last_activity": "2026-10-10T17:35:15Z",
-   "labels": [],
-   "frontier": 1,
-   "one_fix_away": 1,
-   "total": 1,
-   "titles": [
-    "PPSA99082"
-   ],
-   "frontier_titles": [
-    "PPSA99082"
-   ],
-   "one_fix_titles": [
-    "PPSA99082"
-   ],
-   "score": 6
-  },
-  {
    "id": "2523",
    "issue": 2523,
    "url": "https://github.com/boykopovar/AnyPS5/issues/2523",
@@ -1847,23 +1781,13 @@
    "status": "open",
    "prs": [
     {
-     "key": "boykopovar/AnyPS5#2831",
-     "ref": "#2831",
-     "url": "https://github.com/boykopovar/AnyPS5/pull/2831",
-     "title": "feat(libSceNet): declare sceNetShowNetstat",
-     "state": "open",
-     "link": "mentions",
-     "updated": "2026-10-10T17:25:13Z",
-     "origin": "mined"
-    },
-    {
      "key": "boykopovar/AnyPS5#2813",
      "ref": "#2813",
      "url": "https://github.com/boykopovar/AnyPS5/pull/2813",
      "title": "perf(recompiler): index memory users once per indirect image planning pass",
      "state": "open",
      "link": "mentions",
-     "updated": "2026-10-10T17:25:10Z",
+     "updated": "2026-10-10T18:33:26Z",
      "origin": "mined"
     },
     {
@@ -1883,7 +1807,7 @@
      "title": "fix(agc): import GPU-mapped guest memory when it is mapped",
      "state": "open",
      "link": "mentions",
-     "updated": "2026-10-10T15:40:55Z",
+     "updated": "2026-10-10T18:33:01Z",
      "origin": "mined"
     },
     {
@@ -1893,7 +1817,7 @@
      "title": "feat(agc): implement image and sampler tables indexed at runtime offsets",
      "state": "open",
      "link": "mentions",
-     "updated": "2026-10-10T17:41:15Z",
+     "updated": "2026-10-10T18:34:09Z",
      "origin": "mined"
     },
     {
@@ -1957,6 +1881,16 @@
      "origin": "mined"
     },
     {
+     "key": "boykopovar/AnyPS5#2831",
+     "ref": "#2831",
+     "url": "https://github.com/boykopovar/AnyPS5/pull/2831",
+     "title": "feat(libSceNet): declare sceNetShowNetstat",
+     "state": "merged",
+     "link": "mentions",
+     "updated": "2026-10-10T18:23:26Z",
+     "origin": "mined"
+    },
+    {
      "key": "boykopovar/AnyPS5#2830",
      "ref": "#2830",
      "url": "https://github.com/boykopovar/AnyPS5/pull/2830",
@@ -1964,6 +1898,16 @@
      "state": "merged",
      "link": "mentions",
      "updated": "2026-10-10T18:12:37Z",
+     "origin": "mined"
+    },
+    {
+     "key": "boykopovar/AnyPS5#2904",
+     "ref": "#2904",
+     "url": "https://github.com/boykopovar/AnyPS5/pull/2904",
+     "title": "fix(graphics): allow storage textures in reused depth memory",
+     "state": "closed",
+     "link": "mentions",
+     "updated": "2026-10-10T18:35:53Z",
      "origin": "mined"
     }
    ],
@@ -1974,14 +1918,14 @@
    "origin": "mined",
    "tracker": false,
    "created": "2026-10-10T00:58:52Z",
-   "last_activity": "2026-10-10T18:12:37Z",
+   "last_activity": "2026-10-10T18:43:23Z",
    "labels": [],
    "frontier": 1,
    "one_fix_away": 0,
    "total": 2,
    "titles": [
-    "PPSA15508",
-    "PPSA11386"
+    "PPSA11386",
+    "PPSA15508"
    ],
    "frontier_titles": [
     "PPSA15508"
@@ -2005,7 +1949,7 @@
      "title": "feat(agc): run unregistered NGG vertex programs that need a workgroup on the mesh path",
      "state": "open",
      "link": "mentions",
-     "updated": "2026-10-10T17:24:41Z",
+     "updated": "2026-10-10T18:32:59Z",
      "origin": "mined"
     },
     {
@@ -2026,7 +1970,7 @@
    "origin": "curated",
    "tracker": false,
    "created": "2026-10-10T14:43:16Z",
-   "last_activity": "2026-10-10T18:08:02Z",
+   "last_activity": "2026-10-10T18:32:59Z",
    "labels": [],
    "frontier": 1,
    "one_fix_away": 0,
@@ -2036,6 +1980,47 @@
    ],
    "frontier_titles": [
     "PPSA30279"
+   ],
+   "one_fix_titles": [],
+   "score": 3
+  },
+  {
+   "id": "2476",
+   "issue": 2476,
+   "url": "https://github.com/boykopovar/AnyPS5/issues/2476",
+   "title": "Windows: Astro's Playroom (PPSA01325) fails to load libSceJobManager.prx (error 126)",
+   "signature": "Failed to load module",
+   "area": null,
+   "status": "open",
+   "prs": [
+    {
+     "key": "boykopovar/AnyPS5#2924",
+     "ref": "#2924",
+     "url": "https://github.com/boykopovar/AnyPS5/pull/2924",
+     "title": "feat(libSceJobManager): add the library with throwing exports",
+     "state": "closed",
+     "link": "fixes",
+     "updated": "2026-10-10T18:40:43Z",
+     "origin": "mined"
+    }
+   ],
+   "next": null,
+   "help_wanted": null,
+   "notes": null,
+   "owner": null,
+   "origin": "mined",
+   "tracker": false,
+   "created": "2026-10-09T22:37:23Z",
+   "last_activity": "2026-10-10T18:40:43Z",
+   "labels": [],
+   "frontier": 1,
+   "one_fix_away": 0,
+   "total": 1,
+   "titles": [
+    "PPSA01325"
+   ],
+   "frontier_titles": [
+    "PPSA01325"
    ],
    "one_fix_titles": [],
    "score": 3
@@ -2217,7 +2202,7 @@
   {
    "id": "siglongjmp",
    "issue": null,
-   "url": null,
+   "url": "https://github.com/boykopovar/AnyPS5/issues/1578",
    "title": "siglongjmp is not exported (libkernel)",
    "signature": "FAIL: unresolved ELF import pebqbE5ws8s (siglongjmp) from libkernel",
    "area": "libkernel",
@@ -2335,6 +2320,34 @@
    "score": 2
   },
   {
+   "id": "2914",
+   "issue": 2914,
+   "url": "https://github.com/boykopovar/AnyPS5/issues/2914",
+   "title": "Astro's Playroom (PPSA01325): shader ABI resolution passes a different Shader* header pointer for the same code",
+   "signature": "AGC graphics: AGC header pointer is outside the registered shader header",
+   "area": "agc",
+   "status": "open",
+   "prs": [],
+   "next": null,
+   "help_wanted": null,
+   "notes": null,
+   "owner": null,
+   "origin": "mined",
+   "tracker": false,
+   "created": "2026-10-10T18:26:38Z",
+   "last_activity": "2026-10-10T18:26:38Z",
+   "labels": [],
+   "frontier": 0,
+   "one_fix_away": 0,
+   "total": 1,
+   "titles": [
+    "PPSA01325"
+   ],
+   "frontier_titles": [],
+   "one_fix_titles": [],
+   "score": 1
+  },
+  {
    "id": "2811",
    "issue": 2811,
    "url": "https://github.com/boykopovar/AnyPS5/issues/2811",
@@ -2406,7 +2419,7 @@
      "title": "perf(recompiler): index memory users once per indirect image planning pass",
      "state": "open",
      "link": "mentions",
-     "updated": "2026-10-10T17:25:10Z",
+     "updated": "2026-10-10T18:33:26Z",
      "origin": "mined"
     },
     {
@@ -2427,7 +2440,7 @@
    "origin": "mined",
    "tracker": false,
    "created": "2026-10-10T14:07:38Z",
-   "last_activity": "2026-10-10T17:25:10Z",
+   "last_activity": "2026-10-10T18:33:26Z",
    "labels": [],
    "frontier": 0,
    "one_fix_away": 0,
@@ -2465,7 +2478,7 @@
      "title": "feat(agc): implement image and sampler tables indexed at runtime offsets",
      "state": "open",
      "link": "mentions",
-     "updated": "2026-10-10T17:41:15Z",
+     "updated": "2026-10-10T18:34:09Z",
      "origin": "mined"
     }
    ],
@@ -2476,7 +2489,7 @@
    "origin": "mined",
    "tracker": false,
    "created": "2026-10-10T12:45:32Z",
-   "last_activity": "2026-10-10T17:41:15Z",
+   "last_activity": "2026-10-10T18:34:09Z",
    "labels": [],
    "frontier": 0,
    "one_fix_away": 0,
@@ -2526,6 +2539,16 @@
    "status": "open",
    "prs": [
     {
+     "key": "boykopovar/AnyPS5#2936",
+     "ref": "#2936",
+     "url": "https://github.com/boykopovar/AnyPS5/pull/2936",
+     "title": "fix(shader): give an emulated comparison of a 2D-array access a plain 2D mode",
+     "state": "open",
+     "link": "fixes",
+     "updated": "2026-10-10T18:38:46Z",
+     "origin": "mined"
+    },
+    {
      "key": "boykopovar/AnyPS5#2146",
      "ref": "#2146",
      "url": "https://github.com/boykopovar/AnyPS5/pull/2146",
@@ -2543,7 +2566,7 @@
    "origin": "mined",
    "tracker": false,
    "created": "2026-10-10T11:53:53Z",
-   "last_activity": "2026-10-10T18:08:38Z",
+   "last_activity": "2026-10-10T18:38:46Z",
    "labels": [],
    "frontier": 0,
    "one_fix_away": 0,
@@ -2563,7 +2586,18 @@
    "signature": null,
    "area": "libkernel",
    "status": "open",
-   "prs": [],
+   "prs": [
+    {
+     "key": "boykopovar/AnyPS5#2907",
+     "ref": "#2907",
+     "url": "https://github.com/boykopovar/AnyPS5/pull/2907",
+     "title": "fix(libkernel): map non-fixed hints inside a reserved range in place",
+     "state": "open",
+     "link": "fixes",
+     "updated": "2026-10-10T18:23:04Z",
+     "origin": "mined"
+    }
+   ],
    "next": null,
    "help_wanted": null,
    "notes": null,
@@ -2571,7 +2605,7 @@
    "origin": "mined",
    "tracker": false,
    "created": "2026-10-10T10:56:07Z",
-   "last_activity": "2026-10-10T14:09:46Z",
+   "last_activity": "2026-10-10T18:23:04Z",
    "labels": [],
    "frontier": 0,
    "one_fix_away": 0,
@@ -2671,7 +2705,7 @@
    "origin": "curated",
    "tracker": false,
    "created": "2026-10-10T09:44:48Z",
-   "last_activity": "2026-10-10T18:11:28Z",
+   "last_activity": "2026-10-10T18:44:04Z",
    "labels": [],
    "frontier": 0,
    "one_fix_away": 0,
@@ -2970,7 +3004,7 @@
      "title": "fix(libkernel): map direct memory as write-watched private pages until it is aliased",
      "state": "open",
      "link": "fixes",
-     "updated": "2026-10-10T17:25:25Z",
+     "updated": "2026-10-10T18:36:00Z",
      "note": "maps direct memory as write-watched private pages; 2.4 GB in about 2.3 s instead of minutes",
      "origin": "curated"
     }
@@ -2982,7 +3016,7 @@
    "origin": "curated",
    "tracker": false,
    "created": null,
-   "last_activity": "2026-10-10T17:25:25Z",
+   "last_activity": "2026-10-10T18:36:00Z",
    "labels": [],
    "frontier": 0,
    "one_fix_away": 0,
@@ -3010,7 +3044,7 @@
      "title": "feat(agc): depth surfaces read as textures and storage images",
      "state": "open",
      "link": "fixes",
-     "updated": "2026-10-10T17:25:33Z",
+     "updated": "2026-10-10T18:34:03Z",
      "note": "depth surfaces read as textures and storage images",
      "origin": "curated"
     }
@@ -3022,7 +3056,7 @@
    "origin": "curated",
    "tracker": false,
    "created": null,
-   "last_activity": "2026-10-10T17:25:33Z",
+   "last_activity": "2026-10-10T18:34:03Z",
    "labels": [],
    "frontier": 0,
    "one_fix_away": 0,
@@ -3033,6 +3067,32 @@
    "frontier_titles": [],
    "one_fix_titles": [],
    "score": 1
+  },
+  {
+   "id": "2942",
+   "issue": 2942,
+   "url": "https://github.com/boykopovar/AnyPS5/issues/2942",
+   "title": "Launching Silksong Failed",
+   "signature": "Failed to load module Il2cppUserAssemblies.prx",
+   "area": "prx",
+   "status": "open",
+   "prs": [],
+   "next": null,
+   "help_wanted": null,
+   "notes": null,
+   "owner": null,
+   "origin": "mined",
+   "tracker": false,
+   "created": "2026-10-10T18:41:06Z",
+   "last_activity": "2026-10-10T18:41:06Z",
+   "labels": [],
+   "frontier": 0,
+   "one_fix_away": 0,
+   "total": 0,
+   "titles": [],
+   "frontier_titles": [],
+   "one_fix_titles": [],
+   "score": 0
   },
   {
    "id": "2866",
@@ -3080,23 +3140,13 @@
      "origin": "mined"
     },
     {
-     "key": "boykopovar/AnyPS5#2831",
-     "ref": "#2831",
-     "url": "https://github.com/boykopovar/AnyPS5/pull/2831",
-     "title": "feat(libSceNet): declare sceNetShowNetstat",
-     "state": "open",
-     "link": "mentions",
-     "updated": "2026-10-10T17:25:13Z",
-     "origin": "mined"
-    },
-    {
      "key": "boykopovar/AnyPS5#2813",
      "ref": "#2813",
      "url": "https://github.com/boykopovar/AnyPS5/pull/2813",
      "title": "perf(recompiler): index memory users once per indirect image planning pass",
      "state": "open",
      "link": "mentions",
-     "updated": "2026-10-10T17:25:10Z",
+     "updated": "2026-10-10T18:33:26Z",
      "origin": "mined"
     },
     {
@@ -3107,6 +3157,16 @@
      "state": "open",
      "link": "mentions",
      "updated": "2026-10-10T16:00:20Z",
+     "origin": "mined"
+    },
+    {
+     "key": "boykopovar/AnyPS5#2831",
+     "ref": "#2831",
+     "url": "https://github.com/boykopovar/AnyPS5/pull/2831",
+     "title": "feat(libSceNet): declare sceNetShowNetstat",
+     "state": "merged",
+     "link": "mentions",
+     "updated": "2026-10-10T18:23:26Z",
      "origin": "mined"
     },
     {
@@ -3127,7 +3187,7 @@
    "origin": "mined",
    "tracker": false,
    "created": "2026-10-10T13:32:55Z",
-   "last_activity": "2026-10-10T18:12:37Z",
+   "last_activity": "2026-10-10T18:33:26Z",
    "labels": [],
    "frontier": 0,
    "one_fix_away": 0,
@@ -3200,7 +3260,7 @@
      "title": "feat(agc): run unregistered NGG vertex programs that need a workgroup on the mesh path",
      "state": "open",
      "link": "mentions",
-     "updated": "2026-10-10T17:24:41Z",
+     "updated": "2026-10-10T18:32:59Z",
      "origin": "mined"
     },
     {
@@ -3271,7 +3331,7 @@
    "origin": "mined",
    "tracker": false,
    "created": "2026-10-09T08:59:40Z",
-   "last_activity": "2026-10-10T17:24:41Z",
+   "last_activity": "2026-10-10T18:32:59Z",
    "labels": [],
    "frontier": 0,
    "one_fix_away": 0,
@@ -3334,9 +3394,59 @@
    "url": "https://github.com/boykopovar/AnyPS5/issues/1578",
    "title": "Four open-source homebrew titles stop at start-up on unresolved imports (sysctl, pthread_set_name_np, isatty, mkstemp, signal sets, Opus decoders)",
    "signature": "unresolved ELF import MhC53TKmjVA (sysctlbyname) from libkernel",
-   "area": "libkernel",
+   "area": "prx",
    "status": "open",
    "prs": [
+    {
+     "key": "boykopovar/AnyPS5#2935",
+     "ref": "#2935",
+     "url": "https://github.com/boykopovar/AnyPS5/pull/2935",
+     "title": "feat(libkernel): implement siglongjmp",
+     "state": "open",
+     "link": "mentions",
+     "updated": "2026-10-10T18:34:52Z",
+     "origin": "mined"
+    },
+    {
+     "key": "boykopovar/AnyPS5#2934",
+     "ref": "#2934",
+     "url": "https://github.com/boykopovar/AnyPS5/pull/2934",
+     "title": "feat(libc): implement nextafterf",
+     "state": "open",
+     "link": "mentions",
+     "updated": "2026-10-10T18:33:56Z",
+     "origin": "mined"
+    },
+    {
+     "key": "boykopovar/AnyPS5#2933",
+     "ref": "#2933",
+     "url": "https://github.com/boykopovar/AnyPS5/pull/2933",
+     "title": "feat(libc): implement llroundf",
+     "state": "open",
+     "link": "mentions",
+     "updated": "2026-10-10T18:33:51Z",
+     "origin": "mined"
+    },
+    {
+     "key": "boykopovar/AnyPS5#2932",
+     "ref": "#2932",
+     "url": "https://github.com/boykopovar/AnyPS5/pull/2932",
+     "title": "feat(libc): implement atol and atoll",
+     "state": "open",
+     "link": "mentions",
+     "updated": "2026-10-10T18:33:46Z",
+     "origin": "mined"
+    },
+    {
+     "key": "boykopovar/AnyPS5#2931",
+     "ref": "#2931",
+     "url": "https://github.com/boykopovar/AnyPS5/pull/2931",
+     "title": "feat(libc): implement __isinf",
+     "state": "open",
+     "link": "mentions",
+     "updated": "2026-10-10T18:33:42Z",
+     "origin": "mined"
+    },
     {
      "key": "boykopovar/AnyPS5#2897",
      "ref": "#2897",
@@ -3344,7 +3454,7 @@
      "title": "feat(libkernel): implement pthread_sigmask",
      "state": "open",
      "link": "mentions",
-     "updated": "2026-10-10T18:03:45Z",
+     "updated": "2026-10-10T18:39:00Z",
      "origin": "mined"
     },
     {
@@ -3354,7 +3464,7 @@
      "title": "feat(libSceAudioOut): export the sceAudioOutSys HDMI output functions",
      "state": "open",
      "link": "mentions",
-     "updated": "2026-10-10T17:52:45Z",
+     "updated": "2026-10-10T18:39:22Z",
      "origin": "mined"
     },
     {
@@ -3368,53 +3478,23 @@
      "origin": "mined"
     },
     {
-     "key": "boykopovar/AnyPS5#2859",
-     "ref": "#2859",
-     "url": "https://github.com/boykopovar/AnyPS5/pull/2859",
-     "title": "feat(libkernel): implement cpuset_getaffinity for the calling thread",
+     "key": "boykopovar/AnyPS5#2827",
+     "ref": "#2827",
+     "url": "https://github.com/boykopovar/AnyPS5/pull/2827",
+     "title": "fix(libkernel): export execvp",
      "state": "open",
      "link": "mentions",
-     "updated": "2026-10-10T17:35:15Z",
+     "updated": "2026-10-10T18:39:02Z",
      "origin": "mined"
     },
     {
-     "key": "boykopovar/AnyPS5#2858",
-     "ref": "#2858",
-     "url": "https://github.com/boykopovar/AnyPS5/pull/2858",
-     "title": "feat(libkernel): implement _fstatfs",
+     "key": "boykopovar/AnyPS5#2764",
+     "ref": "#2764",
+     "url": "https://github.com/boykopovar/AnyPS5/pull/2764",
+     "title": "fix(audio): export the sceAudioOutEx bitstream port functions",
      "state": "open",
      "link": "mentions",
-     "updated": "2026-10-10T17:35:17Z",
-     "origin": "mined"
-    },
-    {
-     "key": "boykopovar/AnyPS5#2857",
-     "ref": "#2857",
-     "url": "https://github.com/boykopovar/AnyPS5/pull/2857",
-     "title": "feat(libSceHttp): accept sceHttpSetRecvBlockSize",
-     "state": "open",
-     "link": "mentions",
-     "updated": "2026-10-10T17:35:20Z",
-     "origin": "mined"
-    },
-    {
-     "key": "boykopovar/AnyPS5#2478",
-     "ref": "#2478",
-     "url": "https://github.com/boykopovar/AnyPS5/pull/2478",
-     "title": "feat(libkernel): implement dup and dup2",
-     "state": "open",
-     "link": "mentions",
-     "updated": "2026-10-10T14:16:52Z",
-     "origin": "mined"
-    },
-    {
-     "key": "boykopovar/AnyPS5#1772",
-     "ref": "#1772",
-     "url": "https://github.com/boykopovar/AnyPS5/pull/1772",
-     "title": "feat(libc): implement getifaddrs and freeifaddrs",
-     "state": "open",
-     "link": "mentions",
-     "updated": "2026-10-10T14:23:21Z",
+     "updated": "2026-10-10T18:39:12Z",
      "origin": "mined"
     },
     {
@@ -3425,6 +3505,46 @@
      "state": "open",
      "link": "mentions",
      "updated": "2026-10-08T18:09:21Z",
+     "origin": "mined"
+    },
+    {
+     "key": "boykopovar/AnyPS5#2859",
+     "ref": "#2859",
+     "url": "https://github.com/boykopovar/AnyPS5/pull/2859",
+     "title": "feat(libkernel): implement cpuset_getaffinity for the calling thread",
+     "state": "merged",
+     "link": "mentions",
+     "updated": "2026-10-10T18:27:06Z",
+     "origin": "mined"
+    },
+    {
+     "key": "boykopovar/AnyPS5#2858",
+     "ref": "#2858",
+     "url": "https://github.com/boykopovar/AnyPS5/pull/2858",
+     "title": "feat(libkernel): implement _fstatfs",
+     "state": "merged",
+     "link": "mentions",
+     "updated": "2026-10-10T18:26:57Z",
+     "origin": "mined"
+    },
+    {
+     "key": "boykopovar/AnyPS5#2857",
+     "ref": "#2857",
+     "url": "https://github.com/boykopovar/AnyPS5/pull/2857",
+     "title": "feat(libSceHttp): accept sceHttpSetRecvBlockSize",
+     "state": "merged",
+     "link": "mentions",
+     "updated": "2026-10-10T18:26:47Z",
+     "origin": "mined"
+    },
+    {
+     "key": "boykopovar/AnyPS5#2478",
+     "ref": "#2478",
+     "url": "https://github.com/boykopovar/AnyPS5/pull/2478",
+     "title": "feat(libkernel): implement dup and dup2",
+     "state": "merged",
+     "link": "mentions",
+     "updated": "2026-10-10T18:19:55Z",
      "origin": "mined"
     },
     {
@@ -3595,6 +3715,16 @@
      "state": "merged",
      "link": "mentions",
      "updated": "2026-10-09T22:14:34Z",
+     "origin": "mined"
+    },
+    {
+     "key": "boykopovar/AnyPS5#1772",
+     "ref": "#1772",
+     "url": "https://github.com/boykopovar/AnyPS5/pull/1772",
+     "title": "feat(libc): implement getifaddrs and freeifaddrs",
+     "state": "merged",
+     "link": "mentions",
+     "updated": "2026-10-10T18:19:37Z",
      "origin": "mined"
     },
     {
@@ -3828,26 +3958,6 @@
      "origin": "mined"
     },
     {
-     "key": "boykopovar/AnyPS5#2827",
-     "ref": "#2827",
-     "url": "https://github.com/boykopovar/AnyPS5/pull/2827",
-     "title": "fix(libkernel): export execvp",
-     "state": "closed",
-     "link": "mentions",
-     "updated": "2026-10-10T16:14:28Z",
-     "origin": "mined"
-    },
-    {
-     "key": "boykopovar/AnyPS5#2764",
-     "ref": "#2764",
-     "url": "https://github.com/boykopovar/AnyPS5/pull/2764",
-     "title": "fix(audio): export the sceAudioOutEx bitstream port functions",
-     "state": "closed",
-     "link": "mentions",
-     "updated": "2026-10-10T13:29:17Z",
-     "origin": "mined"
-    },
-    {
      "key": "boykopovar/AnyPS5#2754",
      "ref": "#2754",
      "url": "https://github.com/boykopovar/AnyPS5/pull/2754",
@@ -3864,7 +3974,7 @@
      "title": "fix(relinker): skip zero-return guest libc exports for internal libc imports",
      "state": "closed",
      "link": "mentions",
-     "updated": "2026-10-10T14:16:02Z",
+     "updated": "2026-10-10T18:24:00Z",
      "origin": "mined"
     },
     {
@@ -3934,7 +4044,7 @@
      "title": "feat(libc): implement nextafterf",
      "state": "closed",
      "link": "mentions",
-     "updated": "2026-10-10T02:25:44Z",
+     "updated": "2026-10-10T18:34:36Z",
      "origin": "mined"
     },
     {
@@ -3944,7 +4054,7 @@
      "title": "feat(libc): implement llroundf",
      "state": "closed",
      "link": "mentions",
-     "updated": "2026-10-10T02:25:45Z",
+     "updated": "2026-10-10T18:34:35Z",
      "origin": "mined"
     },
     {
@@ -3964,7 +4074,7 @@
      "title": "feat(libc): implement atol and atoll",
      "state": "closed",
      "link": "mentions",
-     "updated": "2026-10-10T02:25:46Z",
+     "updated": "2026-10-10T18:34:34Z",
      "origin": "mined"
     },
     {
@@ -3974,7 +4084,7 @@
      "title": "feat(libc): implement __isinf",
      "state": "closed",
      "link": "mentions",
-     "updated": "2026-10-10T02:25:47Z",
+     "updated": "2026-10-10T18:34:32Z",
      "origin": "mined"
     },
     {
@@ -4034,7 +4144,7 @@
      "title": "feat(libSceLibcInternal): implement guest utime",
      "state": "closed",
      "link": "mentions",
-     "updated": "2026-10-10T17:36:49Z",
+     "updated": "2026-10-10T18:32:41Z",
      "origin": "mined"
     },
     {
@@ -4044,7 +4154,7 @@
      "title": "feat(libc): implement guest gethostname",
      "state": "closed",
      "link": "mentions",
-     "updated": "2026-10-10T17:36:50Z",
+     "updated": "2026-10-10T18:32:05Z",
      "origin": "mined"
     },
     {
@@ -4465,7 +4575,7 @@
    "origin": "mined",
    "tracker": true,
    "created": "2026-10-08T13:20:34Z",
-   "last_activity": "2026-10-10T18:10:02Z",
+   "last_activity": "2026-10-10T18:39:22Z",
    "labels": [],
    "frontier": 0,
    "one_fix_away": 0,
@@ -4587,7 +4697,7 @@
      "title": "feat(agc): implement image and sampler tables indexed at runtime offsets",
      "state": "open",
      "link": "mentions",
-     "updated": "2026-10-10T17:41:15Z",
+     "updated": "2026-10-10T18:34:09Z",
      "origin": "mined"
     }
    ],
@@ -4598,7 +4708,7 @@
    "origin": "mined",
    "tracker": false,
    "created": "2026-10-10T12:45:33Z",
-   "last_activity": "2026-10-10T18:12:29Z",
+   "last_activity": "2026-10-10T18:34:09Z",
    "labels": [],
    "frontier": 0,
    "one_fix_away": 0,
@@ -4618,6 +4728,16 @@
    "status": "resolved",
    "prs": [
     {
+     "key": "boykopovar/AnyPS5#2907",
+     "ref": "#2907",
+     "url": "https://github.com/boykopovar/AnyPS5/pull/2907",
+     "title": "fix(libkernel): map non-fixed hints inside a reserved range in place",
+     "state": "open",
+     "link": "mentions",
+     "updated": "2026-10-10T18:23:04Z",
+     "origin": "mined"
+    },
+    {
      "key": "boykopovar/AnyPS5#861",
      "ref": "#861",
      "url": "https://github.com/boykopovar/AnyPS5/pull/861",
@@ -4635,7 +4755,7 @@
    "origin": "mined",
    "tracker": false,
    "created": "2026-10-10T11:35:58Z",
-   "last_activity": "2026-10-10T18:08:43Z",
+   "last_activity": "2026-10-10T18:23:04Z",
    "labels": [],
    "frontier": 0,
    "one_fix_away": 0,
@@ -4977,7 +5097,7 @@
      "title": "fix(relinker): treat address-taken code as reachable in unused-filter=1",
      "state": "open",
      "link": "mentions",
-     "updated": "2026-10-10T18:06:18Z",
+     "updated": "2026-10-10T18:33:15Z",
      "origin": "mined"
     },
     {
@@ -4998,7 +5118,7 @@
    "origin": "mined",
    "tracker": false,
    "created": "2026-10-10T05:35:06Z",
-   "last_activity": "2026-10-10T18:06:18Z",
+   "last_activity": "2026-10-10T18:33:15Z",
    "labels": [],
    "frontier": 0,
    "one_fix_away": 0,
@@ -6228,16 +6348,6 @@
      "origin": "mined"
     },
     {
-     "key": "boykopovar/AnyPS5#2831",
-     "ref": "#2831",
-     "url": "https://github.com/boykopovar/AnyPS5/pull/2831",
-     "title": "feat(libSceNet): declare sceNetShowNetstat",
-     "state": "open",
-     "link": "mentions",
-     "updated": "2026-10-10T17:25:13Z",
-     "origin": "mined"
-    },
-    {
      "key": "SleglJan/AnyPS5#17",
      "ref": "SleglJan#17",
      "url": "https://github.com/SleglJan/AnyPS5/pull/17",
@@ -6268,6 +6378,16 @@
      "origin": "mined"
     },
     {
+     "key": "boykopovar/AnyPS5#2831",
+     "ref": "#2831",
+     "url": "https://github.com/boykopovar/AnyPS5/pull/2831",
+     "title": "feat(libSceNet): declare sceNetShowNetstat",
+     "state": "merged",
+     "link": "mentions",
+     "updated": "2026-10-10T18:23:26Z",
+     "origin": "mined"
+    },
+    {
      "key": "boykopovar/AnyPS5#2302",
      "ref": "#2302",
      "url": "https://github.com/boykopovar/AnyPS5/pull/2302",
@@ -6285,7 +6405,7 @@
    "origin": "mined",
    "tracker": false,
    "created": "2026-10-08T23:59:57Z",
-   "last_activity": "2026-10-10T17:25:13Z",
+   "last_activity": "2026-10-10T18:23:26Z",
    "labels": [],
    "frontier": 0,
    "one_fix_away": 0,
@@ -6576,7 +6696,7 @@
      "title": "feat(agc): implement image and sampler tables indexed at runtime offsets",
      "state": "open",
      "link": "mentions",
-     "updated": "2026-10-10T17:41:15Z",
+     "updated": "2026-10-10T18:34:09Z",
      "origin": "mined"
     },
     {
@@ -6627,7 +6747,7 @@
    "origin": "mined",
    "tracker": false,
    "created": "2026-10-08T20:19:13Z",
-   "last_activity": "2026-10-10T17:41:15Z",
+   "last_activity": "2026-10-10T18:34:09Z",
    "labels": [],
    "frontier": 0,
    "one_fix_away": 0,
@@ -6780,7 +6900,7 @@
      "title": "feat(agc): opt-in raised priority for the queue workers and the presenter",
      "state": "open",
      "link": "mentions",
-     "updated": "2026-10-10T18:15:50Z",
+     "updated": "2026-10-10T18:23:57Z",
      "origin": "mined"
     }
    ],
@@ -6791,7 +6911,7 @@
    "origin": "mined",
    "tracker": false,
    "created": "2026-10-08T19:10:46Z",
-   "last_activity": "2026-10-10T18:15:50Z",
+   "last_activity": "2026-10-10T18:23:57Z",
    "labels": [],
    "frontier": 0,
    "one_fix_away": 0,
@@ -8941,7 +9061,7 @@
    "issue": null,
    "parent": 1578,
    "url": "https://github.com/boykopovar/AnyPS5/issues/1578",
-   "title": "unresolved ELF import uEtgPWgPxOk (mkstemp) from libScePosixForWebKit (row in #1578)",
+   "title": "mkstemp (uEtgPWgPxOk) is not exported by libScePosixForWebKit",
    "signature": "unresolved ELF import uEtgPWgPxOk (mkstemp) from libScePosixForWebKit",
    "area": "libc",
    "status": "resolved",
@@ -8975,6 +9095,54 @@
    "tracker": false,
    "created": "2026-10-08T13:20:34Z",
    "last_activity": "2026-10-09T21:37:02Z",
+   "labels": [],
+   "frontier": 0,
+   "one_fix_away": 0,
+   "total": 0,
+   "titles": [],
+   "frontier_titles": [],
+   "one_fix_titles": [],
+   "score": 0
+  },
+  {
+   "id": "1578~cpuset_getaffinity",
+   "issue": null,
+   "parent": 1578,
+   "url": "https://github.com/boykopovar/AnyPS5/issues/1578#issuecomment-6092658382",
+   "title": "cpuset_getaffinity (Pdgml4rbxYk) is not exported",
+   "signature": "unresolved ELF import Pdgml4rbxYk (cpuset_getaffinity)",
+   "area": "libkernel",
+   "status": "resolved",
+   "prs": [
+    {
+     "key": "boykopovar/AnyPS5#2859",
+     "ref": "#2859",
+     "url": "https://github.com/boykopovar/AnyPS5/pull/2859",
+     "title": "feat(libkernel): implement cpuset_getaffinity for the calling thread",
+     "state": "merged",
+     "link": "related",
+     "updated": "2026-10-10T18:27:06Z",
+     "origin": "mined"
+    },
+    {
+     "key": "boykopovar/AnyPS5#2516",
+     "ref": "#2516",
+     "url": "https://github.com/boykopovar/AnyPS5/pull/2516",
+     "title": "feat(libkernel): implement cpuset_getaffinity for the calling thread",
+     "state": "closed",
+     "link": "related",
+     "updated": "2026-10-10T00:22:26Z",
+     "origin": "mined"
+    }
+   ],
+   "next": null,
+   "help_wanted": null,
+   "notes": "Tracked as a row in #1578: Four open-source homebrew titles stop at start-up on unresolved imports (sysctl, pthread_set_name_np, isatty, mkstemp, signal sets, Opus decoders)",
+   "owner": null,
+   "origin": "mined",
+   "tracker": false,
+   "created": "2026-10-10T02:20:30Z",
+   "last_activity": "2026-10-10T18:27:06Z",
    "labels": [],
    "frontier": 0,
    "one_fix_away": 0,
@@ -9246,6 +9414,12 @@
      "origin": "mined",
      "why": "a comment names it at this stop",
      "scope": null
+    },
+    {
+     "id": "2914",
+     "origin": "mined",
+     "why": "a comment names it at this stop",
+     "scope": null
     }
    ],
    "resolved_blockers": [
@@ -9253,7 +9427,8 @@
    ],
    "issues": [
     2241,
-    2476
+    2476,
+    2914
    ],
    "prs": [
     1158,
@@ -9263,13 +9438,14 @@
     2085,
     2156,
     2409,
-    2573
+    2573,
+    2924
    ],
    "last_evidence": {
-    "kind": "issue",
-    "number": 2476,
-    "url": "https://github.com/boykopovar/AnyPS5/issues/2476#issuecomment-6100552730",
-    "date": "2026-10-10T18:02:30Z"
+    "kind": "pr",
+    "number": 2924,
+    "url": "https://github.com/boykopovar/AnyPS5/pull/2924",
+    "date": "2026-10-10T18:31:09Z"
    }
   },
   {
@@ -9648,13 +9824,14 @@
    "prs": [
     2184,
     2226,
-    2667
+    2667,
+    2907
    ],
    "last_evidence": {
-    "kind": "issue",
-    "number": 2704,
-    "url": "https://github.com/boykopovar/AnyPS5/issues/2704",
-    "date": "2026-10-10T11:35:58Z"
+    "kind": "pr",
+    "number": 2907,
+    "url": "https://github.com/boykopovar/AnyPS5/pull/2907",
+    "date": "2026-10-10T18:23:04Z"
    }
   },
   {
@@ -10549,13 +10726,14 @@
     1981,
     1984,
     1993,
-    2158
+    2158,
+    2925
    ],
    "last_evidence": {
     "kind": "pr",
-    "number": 2158,
-    "url": "https://github.com/boykopovar/AnyPS5/pull/2158",
-    "date": "2026-10-09T10:15:27Z"
+    "number": 2925,
+    "url": "https://github.com/boykopovar/AnyPS5/pull/2925",
+    "date": "2026-10-10T18:33:08Z"
    }
   },
   {
@@ -10899,6 +11077,27 @@
    }
   },
   {
+   "id": "PPSA04867",
+   "name": "The Last Oricru",
+   "engine": null,
+   "kind": null,
+   "curated": false,
+   "best_stage": null,
+   "evidence": [],
+   "open_blockers": [],
+   "resolved_blockers": [],
+   "issues": [],
+   "prs": [
+    2744
+   ],
+   "last_evidence": {
+    "kind": "pr",
+    "number": 2744,
+    "url": "https://github.com/boykopovar/AnyPS5/pull/2744",
+    "date": "2026-10-10T12:39:24Z"
+   }
+  },
+  {
    "id": "PPSA05324",
    "name": "Sonic Origins",
    "engine": null,
@@ -11023,9 +11222,9 @@
     "stage": "Ingame",
     "os": "Linux",
     "gpu": "NVIDIA",
-    "build": "PR #2729",
-    "url": "https://github.com/boykopovar/AnyPS5/pull/2729",
-    "date": "2026-10-10T12:27:55Z",
+    "build": "PR #2915",
+    "url": "https://github.com/boykopovar/AnyPS5/pull/2915",
+    "date": "2026-10-10T18:27:26Z",
     "note": "“first level”",
     "origin": "mined"
    },
@@ -11037,6 +11236,16 @@
      "build": "PR #2729",
      "url": "https://github.com/boykopovar/AnyPS5/pull/2729",
      "date": "2026-10-10T12:27:55Z",
+     "note": "“first level”",
+     "origin": "mined"
+    },
+    {
+     "stage": "Ingame",
+     "os": "Linux",
+     "gpu": "NVIDIA",
+     "build": "PR #2915",
+     "url": "https://github.com/boykopovar/AnyPS5/pull/2915",
+     "date": "2026-10-10T18:27:26Z",
      "note": "“first level”",
      "origin": "mined"
     },
@@ -11067,6 +11276,16 @@
      "build": "PR #2730",
      "url": "https://github.com/boykopovar/AnyPS5/pull/2730",
      "date": "2026-10-10T12:27:59Z",
+     "note": "“first level”",
+     "origin": "mined"
+    },
+    {
+     "stage": "Menus",
+     "os": "Linux",
+     "gpu": "NVIDIA",
+     "build": "PR #2916",
+     "url": "https://github.com/boykopovar/AnyPS5/pull/2916",
+     "date": "2026-10-10T18:27:28Z",
      "note": "“first level”",
      "origin": "mined"
     },
@@ -11129,26 +11348,6 @@
      "date": "2026-10-09T11:29:46Z",
      "note": "“main menu”",
      "origin": "mined"
-    },
-    {
-     "stage": "Presents",
-     "os": "Linux",
-     "gpu": "NVIDIA",
-     "build": "PR #2203",
-     "url": "https://github.com/boykopovar/AnyPS5/pull/2203",
-     "date": "2026-10-09T11:29:48Z",
-     "note": "“main menu”",
-     "origin": "mined"
-    },
-    {
-     "stage": "Presents",
-     "os": "Linux",
-     "gpu": "NVIDIA",
-     "build": "PR #2204",
-     "url": "https://github.com/boykopovar/AnyPS5/pull/2204",
-     "date": "2026-10-09T11:29:50Z",
-     "note": "“main menu”",
-     "origin": "mined"
     }
    ],
    "open_blockers": [],
@@ -11172,13 +11371,21 @@
     2733,
     2734,
     2735,
-    2736
+    2736,
+    2915,
+    2916,
+    2917,
+    2918,
+    2919,
+    2920,
+    2921,
+    2922
    ],
    "last_evidence": {
     "kind": "pr",
-    "number": 2736,
-    "url": "https://github.com/boykopovar/AnyPS5/pull/2736",
-    "date": "2026-10-10T12:28:22Z"
+    "number": 2922,
+    "url": "https://github.com/boykopovar/AnyPS5/pull/2922",
+    "date": "2026-10-10T18:27:41Z"
    }
   },
   {
@@ -13421,6 +13628,16 @@
      "date": "2026-10-10T16:03:22Z",
      "note": "“boot”",
      "origin": "mined"
+    },
+    {
+     "stage": "Starts",
+     "os": "Windows",
+     "gpu": "NVIDIA",
+     "build": "PR #2900",
+     "url": "https://github.com/boykopovar/AnyPS5/pull/2900",
+     "date": "2026-10-10T18:17:53Z",
+     "note": "“boot”",
+     "origin": "mined"
     }
    ],
    "open_blockers": [],
@@ -13442,13 +13659,14 @@
     1847,
     2336,
     2587,
-    2817
+    2817,
+    2900
    ],
    "last_evidence": {
     "kind": "pr",
-    "number": 2817,
-    "url": "https://github.com/boykopovar/AnyPS5/pull/2817",
-    "date": "2026-10-10T16:03:22Z"
+    "number": 2900,
+    "url": "https://github.com/boykopovar/AnyPS5/pull/2900",
+    "date": "2026-10-10T18:17:53Z"
    }
   },
   {
@@ -13940,7 +14158,7 @@
   {
    "id": "PPSA28416",
    "name": "STAR WARS: Galactic Racer",
-   "engine": null,
+   "engine": "Unreal Engine 5",
    "kind": null,
    "curated": false,
    "best_stage": {
@@ -13963,6 +14181,16 @@
      "date": "2026-10-10T17:42:58Z",
      "note": "“renders”",
      "origin": "mined"
+    },
+    {
+     "stage": "Starts",
+     "os": "Windows",
+     "gpu": "NVIDIA",
+     "build": "PR #2939",
+     "url": "https://github.com/boykopovar/AnyPS5/pull/2939",
+     "date": "2026-10-10T18:40:31Z",
+     "note": "“first presentation”",
+     "origin": "mined"
     }
    ],
    "open_blockers": [],
@@ -13970,13 +14198,16 @@
    "issues": [],
    "prs": [
     2888,
-    2890
+    2890,
+    2939,
+    2940,
+    2941
    ],
    "last_evidence": {
     "kind": "pr",
-    "number": 2890,
-    "url": "https://github.com/boykopovar/AnyPS5/pull/2890",
-    "date": "2026-10-10T17:44:00Z"
+    "number": 2941,
+    "url": "https://github.com/boykopovar/AnyPS5/pull/2941",
+    "date": "2026-10-10T18:40:37Z"
    }
   },
   {
@@ -14628,13 +14859,14 @@
     2689
    ],
    "prs": [
-    2684
+    2684,
+    2903
    ],
    "last_evidence": {
-    "kind": "issue",
-    "number": 2689,
-    "url": "https://github.com/boykopovar/AnyPS5/issues/2689",
-    "date": "2026-10-10T10:56:09Z"
+    "kind": "pr",
+    "number": 2903,
+    "url": "https://github.com/boykopovar/AnyPS5/pull/2903",
+    "date": "2026-10-10T18:20:28Z"
    }
   },
   {
@@ -15093,10 +15325,10 @@
     "stage": "Converts",
     "os": "Windows",
     "gpu": null,
-    "build": "main",
-    "url": "https://github.com/boykopovar/AnyPS5/issues/1578#issuecomment-6092658382",
-    "date": "2026-10-10T02:20:30Z",
-    "note": "stops at: unresolved ELF import 17Mfe1B3X6U (_fstatfs)",
+    "build": "PR #2934",
+    "url": "https://github.com/boykopovar/AnyPS5/pull/2934",
+    "date": "2026-10-10T18:33:56Z",
+    "note": "stops at: unresolved ELF import 3m2ro+Di+Ck (nextafterf) from libSceLibcInternal",
     "origin": "mined"
    },
    "evidence": [
@@ -15119,16 +15351,19 @@
      "date": "2026-10-10T02:20:30Z",
      "note": "stops at: unresolved ELF import 17Mfe1B3X6U (_fstatfs)",
      "origin": "mined"
-    }
-   ],
-   "open_blockers": [
+    },
     {
-     "id": "1578~_fstatfs",
-     "origin": "mined",
-     "why": "latest recorded stop, listed in tracker #1578",
-     "scope": null
+     "stage": "Converts",
+     "os": "Windows",
+     "gpu": null,
+     "build": "PR #2934",
+     "url": "https://github.com/boykopovar/AnyPS5/pull/2934",
+     "date": "2026-10-10T18:33:56Z",
+     "note": "stops at: unresolved ELF import 3m2ro+Di+Ck (nextafterf) from libSceLibcInternal",
+     "origin": "mined"
     }
    ],
+   "open_blockers": [],
    "resolved_blockers": [
     "2559"
    ],
@@ -15149,13 +15384,16 @@
     2192,
     2568,
     2705,
-    2858
+    2858,
+    2931,
+    2932,
+    2934
    ],
    "last_evidence": {
     "kind": "pr",
-    "number": 2858,
-    "url": "https://github.com/boykopovar/AnyPS5/pull/2858",
-    "date": "2026-10-10T16:48:23Z"
+    "number": 2934,
+    "url": "https://github.com/boykopovar/AnyPS5/pull/2934",
+    "date": "2026-10-10T18:33:56Z"
    }
   },
   {
@@ -15260,13 +15498,16 @@
     2186,
     2697,
     2705,
-    2738
+    2738,
+    2902,
+    2931,
+    2932
    ],
    "last_evidence": {
-    "kind": "issue",
-    "number": 1578,
-    "url": "https://github.com/boykopovar/AnyPS5/issues/1578#issuecomment-6097752724",
-    "date": "2026-10-10T12:59:24Z"
+    "kind": "pr",
+    "number": 2932,
+    "url": "https://github.com/boykopovar/AnyPS5/pull/2932",
+    "date": "2026-10-10T18:33:46Z"
    }
   },
   {
@@ -15345,13 +15586,14 @@
     1783,
     1807,
     2065,
-    2705
+    2705,
+    2932
    ],
    "last_evidence": {
-    "kind": "issue",
-    "number": 1578,
-    "url": "https://github.com/boykopovar/AnyPS5/issues/1578#issuecomment-6097752724",
-    "date": "2026-10-10T12:59:24Z"
+    "kind": "pr",
+    "number": 2932,
+    "url": "https://github.com/boykopovar/AnyPS5/pull/2932",
+    "date": "2026-10-10T18:33:46Z"
    }
   },
   {
@@ -15420,12 +15662,14 @@
     2010,
     2631
    ],
-   "prs": [],
+   "prs": [
+    2935
+   ],
    "last_evidence": {
-    "kind": "issue",
-    "number": 1578,
-    "url": "https://github.com/boykopovar/AnyPS5/issues/1578#issuecomment-6100330035",
-    "date": "2026-10-10T17:36:54Z"
+    "kind": "pr",
+    "number": 2935,
+    "url": "https://github.com/boykopovar/AnyPS5/pull/2935",
+    "date": "2026-10-10T18:34:52Z"
    }
   },
   {
@@ -15447,13 +15691,14 @@
     1783,
     1992,
     2065,
-    2705
+    2705,
+    2932
    ],
    "last_evidence": {
-    "kind": "issue",
-    "number": 1578,
-    "url": "https://github.com/boykopovar/AnyPS5/issues/1578#issuecomment-6097752724",
-    "date": "2026-10-10T12:59:24Z"
+    "kind": "pr",
+    "number": 2932,
+    "url": "https://github.com/boykopovar/AnyPS5/pull/2932",
+    "date": "2026-10-10T18:33:46Z"
    }
   },
   {
@@ -15464,11 +15709,11 @@
    "curated": false,
    "best_stage": {
     "stage": "Converts",
-    "os": "Windows",
-    "gpu": "software",
-    "build": "PR #2543",
-    "url": "https://github.com/boykopovar/AnyPS5/pull/2543",
-    "date": "2026-10-10T03:26:17Z",
+    "os": null,
+    "gpu": null,
+    "build": "PR #2906",
+    "url": "https://github.com/boykopovar/AnyPS5/pull/2906",
+    "date": "2026-10-10T18:22:57Z",
     "note": "stops at: unresolved ELF import Mv1zUObHvXI (sceKernelGetSystemSwVersion)",
     "origin": "mined"
    },
@@ -15482,24 +15727,43 @@
      "date": "2026-10-10T03:26:17Z",
      "note": "stops at: unresolved ELF import Mv1zUObHvXI (sceKernelGetSystemSwVersion)",
      "origin": "mined"
+    },
+    {
+     "stage": "Converts",
+     "os": null,
+     "gpu": null,
+     "build": "PR #2906",
+     "url": "https://github.com/boykopovar/AnyPS5/pull/2906",
+     "date": "2026-10-10T18:22:57Z",
+     "note": "stops at: unresolved ELF import Mv1zUObHvXI (sceKernelGetSystemSwVersion)",
+     "origin": "mined"
     }
    ],
-   "open_blockers": [],
+   "open_blockers": [
+    {
+     "id": "2908",
+     "origin": "mined",
+     "why": "latest recorded stop matches its signature",
+     "scope": null
+    }
+   ],
    "resolved_blockers": [],
    "issues": [
     1578,
-    2010
+    2010,
+    2908
    ],
    "prs": [
     1673,
     1738,
-    2543
+    2543,
+    2906
    ],
    "last_evidence": {
     "kind": "issue",
-    "number": 1578,
-    "url": "https://github.com/boykopovar/AnyPS5/issues/1578#issuecomment-6097752724",
-    "date": "2026-10-10T12:59:24Z"
+    "number": 2908,
+    "url": "https://github.com/boykopovar/AnyPS5/issues/2908",
+    "date": "2026-10-10T18:23:15Z"
    }
   },
   {
@@ -15688,13 +15952,14 @@
     2167,
     2174,
     2705,
-    2865
+    2865,
+    2931
    ],
    "last_evidence": {
     "kind": "pr",
-    "number": 2865,
-    "url": "https://github.com/boykopovar/AnyPS5/pull/2865",
-    "date": "2026-10-10T16:53:29Z"
+    "number": 2931,
+    "url": "https://github.com/boykopovar/AnyPS5/pull/2931",
+    "date": "2026-10-10T18:33:42Z"
    }
   },
   {
@@ -15885,13 +16150,14 @@
    "prs": [
     1868,
     1869,
-    2705
+    2705,
+    2932
    ],
    "last_evidence": {
-    "kind": "issue",
-    "number": 1578,
-    "url": "https://github.com/boykopovar/AnyPS5/issues/1578#issuecomment-6097752724",
-    "date": "2026-10-10T12:59:24Z"
+    "kind": "pr",
+    "number": 2932,
+    "url": "https://github.com/boykopovar/AnyPS5/pull/2932",
+    "date": "2026-10-10T18:33:46Z"
    }
   },
   {
@@ -16126,9 +16392,9 @@
     "stage": "Converts",
     "os": "Windows",
     "gpu": null,
-    "build": "PR #2186",
-    "url": "https://github.com/boykopovar/AnyPS5/pull/2186",
-    "date": "2026-10-09T11:07:13Z",
+    "build": "PR #2932",
+    "url": "https://github.com/boykopovar/AnyPS5/pull/2932",
+    "date": "2026-10-10T18:33:46Z",
     "note": "stops at: unresolved ELF import fLcU5G6Qrjs (atoll) from libSceLibcInternal",
     "origin": "mined"
    },
@@ -16150,6 +16416,16 @@
      "build": "PR #2186",
      "url": "https://github.com/boykopovar/AnyPS5/pull/2186",
      "date": "2026-10-09T11:07:13Z",
+     "note": "stops at: unresolved ELF import fLcU5G6Qrjs (atoll) from libSceLibcInternal",
+     "origin": "mined"
+    },
+    {
+     "stage": "Converts",
+     "os": "Windows",
+     "gpu": null,
+     "build": "PR #2932",
+     "url": "https://github.com/boykopovar/AnyPS5/pull/2932",
+     "date": "2026-10-10T18:33:46Z",
      "note": "stops at: unresolved ELF import fLcU5G6Qrjs (atoll) from libSceLibcInternal",
      "origin": "mined"
     }
@@ -16184,13 +16460,16 @@
     2618,
     2705,
     2865,
-    2868
+    2868,
+    2887,
+    2931,
+    2932
    ],
    "last_evidence": {
     "kind": "pr",
-    "number": 2868,
-    "url": "https://github.com/boykopovar/AnyPS5/pull/2868",
-    "date": "2026-10-10T17:00:22Z"
+    "number": 2932,
+    "url": "https://github.com/boykopovar/AnyPS5/pull/2932",
+    "date": "2026-10-10T18:33:46Z"
    }
   },
   {
@@ -16355,15 +16634,9 @@
      "origin": "mined"
     }
    ],
-   "open_blockers": [
-    {
-     "id": "1578~cpuset_getaffinity",
-     "origin": "mined",
-     "why": "latest recorded stop, listed in tracker #1578",
-     "scope": null
-    }
-   ],
+   "open_blockers": [],
    "resolved_blockers": [
+    "1578~cpuset_getaffinity",
     "2559"
    ],
    "issues": [
@@ -16378,13 +16651,14 @@
     2174,
     2516,
     2568,
-    2859
+    2859,
+    2931
    ],
    "last_evidence": {
     "kind": "pr",
-    "number": 2859,
-    "url": "https://github.com/boykopovar/AnyPS5/pull/2859",
-    "date": "2026-10-10T16:48:25Z"
+    "number": 2931,
+    "url": "https://github.com/boykopovar/AnyPS5/pull/2931",
+    "date": "2026-10-10T18:33:42Z"
    }
   },
   {
@@ -16494,13 +16768,17 @@
     2705,
     2757,
     2758,
-    2765
+    2765,
+    2912,
+    2931,
+    2932,
+    2933
    ],
    "last_evidence": {
     "kind": "pr",
-    "number": 2765,
-    "url": "https://github.com/boykopovar/AnyPS5/pull/2765",
-    "date": "2026-10-10T13:15:43Z"
+    "number": 2933,
+    "url": "https://github.com/boykopovar/AnyPS5/pull/2933",
+    "date": "2026-10-10T18:33:51Z"
    }
   },
   {
@@ -16521,13 +16799,14 @@
     1805,
     1838,
     1845,
-    2174
+    2174,
+    2931
    ],
    "last_evidence": {
-    "kind": "issue",
-    "number": 1578,
-    "url": "https://github.com/boykopovar/AnyPS5/issues/1578#issuecomment-6097752724",
-    "date": "2026-10-10T12:59:24Z"
+    "kind": "pr",
+    "number": 2931,
+    "url": "https://github.com/boykopovar/AnyPS5/pull/2931",
+    "date": "2026-10-10T18:33:42Z"
    }
   },
   {
@@ -16671,13 +16950,15 @@
     2216,
     2220,
     2568,
-    2827
+    2827,
+    2931,
+    2932
    ],
    "last_evidence": {
     "kind": "pr",
-    "number": 2827,
-    "url": "https://github.com/boykopovar/AnyPS5/pull/2827",
-    "date": "2026-10-10T16:14:06Z"
+    "number": 2932,
+    "url": "https://github.com/boykopovar/AnyPS5/pull/2932",
+    "date": "2026-10-10T18:33:46Z"
    }
   },
   {
@@ -16728,13 +17009,14 @@
     1845,
     2174,
     2705,
-    2764
+    2764,
+    2931
    ],
    "last_evidence": {
-    "kind": "issue",
-    "number": 1578,
-    "url": "https://github.com/boykopovar/AnyPS5/issues/1578#issuecomment-6098180041",
-    "date": "2026-10-10T13:51:13Z"
+    "kind": "pr",
+    "number": 2931,
+    "url": "https://github.com/boykopovar/AnyPS5/pull/2931",
+    "date": "2026-10-10T18:33:42Z"
    }
   },
   {
@@ -16782,13 +17064,14 @@
     1838,
     1845,
     2174,
-    2705
+    2705,
+    2931
    ],
    "last_evidence": {
-    "kind": "issue",
-    "number": 1578,
-    "url": "https://github.com/boykopovar/AnyPS5/issues/1578#issuecomment-6098180041",
-    "date": "2026-10-10T13:51:13Z"
+    "kind": "pr",
+    "number": 2931,
+    "url": "https://github.com/boykopovar/AnyPS5/pull/2931",
+    "date": "2026-10-10T18:33:42Z"
    }
   },
   {
@@ -16887,6 +17170,16 @@
      "date": "2026-10-08T16:30:22Z",
      "note": "“presents”",
      "origin": "mined"
+    },
+    {
+     "stage": "Starts",
+     "os": "Windows",
+     "gpu": null,
+     "build": "PR #2926",
+     "url": "https://github.com/boykopovar/AnyPS5/pull/2926",
+     "date": "2026-10-10T18:33:23Z",
+     "note": "“boot”",
+     "origin": "mined"
     }
    ],
    "open_blockers": [
@@ -16932,13 +17225,14 @@
     2524,
     2574,
     2618,
-    2705
+    2705,
+    2926
    ],
    "last_evidence": {
-    "kind": "issue",
-    "number": 2663,
-    "url": "https://github.com/boykopovar/AnyPS5/issues/2663#issuecomment-6097403434",
-    "date": "2026-10-10T12:18:17Z"
+    "kind": "pr",
+    "number": 2926,
+    "url": "https://github.com/boykopovar/AnyPS5/pull/2926",
+    "date": "2026-10-10T18:33:23Z"
    }
   },
   {
@@ -16949,12 +17243,12 @@
    "curated": false,
    "best_stage": {
     "stage": "Converts",
-    "os": "Linux",
+    "os": "Windows",
     "gpu": null,
-    "build": "PR #1738",
-    "url": "https://github.com/boykopovar/AnyPS5/pull/1738",
-    "date": "2026-10-08T17:55:25Z",
-    "note": "stops at: unresolved ELF import 5kBfZ40bAuk (tcgetattr)",
+    "build": "PR #2933",
+    "url": "https://github.com/boykopovar/AnyPS5/pull/2933",
+    "date": "2026-10-10T18:33:51Z",
+    "note": "stops at: unresolved ELF import eQhBFnTOp40 (llroundf) from libSceLibcInternal",
     "origin": "mined"
    },
    "evidence": [
@@ -16966,6 +17260,16 @@
      "url": "https://github.com/boykopovar/AnyPS5/pull/1738",
      "date": "2026-10-08T17:55:25Z",
      "note": "stops at: unresolved ELF import 5kBfZ40bAuk (tcgetattr)",
+     "origin": "mined"
+    },
+    {
+     "stage": "Converts",
+     "os": "Windows",
+     "gpu": null,
+     "build": "PR #2933",
+     "url": "https://github.com/boykopovar/AnyPS5/pull/2933",
+     "date": "2026-10-10T18:33:51Z",
+     "note": "stops at: unresolved ELF import eQhBFnTOp40 (llroundf) from libSceLibcInternal",
      "origin": "mined"
     }
    ],
@@ -16979,13 +17283,15 @@
     1738,
     1783,
     2123,
-    2705
+    2705,
+    2932,
+    2933
    ],
    "last_evidence": {
-    "kind": "issue",
-    "number": 1578,
-    "url": "https://github.com/boykopovar/AnyPS5/issues/1578#issuecomment-6097752724",
-    "date": "2026-10-10T12:59:24Z"
+    "kind": "pr",
+    "number": 2933,
+    "url": "https://github.com/boykopovar/AnyPS5/pull/2933",
+    "date": "2026-10-10T18:33:51Z"
    }
   },
   {
@@ -17104,13 +17410,14 @@
     1772,
     1781,
     1783,
-    2705
+    2705,
+    2932
    ],
    "last_evidence": {
-    "kind": "issue",
-    "number": 1578,
-    "url": "https://github.com/boykopovar/AnyPS5/issues/1578#issuecomment-6097752724",
-    "date": "2026-10-10T12:59:24Z"
+    "kind": "pr",
+    "number": 2932,
+    "url": "https://github.com/boykopovar/AnyPS5/pull/2932",
+    "date": "2026-10-10T18:33:46Z"
    }
   },
   {
@@ -17268,13 +17575,14 @@
     1838,
     1845,
     2705,
-    2887
+    2887,
+    2932
    ],
    "last_evidence": {
     "kind": "pr",
-    "number": 2887,
-    "url": "https://github.com/boykopovar/AnyPS5/pull/2887",
-    "date": "2026-10-10T17:41:15Z"
+    "number": 2932,
+    "url": "https://github.com/boykopovar/AnyPS5/pull/2932",
+    "date": "2026-10-10T18:33:46Z"
    }
   }
  ],
@@ -17454,9 +17762,9 @@
    "source": "https://boykopovar.github.io/AnyPS5/progress.json"
   },
   "hle": {
-   "done": 2697,
-   "total": 3191,
-   "percent": 84.52,
+   "done": 2708,
+   "total": 3202,
+   "percent": 84.57,
    "groups": [
     {
      "library": "libSceAgc",
@@ -17644,7 +17952,7 @@
     {
      "library": "libkernel",
      "label": "libkernel",
-     "done": 469,
+     "done": 472,
      "todo": 37,
      "percent": 92.7,
      "requested": {
@@ -17806,44 +18114,6 @@
      ]
     },
     {
-     "library": "libSceAjm.native",
-     "label": "Ajm.native",
-     "done": 28,
-     "todo": 7,
-     "percent": 80.0,
-     "requested": {
-      "sceAjmBatchJobControl": [
-       1941,
-       2355
-      ],
-      "sceAjmBatchJobDecodeSplit": [
-       1578,
-       1967,
-       2523,
-       2598
-      ],
-      "sceAjmBatchJobSetResampleParametersEx": [
-       1578,
-       1967,
-       2523,
-       2598
-      ],
-      "sceAjmStrError": [
-       1967,
-       2598
-      ]
-     },
-     "todo_names": [
-      "sceAjmBatchJobControl",
-      "sceAjmBatchJobDecodeSplit",
-      "sceAjmBatchJobEncode",
-      "sceAjmBatchJobSetResampleParametersEx",
-      "sceAjmDecWVorbisCreateHeaderPacket",
-      "sceAjmDecWVorbisCreateSetupPacket",
-      "sceAjmStrError"
-     ]
-    },
-    {
      "library": "libSceAudioIn",
      "label": "AudioIn",
      "done": 3,
@@ -17965,7 +18235,7 @@
     {
      "library": "libc",
      "label": "libc",
-     "done": 597,
+     "done": 599,
      "todo": 19,
      "percent": 96.9,
      "requested": {
@@ -18045,6 +18315,52 @@
       "sceSystemServiceOpenTournamentOccurrence",
       "sceSystemServiceParamGetString",
       "sceSystemServiceShowControllerSettings"
+     ]
+    },
+    {
+     "library": "libSceAjm.native",
+     "label": "Ajm.native",
+     "done": 30,
+     "todo": 5,
+     "percent": 85.7,
+     "requested": {
+      "sceAjmBatchJobControl": [
+       1941,
+       2355
+      ],
+      "sceAjmStrError": [
+       1967,
+       2598
+      ]
+     },
+     "todo_names": [
+      "sceAjmBatchJobControl",
+      "sceAjmBatchJobEncode",
+      "sceAjmDecWVorbisCreateHeaderPacket",
+      "sceAjmDecWVorbisCreateSetupPacket",
+      "sceAjmStrError"
+     ]
+    },
+    {
+     "library": "libSceNet",
+     "label": "Net",
+     "done": 46,
+     "todo": 3,
+     "percent": 93.9,
+     "requested": {
+      "sceNetResolverStartNtoaMultipleRecords": [
+       1967,
+       2598
+      ],
+      "sceNetShowNetstat": [
+       1578,
+       2523
+      ]
+     },
+     "todo_names": [
+      "sceNetResolverAbort",
+      "sceNetResolverStartNtoaMultipleRecords",
+      "sceNetShowNetstat"
      ]
     },
     {
@@ -18162,9 +18478,9 @@
     {
      "library": "libSceSsl",
      "label": "Ssl",
-     "done": 5,
+     "done": 8,
      "todo": 9,
-     "percent": 35.7,
+     "percent": 47.1,
      "requested": {
       "sceSslGetPem": [
        2591
@@ -18225,9 +18541,9 @@
     {
      "library": "libSceNpManager",
      "label": "NpManager",
-     "done": 29,
+     "done": 30,
      "todo": 3,
-     "percent": 90.6,
+     "percent": 90.9,
      "requested": {
       "sceNpGetUserIdByAccountId": [
        1967,
@@ -18238,23 +18554,6 @@
       "sceNpGetUserIdByAccountId",
       "sceNpRegisterGamePresenceCallback",
       "sceNpSetContentRestriction"
-     ]
-    },
-    {
-     "library": "libSceNet",
-     "label": "Net",
-     "done": 46,
-     "todo": 2,
-     "percent": 95.8,
-     "requested": {
-      "sceNetResolverStartNtoaMultipleRecords": [
-       1967,
-       2598
-      ]
-     },
-     "todo_names": [
-      "sceNetResolverAbort",
-      "sceNetResolverStartNtoaMultipleRecords"
      ]
     },
     {
@@ -18605,6 +18904,23 @@
      ]
     },
     {
+     "library": "libSceCdlgG2P",
+     "label": "CdlgG2P",
+     "done": 0,
+     "todo": 7,
+     "percent": 0.0,
+     "requested": {},
+     "todo_names": [
+      "sceG2PDialogClose",
+      "sceG2PDialogGetResult",
+      "sceG2PDialogGetStatus",
+      "sceG2PDialogInitialize",
+      "sceG2PDialogOpen",
+      "sceG2PDialogTerminate",
+      "sceG2PDialogUpdateStatus"
+     ]
+    },
+    {
      "library": "libSceVideoRecordingP",
      "label": "VideoRecordingP",
      "done": 2,
@@ -18619,22 +18935,6 @@
       "sceVideoRecordingStart",
       "sceVideoRecordingStop",
       "videoRecordingUnknown_iQS6DUtLybE"
-     ]
-    },
-    {
-     "library": "libSceCdlgG2P",
-     "label": "CdlgG2P",
-     "done": 0,
-     "todo": 6,
-     "percent": 0.0,
-     "requested": {},
-     "todo_names": [
-      "sceG2PDialogGetResult",
-      "sceG2PDialogGetStatus",
-      "sceG2PDialogInitialize",
-      "sceG2PDialogOpen",
-      "sceG2PDialogTerminate",
-      "sceG2PDialogUpdateStatus"
      ]
     },
     {
@@ -20482,6 +20782,14 @@
     "source_files": 1
    },
    {
+    "name": "CB_COLOR_INFO",
+    "issue_count": 1,
+    "issues": [
+     2102
+    ],
+    "source_files": 2
+   },
+   {
     "name": "CB_COLOR_VIEW",
     "issue_count": 1,
     "issues": [
@@ -20496,14 +20804,6 @@
      2102
     ],
     "source_files": 0
-   },
-   {
-    "name": "CB_COLOR_INFO",
-    "issue_count": 1,
-    "issues": [
-     2102
-    ],
-    "source_files": 2
    },
    {
     "name": "DB_SHADER_CONTROL",
@@ -20522,7 +20822,7 @@
     "source_files": 0
    },
    {
-    "name": "TA_BC_BASE_ADDR_HI",
+    "name": "TA_CS_BC_BASE_ADDR",
     "issue_count": 1,
     "issues": [
      665
@@ -20538,7 +20838,7 @@
     "source_files": 0
    },
    {
-    "name": "TA_CS_BC_BASE_ADDR",
+    "name": "TA_BC_BASE_ADDR_HI",
     "issue_count": 1,
     "issues": [
      665
@@ -20586,20 +20886,20 @@
     "source_files": 0
    },
    {
-    "name": "SPI_PS_INPUT_ENA",
-    "issue_count": 1,
-    "issues": [
-     2026
-    ],
-    "source_files": 4
-   },
-   {
     "name": "CB_COLOR0_ATTRIB",
     "issue_count": 1,
     "issues": [
      2026
     ],
     "source_files": 0
+   },
+   {
+    "name": "SPI_PS_INPUT_ENA",
+    "issue_count": 1,
+    "issues": [
+     2026
+    ],
+    "source_files": 4
    },
    {
     "name": "SPI_SHADER_PGM_",
@@ -20624,17 +20924,17 @@
    {
     "area": "libkernel",
     "name": "libkernel",
-    "score": 105,
+    "score": 90,
     "blockers": [
      "pr-2106",
      "pr-1482",
      "pr-1872",
-     "1794"
+     "2701"
     ],
-    "blocker_count": 12,
-    "titles": 21,
-    "frontier_titles": 18,
-    "open_fix_prs": 6
+    "blocker_count": 10,
+    "titles": 18,
+    "frontier_titles": 15,
+    "open_fix_prs": 5
    },
    {
     "area": "shader",
@@ -20649,26 +20949,26 @@
     "blocker_count": 13,
     "titles": 17,
     "frontier_titles": 13,
-    "open_fix_prs": 7
+    "open_fix_prs": 8
    },
    {
     "area": "agc",
-    "name": "AGC driver (GPU)",
-    "score": 35,
+    "name": "AGC driver",
+    "score": 36,
     "blockers": [
      "1409",
      "2102",
      "2523",
      "479"
     ],
-    "blocker_count": 9,
-    "titles": 10,
+    "blocker_count": 10,
+    "titles": 11,
     "frontier_titles": 7,
-    "open_fix_prs": 2
+    "open_fix_prs": 3
    },
    {
     "area": "prx",
-    "name": "HLE modules",
+    "name": "HLE libraries",
     "score": 25,
     "blockers": [
      "2776",
@@ -20692,7 +20992,7 @@
     "blocker_count": 2,
     "titles": 2,
     "frontier_titles": 2,
-    "open_fix_prs": 0
+    "open_fix_prs": 1
    }
   ],
   "help_wanted": [
@@ -20721,15 +21021,15 @@
     "reason": "First open blocker for 2 titles; no open fix PR"
    },
    {
-    "blocker": "2871",
-    "reason": "First open blocker for 1 title; no open fix PR"
-   },
-   {
     "blocker": "2701",
     "reason": "First open blocker for 1 title; no open fix PR"
    },
    {
     "blocker": "2621",
+    "reason": "First open blocker for 1 title; no open fix PR"
+   },
+   {
+    "blocker": "2908",
     "reason": "First open blocker for 1 title; no open fix PR"
    },
    {
@@ -20759,7 +21059,10 @@
   "Titles without a PPSA ID (some homebrew) appear only when curated.",
   "Discord reports are invisible unless someone copies them into GitHub or the curated file.",
   "Signatures are matched by prefix after hex addresses and long numbers are masked; reworded messages split into separate keys.",
-  "PM4 status reads Pm4::UnsupportedReason(); a packet can pass that check and still be emulated partially."
+  "PM4 status reads Pm4::UnsupportedReason(); a packet can pass that check and still be emulated partially.",
+  "Stages mined from PR bodies describe the PR branch (build “PR #N”), not main.",
+  "An issue that names seven or more titles is treated as a tracker: only its per-title stop rows count, as separate blockers.",
+  "HLE “named in issues” counts any mention of a missing function, including lists of imports that were never reached."
  ],
  "sources": {
   "issues_and_prs": "https://github.com/boykopovar/AnyPS5 via gh api graphql (open + closed in the last 60 days)",
