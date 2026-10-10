@@ -1,6 +1,6 @@
 # AGENTS.md: curating the AnyPS5 blocker map
 
-This repo builds a generated roadmap for the AnyPS5 PS5 emulator. `roadmap.py` mines
+This repo builds a generated roadmap for AnyPS5, the tool that ports PS5 executables to Linux and Windows. `roadmap.py` mines
 GitHub issues and PRs of `boykopovar/AnyPS5`; `data/blockers.json` holds the facts that
 mining gets wrong or cannot see. Curated facts always win over mined ones.
 

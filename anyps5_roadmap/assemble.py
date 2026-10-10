@@ -205,7 +205,7 @@ KNOWN_GAPS = [
     "Titles without a PPSA ID (some homebrew) appear only when curated.",
     "Discord reports are invisible unless someone copies them into GitHub or the curated file.",
     "Signatures are matched by prefix after hex addresses and long numbers are masked; reworded messages split into separate keys.",
-    "PM4 status reads Pm4::UnsupportedReason(); a packet can pass that check and still be emulated partially.",
+    "PM4 status reads Pm4::UnsupportedReason(); a packet can pass that check and still be handled only partly.",
     "Stages mined from PR text describe the PR branch (build “PR #N”), not main, unless the sentence says main and "
     "names no patches.",
     "An issue that names seven or more titles is treated as a tracker: only its per-title stop rows count, as separate blockers.",

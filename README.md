@@ -3,7 +3,7 @@
 [![CI](https://github.com/AlxcBTW/anyps5-roadmap/actions/workflows/ci.yml/badge.svg)](https://github.com/AlxcBTW/anyps5-roadmap/actions/workflows/ci.yml)
 [![Pages](https://github.com/AlxcBTW/anyps5-roadmap/actions/workflows/roadmap.yml/badge.svg)](https://github.com/AlxcBTW/anyps5-roadmap/actions/workflows/roadmap.yml)
 
-Which open issues stop which PS5 games in the [AnyPS5](https://github.com/boykopovar/AnyPS5) emulator,
+Which open issues stop which PS5 games in [AnyPS5](https://github.com/boykopovar/AnyPS5), the tool that ports PS5 executables to Linux and Windows,
 ranked by how many games a fix would move, plus how much of the PS5's system libraries and GPU AnyPS5
 implements.
 
@@ -87,7 +87,7 @@ Every field is described in [AGENTS.md](AGENTS.md) and in the published
   first data fix in five minutes. CI shows what the change does to the ranking and the stages, and the
   page is rebuilt a few minutes after the merge.
 
-Bugs in the emulator itself belong in [AnyPS5's issues](https://github.com/boykopovar/AnyPS5/issues).
+Bugs in AnyPS5 itself belong in [AnyPS5's issues](https://github.com/boykopovar/AnyPS5/issues).
 
 ## Known limits
 

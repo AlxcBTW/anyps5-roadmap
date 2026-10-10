@@ -1,6 +1,6 @@
 blank_issues_enabled: true
 contact_links:
-  - name: Emulator bug or crash
+  - name: AnyPS5 bug or crash
     url: https://github.com/boykopovar/AnyPS5/issues
     about: Bugs in AnyPS5 itself go to the AnyPS5 repository. This repository only maps them.
   - name: Question or idea

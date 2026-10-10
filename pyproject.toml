@@ -1,7 +1,7 @@
 [project]
 name = "anyps5-roadmap"
 version = "0.2.0"
-description = "Blocker map for the AnyPS5 PS5 emulator: which open issues stop which games. Community prototype, not official."
+description = "Blocker map for AnyPS5, the PS5 executable porting tool: which open issues stop which games. Community prototype, not official."
 readme = "README.md"
 requires-python = ">=3.11"
 license = "MIT"

@@ -341,7 +341,7 @@ class Page:
         return f"""<section class="hero" aria-labelledby="h-hero">
   <h1 id="h-hero">{esc(plural(len(self.ranked), "open blocker"))} stop {esc(plural(len(waiting), "PS5 game"))}.</h1>
   <p class="lead">Fixing the top three gets {len(top3)} of them past their current stop. Below: how far each game gets
-  in the community emulator AnyPS5, and which issue holds most of them at each stage.</p>
+  in AnyPS5, the tool that ports PS5 executables to Linux and Windows, and which issue holds most of them at each stage.</p>
   <ol class="ladder" aria-label="Games by highest confirmed stage">{"".join(rungs)}</ol>
   {rest}
 </section>"""
@@ -784,7 +784,7 @@ class Page:
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>AnyPS5 blocker map</title>
-<meta name="description" content="Which open issues stop PS5 games in the AnyPS5 emulator, ranked by how many games a fix moves.">
+<meta name="description" content="Which open issues stop PS5 games in AnyPS5, the PS5 executable porting tool, ranked by how many games a fix moves.">
 <meta name="color-scheme" content="light dark">
 <link rel="preload" href="fonts/Geist-Variable.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="fonts/GeistPixel-Square.woff2" as="font" type="font/woff2" crossorigin>

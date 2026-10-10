@@ -157,7 +157,7 @@ def render_llms(doc: dict) -> str:
     L = [
         "# AnyPS5 blocker map",
         "",
-        f"> Generated technical roadmap for the AnyPS5 PS5 emulator (https://github.com/{repo}): which open issues block which PS5 "
+        f"> Generated technical roadmap for AnyPS5, a tool that ports PS5 executables to Linux and Windows (https://github.com/{repo}): which open issues block which PS5 "
         "titles, ranked by how many titles a fix would move, plus HLE, RDNA ISA and PM4 coverage. Community prototype, not official; "
         "regenerated from GitHub data by roadmap.py.",
         "",
