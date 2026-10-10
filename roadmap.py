@@ -44,6 +44,8 @@ DRIVER_DIR = "core/libs/prx/libSceAgcDriver"
 RAW_URL = "https://raw.githubusercontent.com/{repo}/main/{path}"
 
 STAGES = ["Converts", "Loads", "Starts", "First draw", "Presents", "Menus", "Ingame", "Playable"]
+# mined stages from here up need a hand review before they count as best_stage
+VERIFY_FROM = STAGES.index("Menus")
 STAGE_HELP = {
     "Converts": "The package unpacks and the relinker converts the executable.",
     "Loads": "All imports resolve and the ELF loads.",
@@ -426,18 +428,26 @@ GPU_RULES = [
     (re.compile(r"Intel Arc|\bArc\b|\bIris\b|UHD Graphics|HD Graphics|\bIntel\b"), "Intel"),
     (re.compile(r"lavapipe|llvmpipe"), "software"),
 ]
-NEGATION = re.compile(r"\b(?:never|not|no|without|cannot|can't|doesn't|does not|didn't|fails? to|before|instead of|until)\b[^.;]{0,30}$", re.I)
+NEGATION = re.compile(r"\b(?:never|not|no|nothing|without|cannot|can't|doesn't|does not|didn't|fails? to|before|instead of|until)\b[^.;]{0,30}$", re.I)
+# "loads story mode until …", "right after loading its first level": the title got to the
+# loading step, not into the stage the keyword names
+LOADING_CONTEXT = re.compile(r"\b(?:loads?|loading|into the|towards?)\b[^.;]{0,30}$", re.I)
+# leading verbs that are not part of a title's name: "Adds LEGO Party! (PPSA29141)",
+# "Seen in PPSA22520 (Animal Well)"
+NAME_LEAD_VERBS = {"adds", "add", "lists", "list", "seen", "measured", "tested", "implements", "supports", "runs", "boots",
+                   "brings", "takes", "took", "makes", "lets", "gets"}
 STOP_WORDS = re.compile(r"\b(?:stops?|stopped|stuck|hangs?|halts?|freezes|crash(?:es|ed)?|aborts?|dies|faults?|segfaults?|fails?|failed|same (?:error|stop|crash|message)|refused|throws?)\b", re.I)
 REPORT_FIELD = re.compile(r"\s*[-*]?\s*(?:title id|title|game|titles? tested|tested title)\s*:", re.I)
 STAGE_RULES = [
     ("Playable", re.compile(r"(?<!un)(?<!not )\bplayable\b", re.I)),
-    ("Ingame", re.compile(r"\bin-game\b|\bingame\b|\bgameplay\b|\bstory mode\b|\b(?:first|tutorial) level\b|\bminutes of play\b", re.I)),
+    ("Ingame", re.compile(r"\bin-game\b|\bingame\b|\bgameplay\b|\b(?:first|tutorial) level\b|\bminutes of play\b", re.I)),
     ("Menus", re.compile(r"\b(?:main|title|start|pause|home) (?:menu|screen)\b|\bmenus?\b", re.I)),
     ("Presents", re.compile(r"\bloading screen\b|\bblack (?:screen|frames?)\b|\bintro (?:video|movie)\b|\bsplash\b|\brenders?\b|\bdraws? (?:its|the) (?:full |complete )?(?:ui|screen|frame)|\b\d+ ?fps\b|\bpresents\b", re.I)),
     ("First draw", re.compile(r"\bfirst (?:draw|frame|presentation)\b", re.I)),
     ("Starts", re.compile(r"\bboots?\b|\bstarts up\b", re.I)),
 ]
-PATCHED_BUILD = re.compile(r"\bwith (?:#|PR|AlxcBTW/|the fix|this|these|both|all)|\bplus #|\+ ?#\d|\bon #\d+'s branch|\bthis branch\b|\blocal(?:ly)?\b|\bfork\b|\bhack\b", re.I)
+PATCHED_BUILD = re.compile(r"\bwith (?:#|PR|AlxcBTW/|the fix|this|these|both|all)|\bplus #|\+ ?#\d|\bon #\d+'s branch|\bthis branch\b|"
+                           r"\blocal(?:ly)?\b|\bfork\b|\bhack\b|#\d+ (?:took|takes|gets|brings)\b|\b(?:integration|test|testing|bring-up|working) (?:branch|stack)\b|\bstacked\b", re.I)
 
 SIG_START = re.compile(
     r"FAIL: unresolved ELF import|Failed to load module:|undefined symbol:|what\(\):|presentation failed:|AGC graphics:|ShaderRecompiler::Recompile:")
@@ -484,7 +494,9 @@ def name_before(line: str, pos: int) -> str | None:
                 break
         else:
             break
-    while out and (out[-1].lower() in NAME_CONNECT or out[-1].lower().rstrip(":") in NAME_LABELS):
+    # out holds the words last-to-first, so out[-1] is the first word of the name
+    while out and (out[-1].lower() in NAME_CONNECT or out[-1].lower().rstrip(":") in NAME_LABELS
+                   or out[-1].lower() in NAME_LEAD_VERBS):
         out.pop()
     while out and out[0].lower() in NAME_CONNECT:
         out.pop(0)
@@ -695,7 +707,7 @@ def stage_in(line: str, title_pos: int) -> tuple[str, str] | None:
             if abs(m.start() - title_pos) > 220:
                 continue
             idx = STAGES.index(stage)
-            if STOP_WORDS.search(before) and idx > 0:
+            if (STOP_WORDS.search(before) or LOADING_CONTEXT.search(before)) and idx > 0:
                 idx -= 1
             if best is None or idx > best[0]:
                 best = (idx, m.group(0))
@@ -889,13 +901,14 @@ class Model:
                     gpu = classify(GPU_RULES, line) or src_gpu
                     build = ("PR #%d" % src["number"]) if src["kind"] == "pr" else ("main + patches" if PATCHED_BUILD.search(line) else "main")
                     st = stage_in(line, pos)
+                    quote = clip(re.sub(r"\s+", " ", strip_md(line)).strip(), 280)
                     if st:
                         t["evidence"].append({"stage": st[0], "os": os_, "gpu": gpu, "build": build, "url": src["url"], "date": src["date"],
-                                              "note": f"“{st[1]}”", "origin": "mined"})
+                                              "note": f"“{st[1]}”", "quote": quote, "origin": "mined", "verified": False})
                     if sig:
                         floor = "Converts" if sig["family"] == "import" else "Starts"
                         t["evidence"].append({"stage": floor, "os": os_, "gpu": gpu, "build": build, "url": src["url"], "date": src["date"],
-                                              "note": "stops at: " + sig["display"], "origin": "mined"})
+                                              "note": "stops at: " + sig["display"], "quote": quote, "origin": "mined", "verified": False})
                         t["stops"].append({"sig": sig, "url": src["url"], "date": src["date"], "issue": src["number"] if src["kind"] == "issue" else None,
                                            "os": os_, "gpu": gpu})
                 if info is None:
@@ -973,7 +986,8 @@ class Model:
                 if st:
                     t["evidence"].append({"stage": st[0], "os": os_name, "gpu": None, "build": "main",
                                           "url": f"https://github.com/{self.repo}/blob/main/docs/user/COMPATIBILITY.md",
-                                          "date": None, "note": f"COMPATIBILITY.md: {status}", "origin": "upstream"})
+                                          "date": None, "note": f"COMPATIBILITY.md: {status}", "quote": line.strip(),
+                                          "origin": "upstream", "verified": True})
 
     def _apply_curated_titles(self):
         for ct in self.curated.get("titles", []):
@@ -983,7 +997,9 @@ class Model:
                 if ct.get(k):
                     t[k] = ct[k]
             for ev in ct.get("evidence", []):
-                t["evidence"].append({**{"os": None, "gpu": None, "build": "main", "note": ""}, **ev, "origin": "curated"})
+                t["evidence"].append({**{"os": None, "gpu": None, "build": "main", "note": "", "quote": None}, **ev,
+                                      "origin": "curated", "verified": True})
+        self._apply_stage_reviews()
         for t in self.titles.values():
             if not t["name"] and t["names"]:
                 top = t["names"].most_common()
@@ -1182,13 +1198,45 @@ class Model:
         names = t.get("paths") or ["any"]
         return {p: [s for s in t["chain"] if not s.get("scope") or p in s["scope"]] for p in names}
 
+    def _apply_stage_reviews(self):
+        """Hand verdicts on mined stages (data/blockers.json stage_reviews). The quoted
+        source is dropped for that title; confirmed and downgraded verdicts add a
+        curated stage with its own source and quote."""
+        for rv in self.curated.get("stage_reviews", []):
+            t = self.title(rv["title"])
+            claim = rv["claim_url"].rstrip("/")
+            t["evidence"] = [e for e in t["evidence"]
+                             if not (e["origin"] == "mined" and (e["url"] or "").split("#")[0].rstrip("/") == claim)]
+            t.setdefault("reviews", []).append({k: rv.get(k) for k in ("claim", "claim_url", "verdict", "stage", "url", "quote", "reason")})
+            if rv["verdict"] in ("confirmed", "downgraded"):
+                t["evidence"].append({"stage": rv["stage"], "os": rv.get("os"), "gpu": rv.get("gpu"), "build": rv.get("build") or "main",
+                                      "url": rv["url"], "date": rv.get("date"), "note": rv["quote"], "quote": rv["quote"],
+                                      "origin": "curated", "verified": True, "review": rv["verdict"]})
+
     def best_stage(self, t: dict) -> dict | None:
-        """Curated evidence wins over mined evidence; within one origin the highest stage wins."""
-        if not t["evidence"]:
+        """The best verified stage. Curated evidence wins; without it, upstream and mined
+        evidence count, but a mined stage of Menus or higher only counts once a person
+        has reviewed it (see unverified_claim)."""
+        pool = [e for e in t["evidence"] if e["origin"] == "curated"]
+        if not pool:
+            pool = [e for e in t["evidence"] if e["origin"] == "upstream" or STAGES.index(e["stage"]) < VERIFY_FROM]
+        if not pool:
             return None
-        pool = [e for e in t["evidence"] if e["origin"] == "curated"] or t["evidence"]
         origin_rank = {"curated": 2, "upstream": 1, "mined": 0}
-        return max(pool, key=lambda e: (STAGES.index(e["stage"]), origin_rank.get(e["origin"], 0), e.get("date") or ""))
+        best = max(pool, key=lambda e: (STAGES.index(e["stage"]), origin_rank.get(e["origin"], 0), e.get("date") or ""))
+        return {**best, "verified": best["origin"] in ("curated", "upstream")}
+
+    def unverified_claim(self, t: dict) -> dict | None:
+        """The highest mined stage of Menus or higher that nobody has reviewed yet, when it
+        is above the best verified stage. Shown as a claim, never sorted or ranked on."""
+        best = self.best_stage(t)
+        floor = STAGES.index(best["stage"]) if best else -1
+        claims = [e for e in t["evidence"] if e["origin"] == "mined" and STAGES.index(e["stage"]) >= VERIFY_FROM
+                  and STAGES.index(e["stage"]) > floor]
+        if not claims:
+            return None
+        c = max(claims, key=lambda e: (STAGES.index(e["stage"]), e.get("date") or ""))
+        return {"stage": c["stage"], "url": c["url"], "quote": c.get("quote") or c.get("note")}
 
     def _rank(self):
         for b in self.blockers.values():
@@ -1434,7 +1482,8 @@ def assemble(model: Model, coverage: dict, raw: dict, upstream: Upstream, now: d
                    key=lambda m: m["date"] or "", default=None)
         titles.append({
             "id": tid, "name": t["name"], "engine": t["engine"], "kind": t["kind"], "curated": t["curated"],
-            "best_stage": best, "evidence": sorted(t["evidence"], key=lambda e: (-STAGES.index(e["stage"]), e.get("date") or ""))[:12],
+            "best_stage": best, "unverified_claim": model.unverified_claim(t), "stage_reviews": t.get("reviews", []),
+            "evidence": sorted(t["evidence"], key=lambda e: (-STAGES.index(e["stage"]), e.get("date") or ""))[:12],
             "open_blockers": [{"id": s["blocker"], "origin": s["origin"], "why": s["why"], "scope": s.get("scope")} for s in t["open_chain"]],
             "resolved_blockers": [s["blocker"] for s in t["chain"] if model.blockers[s["blocker"]]["status"] != "open"],
             "issues": sorted({m["number"] for m in t["mentions"] if m["kind"] == "issue"}),
@@ -1462,6 +1511,8 @@ def assemble(model: Model, coverage: dict, raw: dict, upstream: Upstream, now: d
             "prs_scanned": len(raw["prs"]), "titles": len(titles),
             "titles_with_open_blockers": sum(1 for t in titles if t["open_blockers"]),
             "titles_with_stage": sum(1 for t in titles if t["best_stage"]),
+            "titles_with_unverified_claim": sum(1 for t in titles if t["unverified_claim"]),
+            "stage_reviews": sum(len(t["stage_reviews"]) for t in titles),
             "blockers_open": sum(1 for b in blockers if b["status"] == "open"),
             "blockers_ranked": sum(1 for b in blockers if b["status"] == "open" and b["score"] > 0),
             "blockers_curated": sum(1 for b in blockers if b["origin"] == "curated"),
@@ -1495,6 +1546,7 @@ KNOWN_GAPS = [
     "Stages mined from PR bodies describe the PR branch (build “PR #N”), not main.",
     "An issue that names seven or more titles is treated as a tracker: only its per-title stop rows count, as separate blockers.",
     "HLE “named in issues” counts any mention of a missing function, including lists of imports that were never reached.",
+    "A mined stage of Menus or higher is only a claim until a person reviews it; most such claims in PR text were made on branches with open PRs.",
 ]
 
 
@@ -2087,16 +2139,21 @@ def render_markdown(doc: dict) -> str:
           f"**{b['score']}** | {area_name(b['area'])} | {md_cell(prs)} | {fmt_date(b.get('last_activity'))} |")
     a("")
     a("## Titles\n")
-    a("| ID | Title | Best stage | Where | Open blockers, in order |")
-    a("|---|---|---|---|---|")
-    shown = [t for t in doc["titles"] if t["best_stage"] or t["open_blockers"]]
+    a("Best stage counts only verified stages: curated, upstream, or mined below Menus. A mined claim of Menus or "
+      "higher that nobody has reviewed is listed as an unverified claim and is not sorted on.\n")
+    a("| ID | Title | Best stage | Where | Source | Unverified claim | Open blockers, in order |")
+    a("|---|---|---|---|---|---|---|")
+    shown = [t for t in doc["titles"] if t["best_stage"] or t["open_blockers"] or t["unverified_claim"]]
     shown.sort(key=lambda t: (-(STAGES.index(t["best_stage"]["stage"]) if t["best_stage"] else -1), len(t["open_blockers"]), (t["name"] or t["id"]).lower()))
     for t in shown:
         best = t["best_stage"]
-        stage = f"{best['stage']} ({best['origin']})" if best else "—"
+        stage = f"{best['stage']} ({best['origin']}{', reviewed' if best.get('review') else ''})" if best else "—"
         where = " · ".join(x for x in [best.get("os"), best.get("gpu"), best.get("build")] if x) if best else ""
+        src = f"[{evidence_label(best['url'], doc['upstream']['repo'])}]({best['url']})" if best and best.get("url") else "—"
+        claim = t["unverified_claim"]
+        claim_md = f"{claim['stage']}, [source]({claim['url']})" if claim else "—"
         chain = " → ".join(md_ref(B[st["id"]]) + (f" ({'/'.join(st['scope'])})" if st.get("scope") else "") for st in t["open_blockers"][:6] if st["id"] in B)
-        a(f"| `{t['id']}` | {md_cell(t['name'] or '')} | {stage} | {md_cell(where)} | {chain or '—'} |")
+        a(f"| `{t['id']}` | {md_cell(t['name'] or '')} | {stage} | {md_cell(where)} | {src} | {claim_md} | {chain or '—'} |")
     a("")
     cov = doc["coverage"]
     a("## Coverage\n")
@@ -2160,7 +2217,13 @@ def render_llms(doc: dict) -> str:
         "",
         "How to read the data:",
         "",
-        "- Stages, lowest to highest: " + ", ".join(STAGES) + ". `best_stage` is the highest reported one with os, gpu, build and a source url.",
+        "- Stages, lowest to highest: " + ", ".join(STAGES) + ". `best_stage` is the highest verified stage, with os, gpu, build, "
+        "a source `url` and `verified` (true for curated and upstream entries, false for mined ones below Menus).",
+        "- Verification policy: a mined stage of Menus or higher never becomes `best_stage` until a person reviews it "
+        "(`stage_reviews` in data/blockers.json). Until then it is `unverified_claim` = {stage, url, quote}: a claim from "
+        "issue or PR text, often made on a branch with open PRs. Do not report an unverified claim as the title's stage, "
+        "and do not rank or sort titles by it. Only main, or main plus PRs that are merged, counts as reaching a stage.",
+        "- `stage_reviews` on a title lists the hand verdicts (confirmed, downgraded, suppressed) with the quote they rest on.",
         "- A title's `open_blockers` are ordered: the first entry is where it stops now. `scope` limits a step to an OS/GPU path.",
         "- `origin` is `curated` (data/blockers.json, reviewed by a person), `mined` (regex rules over issue and PR text), "
         "`upstream` (docs/user/COMPATIBILITY.md) or `github` (native blocked-by links). Prefer curated facts when they conflict.",
@@ -2207,6 +2270,18 @@ def load_curated(path: Path) -> dict:
         for step in t.get("blockers", []):
             if str(step["id"]) not in known:
                 raise SystemExit(f"{path}: title {t['id']} names unknown blocker {step['id']}")
+        for ev in t.get("evidence", []):
+            if not ev.get("url") or ev.get("stage") not in STAGES:
+                raise SystemExit(f"{path}: title {t['id']}: every curated stage needs a known stage and a public url ({ev})")
+    for rv in data.get("stage_reviews", []):
+        need = ["title", "claim", "claim_url", "verdict", "quote"]
+        if rv.get("verdict") in ("confirmed", "downgraded"):
+            need += ["stage", "url"]
+        elif rv.get("verdict") != "suppressed":
+            raise SystemExit(f"{path}: stage review for {rv.get('title')}: verdict must be confirmed, downgraded or suppressed")
+        missing = [k for k in need if not rv.get(k)]
+        if missing or (rv.get("stage") and rv["stage"] not in STAGES):
+            raise SystemExit(f"{path}: stage review for {rv.get('title')} lacks {missing or 'a known stage'}")
     return data
 
 

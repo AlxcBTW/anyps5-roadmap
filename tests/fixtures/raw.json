@@ -70,6 +70,20 @@
       "labels": ["libkernel"], "closes": [], "comment_count": 0
     },
     {
+      "number": 31, "title": "fix(ngs2): mix ports without set levels",
+      "body": "Dreaming Sarah (PPSA02929) reaches its main menu on main with this change.",
+      "url": "https://github.com/example/AnyPS5/pull/31", "state": "MERGED", "merged": true, "mergedAt": "2026-10-08T09:00:00Z", "closedAt": "2026-10-08T09:00:00Z",
+      "createdAt": "2026-10-08T08:00:00Z", "updatedAt": "2026-10-08T09:00:00Z", "isDraft": false, "author": "kim",
+      "labels": ["prx"], "closes": [], "comment_count": 0
+    },
+    {
+      "number": 32, "title": "perf(agc): cache draw keys",
+      "body": "Kena: Bridge of Spirits (PPSA01746) reaches gameplay on my integration branch.",
+      "url": "https://github.com/example/AnyPS5/pull/32", "state": "OPEN", "merged": false, "mergedAt": null, "closedAt": null,
+      "createdAt": "2026-10-09T08:00:00Z", "updatedAt": "2026-10-09T09:00:00Z", "isDraft": false, "author": "lee",
+      "labels": ["agc"], "closes": [], "comment_count": 0
+    },
+    {
       "number": 30, "title": "fix(libkernel): map direct memory as private pages",
       "body": "One view per page made Taxi Chaos 2 (PPSA30279) stall on Windows.",
       "url": "https://github.com/example/AnyPS5/pull/30", "state": "OPEN", "merged": false, "mergedAt": null, "closedAt": null,

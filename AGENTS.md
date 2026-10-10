@@ -47,11 +47,42 @@ too) and copy the exact state. Never invent a PPSA ID, a title name or a stage.
 | `name`, `engine`, `kind` | `kind` is `retail` or `homebrew`. |
 | `paths` | Optional OS/GPU paths, e.g. `["Windows/NVIDIA", "Windows/AMD"]`, when a title stops at different places. |
 | `blockers` | Ordered chain, first stop first: `{"id": "2783", "scope": ["Windows/NVIDIA"], "why": "…"}`. A step without `scope` applies to every path. Every `id` must exist in `blockers[]`. |
-| `evidence` | Best stages seen: `{"stage", "os", "gpu", "build", "date", "url", "note"}`. `build` says what was running: `main`, `main + #2054`, `main + local patches`. |
+| `evidence` | Best stages seen: `{"stage", "os", "gpu", "build", "date", "url", "note"}`. `url` is required: a stage without a public source is not added, however sure you are. `build` says what was running: `main`, `main + #2054`, `main + local patches`. |
 
 Stages, lowest to highest: Converts, Loads, Starts, First draw, Presents, Menus, Ingame,
 Playable. Black frames and loading screens count as Presents. A menu that runs but stays
 black is still Presents.
+
+### Verification policy for stages
+
+A stage of **Menus or higher** is what people screenshot and repeat, so a mined one never
+counts on its own:
+
+- `best_stage` holds only verified stages: curated entries, the maintainers'
+  `COMPATIBILITY.md` (`upstream`), and mined stages below Menus. `best_stage.verified` is
+  `false` only for that last kind.
+- A mined stage of Menus or higher that nobody has reviewed becomes `unverified_claim`
+  (`{stage, url, quote}`) when it is above the best verified stage. It is never sorted or
+  ranked on, and it must never be reported as the title's stage.
+- To settle a claim, open the source (body, comments, linked screenshots and logs) and add
+  a `stage_reviews` entry.
+
+What counts: the stage was reached on `main`, or on `main` plus PRs that are merged now.
+What does not count: hopes and plans, other emulators, negations ("crashes before the main
+menu", "nothing was tested in-game"), loading steps ("loads story mode until …"), quotes about
+another title, and anything reached only on a branch with open PRs, local stand-ins,
+integration stacks or hacks.
+
+### Stage reviews (`stage_reviews[]`)
+
+| Field | Meaning |
+|---|---|
+| `title` | PPSA ID. |
+| `claim`, `claim_url` | The mined stage and the source it was mined from (PR, issue or comment URL). Mined stages from that source are dropped for this title. |
+| `verdict` | `confirmed`, `downgraded` or `suppressed`. |
+| `stage`, `os`, `gpu`, `build`, `date`, `url` | For `confirmed` and `downgraded`: the stage that holds on main and its own source, which may differ from `claim_url`. |
+| `quote` | The exact sentence the verdict rests on. Required. |
+| `reason` | One line on why, e.g. "reached only on an integration branch of open PRs". |
 
 ### Not blockers (`not_blockers[]`)
 

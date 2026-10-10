@@ -53,6 +53,17 @@ class Extraction(unittest.TestCase):
     def test_stage_keywords_respect_negation_and_stops(self):
         self.assertEqual(r.stage_in("Hollow Knight (PPSA12544) reaches gameplay in tut_01", 15)[0], "Ingame")
         self.assertIsNone(r.stage_in("it never reaches the main menu", 0))
+        self.assertIsNone(r.stage_in("No title calls these during the runs I have, so nothing was tested in-game.", 0))
+        # a loading step is not the stage it loads
+        self.assertEqual(r.stage_in("renders the main menu and Settings, and loads story mode until the first shader", 0)[0], "Menus")
+        self.assertEqual(r.stage_in("PPSA05684 crashed right after loading its first level.", 0)[0], "Menus")
+
+    def test_leading_verbs_are_not_part_of_a_name(self):
+        line = "Adds LEGO Party! (PPSA29141, Unity 2022.3 IL2CPP, FMOD) to the tested compatibility list"
+        self.assertEqual(r.name_before(line, line.find("PPSA")), "LEGO Party!")
+        line = "- Seen in PPSA22520 (Animal Well): the title music is a stereo sampler"
+        self.assertIsNone(r.name_before(line, line.find("PPSA")))
+        self.assertEqual(r.name_after(line, line.find("PPSA") + 9), "Animal Well")
         # a stop phrase before the keyword means the title did not get past it
         self.assertEqual(r.stage_in("PPSA05684 stops in its first level with an error", 0)[0], "Menus")
 
@@ -138,7 +149,50 @@ class Ranking(unittest.TestCase):
 
     def test_curated_stage_wins(self):
         best = self.model.best_stage(self.t["PPSA30279"])
-        self.assertEqual((best["stage"], best["origin"]), ("Presents", "curated"))
+        self.assertEqual((best["stage"], best["origin"], best["verified"]), ("Presents", "curated", True))
+
+    def test_unreviewed_mined_menus_or_higher_is_only_a_claim(self):
+        kena = self.t["PPSA01746"]
+        self.assertIsNone(self.model.best_stage(kena))  # "reaches gameplay on my integration branch" is not a stage
+        claim = self.model.unverified_claim(kena)
+        self.assertEqual(claim["stage"], "Ingame")
+        self.assertEqual(claim["url"], "https://github.com/example/AnyPS5/pull/32")
+        self.assertIn("integration branch", claim["quote"])
+        # a mined stage below Menus still counts, marked as not verified
+        stray = self.model.best_stage(self.t["PPSA02100"])
+        self.assertEqual((stray["stage"], stray["origin"], stray["verified"]), ("Presents", "mined", False))
+        self.assertIsNone(self.model.unverified_claim(self.t["PPSA02100"]))
+
+    def test_stage_review_replaces_the_mined_claim(self):
+        sarah = self.t["PPSA02929"]
+        best = self.model.best_stage(sarah)
+        self.assertEqual((best["stage"], best["origin"], best["verified"], best["review"]), ("Menus", "curated", True, "confirmed"))
+        self.assertTrue(best["quote"].startswith("Dreaming Sarah"))
+        self.assertIsNone(self.model.unverified_claim(sarah))
+        self.assertFalse(any(e["origin"] == "mined" and e["url"].endswith("/pull/31") for e in sarah["evidence"]))
+
+    def test_unverified_claim_never_drives_sorting_or_ranking(self):
+        upstream = r.Upstream(None, "HEAD", "example/AnyPS5", fetch=False, log=lambda m: None)
+        doc = r.assemble(self.model, {"isa": None, "hle": None, "pm4": None, "registers": []},
+                         json.loads((FIX / "raw.json").read_text(encoding="utf-8")), upstream, NOW)
+        kena = next(t for t in doc["titles"] if t["id"] == "PPSA01746")
+        self.assertIsNone(kena["best_stage"])
+        self.assertEqual(set(kena["unverified_claim"]), {"stage", "url", "quote"})
+        self.assertIn("unverified claim", r.render_markdown(doc))
+        self.assertIn("unverified_claim", r.render_llms(doc))
+
+    def test_curated_stage_needs_a_public_url(self):
+        import tempfile
+        bad = {"blockers": [], "titles": [{"id": "PPSA16064", "evidence": [{"stage": "Playable", "url": None}]}]}
+        review = {"blockers": [], "titles": [], "stage_reviews": [
+            {"title": "PPSA01746", "claim": "Ingame", "claim_url": "https://x/pull/1", "verdict": "confirmed", "stage": "Ingame",
+             "url": "https://x/pull/1"}]}
+        for data in (bad, review):
+            with tempfile.TemporaryDirectory() as d:
+                path = Path(d) / "blockers.json"
+                path.write_text(json.dumps(data), encoding="utf-8")
+                with self.assertRaises(SystemExit):
+                    r.load_curated(path)
 
     def test_render_outputs(self):
         upstream = r.Upstream(None, "HEAD", "example/AnyPS5", fetch=False, log=lambda m: None)

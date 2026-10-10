@@ -1,6 +1,6 @@
 # AnyPS5 blocker map
 
-> Generated data, community prototype, not official. Built 2026-10-10T18:47:51Z from public GitHub data of [boykopovar/AnyPS5](https://github.com/boykopovar/AnyPS5) at `29380369` plus `data/blockers.json`.
+> Generated data, community prototype, not official. Built 2026-10-10T19:04:58Z from public GitHub data of [boykopovar/AnyPS5](https://github.com/boykopovar/AnyPS5) at `3cb317fc` plus `data/blockers.json`.
 
 Issues read: 284 · PRs read: 2597 · titles: 154 · open blockers: 65 (57 block at least one title) · curated blockers: 15
 
@@ -31,37 +31,37 @@ Score = 3 × one_fix_away + 2 × frontier + total. Frontier: titles for which th
 | 11 | [#2621](https://github.com/boykopovar/AnyPS5/issues/2621) Ratchet & Clank: Rift Apart: a registered pixel shader is drawn with DB_SHADER_CONTROL=0 while its header sets 0x20601 (mined) | 1 | 1 | 2 | **7** | Shader recompiler | [#757](https://github.com/boykopovar/AnyPS5/pull/757) open | 2026-10-10 |
 | 12 | [#2908](https://github.com/boykopovar/AnyPS5/issues/2908) ProsperoStore (PPSA99000): startup stop on unresolved sceKernelGetSystemSwVersion (mined) | 1 | 1 | 1 | **6** | libkernel | none | 2026-10-10 |
 | 13 | [#2886](https://github.com/boykopovar/AnyPS5/issues/2886) libkernel: Windows lstat misreports symbolic links instead of throwing (mined) | 1 | 1 | 1 | **6** | libkernel | [#2898](https://github.com/boykopovar/AnyPS5/pull/2898) open | 2026-10-10 |
-| 14 | [#2809](https://github.com/boykopovar/AnyPS5/issues/2809) HFW loading: fixed host-import budget forces a multi-GiB heap mirror and OOM (mined) | 1 | 1 | 1 | **6** | — | none | 2026-10-10 |
-| 15 | [#2776](https://github.com/boykopovar/AnyPS5/issues/2776) Resident Evil 4 (PPSA07411): start-up needs a library named Party.prx; with the missing exports added it stops at sce::Json::InitParameter2::setSpecialFloatFormatType (mined) | 1 | 1 | 1 | **6** | HLE libraries | none | 2026-10-10 |
-| 16 | [#2724](https://github.com/boykopovar/AnyPS5/issues/2724) Hades (PPSA03355) on Windows: start-up faults in the title's own libc.prx before any file is opened (mined) | 1 | 1 | 1 | **6** | — | none | 2026-10-10 |
-| 17 | [#2689](https://github.com/boykopovar/AnyPS5/issues/2689) libkernel: export pthread_mutexattr_setprioceiling / getprioceiling (ZLvf6lVAc4M) (mined) | 1 | 1 | 1 | **6** | libkernel | [#2899](https://github.com/boykopovar/AnyPS5/pull/2899) open | 2026-10-10 |
-| 18 | [#2686](https://github.com/boykopovar/AnyPS5/issues/2686) Cult of the Lamb (PPSA06465): start-up stops on unresolved import pXJh3aVk8Ks (sceContentDeleteById) (mined) | 1 | 1 | 1 | **6** | HLE libraries | none | 2026-10-10 |
-| 19 | [#2591](https://github.com/boykopovar/AnyPS5/issues/2591) Road of Death (PPSA07286) fails on startup: missing libSceXml.prx (mined) | 1 | 1 | 1 | **6** | — | none | 2026-10-10 |
-| 20 | [#2552](https://github.com/boykopovar/AnyPS5/issues/2552) Demon's Souls crashes 14 s after launch with a guest null read when built with ANYPS5_ENABLE_SPIRV_TOOLS=OFF (the default) (mined) | 1 | 1 | 1 | **6** | — | none | 2026-10-10 |
-| 21 | [#1973](https://github.com/boykopovar/AnyPS5/issues/1973) Demons Souls v1.04 PPSA01342 Segfault upon running linked elf (mined) | 1 | 1 | 1 | **6** | — | none | 2026-10-09 |
-| 22 | [#1930](https://github.com/boykopovar/AnyPS5/issues/1930) Linux: PPSA28997 (Sons of Sparta) aborts at start-up with "RTLD application heap: cannot replace an active allocator" (#693 regressed after #1515) (mined) | 1 | 1 | 1 | **6** | — | none | 2026-10-09 |
-| 23 | [#1497](https://github.com/boykopovar/AnyPS5/issues/1497) Linux: a bundled libc.prx loader shim (ps5-native-app-boilerplate) binds libc imports to placeholder exports; DOOM PPSA99666 finds no WAD (mined) | 1 | 1 | 1 | **6** | Relinker | [#1529](https://github.com/boykopovar/AnyPS5/pull/1529) open, [#2332](https://github.com/boykopovar/AnyPS5/pull/2332) open, [#1307](https://github.com/boykopovar/AnyPS5/pull/1307) open, [#690](https://github.com/boykopovar/AnyPS5/pull/690) open | 2026-10-10 |
-| 24 | [#1455](https://github.com/boykopovar/AnyPS5/issues/1455) Startup crash: display interface built with a null backend pointer (mined) | 1 | 1 | 1 | **6** | — | [#1630](https://github.com/boykopovar/AnyPS5/pull/1630) closed | 2026-10-09 |
-| 25 | [#1034](https://github.com/boykopovar/AnyPS5/issues/1034) Balatro PPSA21402 on Windows: the title overwrites its own register lists when more than 2 flips are pending (VIDEO_OUT_FLIP_QUEUE_CAPACITY is 16) (mined) | 1 | 1 | 1 | **6** | — | [#1597](https://github.com/boykopovar/AnyPS5/pull/1597) merged, [#1100](https://github.com/boykopovar/AnyPS5/pull/1100) merged, [#1038](https://github.com/boykopovar/AnyPS5/pull/1038) merged | 2026-10-10 |
-| 26 | [#1033](https://github.com/boykopovar/AnyPS5/issues/1033) Marvels Wolverine PPSA03671 Relies on consoles .prxs (mined) | 1 | 1 | 1 | **6** | — | [#1461](https://github.com/boykopovar/AnyPS5/pull/1461) merged, [#1317](https://github.com/boykopovar/AnyPS5/pull/1317) merged, [#2390](https://github.com/boykopovar/AnyPS5/pull/2390) closed | 2026-10-10 |
-| 27 | [row in #1578](https://github.com/boykopovar/AnyPS5/issues/1578) Module libSceOpusDec.prx is missing (mined) | 1 | 1 | 1 | **6** | HLE libraries | none | 2026-10-08 |
-| 28 | [row in #1578](https://github.com/boykopovar/AnyPS5/issues/1578#issuecomment-6092658382) gethostname (-nvxBWa0iDs) is not exported (mined) | 1 | 1 | 1 | **6** | libc | [#2019](https://github.com/boykopovar/AnyPS5/pull/2019) closed, [#1975](https://github.com/boykopovar/AnyPS5/pull/1975) closed, [#1594](https://github.com/boykopovar/AnyPS5/pull/1594) closed | 2026-10-10 |
-| 29 | [row in #1578](https://github.com/boykopovar/AnyPS5/issues/1578#issuecomment-6091750552) atoll (fLcU5G6Qrjs) is not exported (mined) | 1 | 1 | 1 | **6** | libc | [#2932](https://github.com/boykopovar/AnyPS5/pull/2932) open, [#2186](https://github.com/boykopovar/AnyPS5/pull/2186) closed, [#1852](https://github.com/boykopovar/AnyPS5/pull/1852) closed, [#1591](https://github.com/boykopovar/AnyPS5/pull/1591) closed | 2026-10-10 |
-| 30 | [row in #1578](https://github.com/boykopovar/AnyPS5/issues/1578#issuecomment-6092658382) arc4random_buf (n1KOc0lTUEs) is not exported (mined) | 1 | 1 | 1 | **6** | HLE libraries | [#2865](https://github.com/boykopovar/AnyPS5/pull/2865) open, [#1637](https://github.com/boykopovar/AnyPS5/pull/1637) closed | 2026-10-10 |
-| 31 | [#2523](https://github.com/boykopovar/AnyPS5/issues/2523) 007 First Light (PPSA11386) on Linux: start-up stops in order and the PRs that pass them (mined) | 1 | 0 | 2 | **4** | AGC driver | [#2813](https://github.com/boykopovar/AnyPS5/pull/2813) open, [#2589](https://github.com/boykopovar/AnyPS5/pull/2589) open, [#1961](https://github.com/boykopovar/AnyPS5/pull/1961) open, [#757](https://github.com/boykopovar/AnyPS5/pull/757) open | 2026-10-10 |
-| 32 | [#2783](https://github.com/boykopovar/AnyPS5/issues/2783) NVIDIA: wave64 NGG culling program reads lane 63 (curated) | 1 | 0 | 1 | **3** | Shader recompiler | [#1825](https://github.com/boykopovar/AnyPS5/pull/1825) open, [AlxcBTW#25](https://github.com/AlxcBTW/AnyPS5/pull/25) open | 2026-10-10 |
-| 33 | [PR #2471](https://github.com/boykopovar/AnyPS5/pull/2471) Structurizer: selections joined at a shared loop exit (curated) | 1 | 0 | 1 | **3** | Shader recompiler | [#2471](https://github.com/boykopovar/AnyPS5/pull/2471) draft | 2026-10-10 |
-| 34 | [siglongjmp](https://github.com/boykopovar/AnyPS5/issues/1578) siglongjmp is not exported (libkernel) (curated) | 1 | 0 | 1 | **3** | libkernel | none | — |
-| 35 | [#2476](https://github.com/boykopovar/AnyPS5/issues/2476) Windows: Astro's Playroom (PPSA01325) fails to load libSceJobManager.prx (error 126) (mined) | 1 | 0 | 1 | **3** | — | [#2924](https://github.com/boykopovar/AnyPS5/pull/2924) closed | 2026-10-10 |
-| 36 | [#1920](https://github.com/boykopovar/AnyPS5/issues/1920) Ghost of Yōtei (PPSA26344): unsupported scalar source operand code 235 at program counter 856 (mined) | 1 | 0 | 1 | **3** | Shader recompiler | [#1940](https://github.com/boykopovar/AnyPS5/pull/1940) open, [#1837](https://github.com/boykopovar/AnyPS5/pull/1837) merged, [#2700](https://github.com/boykopovar/AnyPS5/pull/2700) closed | 2026-10-10 |
-| 37 | [#479](https://github.com/boykopovar/AnyPS5/issues/479) AGC: SRT walker statically evaluates a scalar load behind a per-lane exec guard and fails on a NULL pointer (mined) | 1 | 0 | 1 | **3** | AGC driver | [#290](https://github.com/boykopovar/AnyPS5/pull/290) open, [#759](https://github.com/boykopovar/AnyPS5/pull/759) merged, [#285](https://github.com/boykopovar/AnyPS5/pull/285) merged, [#283](https://github.com/boykopovar/AnyPS5/pull/283) merged | 2026-10-10 |
-| 38 | [#2631](https://github.com/boykopovar/AnyPS5/issues/2631) v_fma_mix* in FLOAT_MODE 0xcc (f16 round toward zero) (curated) | 0 | 0 | 2 | **2** | Shader recompiler | [AlxcBTW#19](https://github.com/AlxcBTW/AnyPS5/pull/19) open, [AlxcBTW#23](https://github.com/AlxcBTW/AnyPS5/pull/23) open, [AlxcBTW#17](https://github.com/AlxcBTW/AnyPS5/pull/17) closed | 2026-10-10 |
-| 39 | [#2682](https://github.com/boykopovar/AnyPS5/issues/2682) Recompiler: f32 product tininess is checked before rounding (RDNA2 checks after), and the check makes float-heavy shaders slow to compile (mined) | 0 | 0 | 2 | **2** | Shader recompiler | none | 2026-10-10 |
-| 40 | [#2642](https://github.com/boykopovar/AnyPS5/issues/2642) Structurizer: shared merge splitting never terminates in a two-latch loop (curated) | 0 | 0 | 1 | **1** | Shader recompiler | [AlxcBTW#20](https://github.com/AlxcBTW/AnyPS5/pull/20) open, [AlxcBTW#24](https://github.com/AlxcBTW/AnyPS5/pull/24) open, [#2471](https://github.com/boykopovar/AnyPS5/pull/2471) draft | 2026-10-10 |
-| 41 | [PR #2054](https://github.com/boykopovar/AnyPS5/pull/2054) Windows: direct memory mapped one 16 KiB view at a time (curated) | 0 | 0 | 1 | **1** | libkernel | [#2054](https://github.com/boykopovar/AnyPS5/pull/2054) open | 2026-10-10 |
-| 42 | [PR #425](https://github.com/boykopovar/AnyPS5/pull/425) Depth surface sampled as a cube texture (curated) | 0 | 0 | 1 | **1** | AGC driver | [#425](https://github.com/boykopovar/AnyPS5/pull/425) open | 2026-10-10 |
-| 43 | [#2914](https://github.com/boykopovar/AnyPS5/issues/2914) Astro's Playroom (PPSA01325): shader ABI resolution passes a different Shader* header pointer for the same code (mined) | 0 | 0 | 1 | **1** | AGC driver | none | 2026-10-10 |
-| 44 | [#2811](https://github.com/boykopovar/AnyPS5/issues/2811) libSceNet Sockets implementation issue (mined) | 0 | 0 | 1 | **1** | — | none | 2026-10-10 |
+| 14 | [#2811](https://github.com/boykopovar/AnyPS5/issues/2811) libSceNet Sockets implementation issue (mined) | 1 | 1 | 1 | **6** | — | none | 2026-10-10 |
+| 15 | [#2809](https://github.com/boykopovar/AnyPS5/issues/2809) HFW loading: fixed host-import budget forces a multi-GiB heap mirror and OOM (mined) | 1 | 1 | 1 | **6** | — | none | 2026-10-10 |
+| 16 | [#2776](https://github.com/boykopovar/AnyPS5/issues/2776) Resident Evil 4 (PPSA07411): start-up needs a library named Party.prx; with the missing exports added it stops at sce::Json::InitParameter2::setSpecialFloatFormatType (mined) | 1 | 1 | 1 | **6** | HLE libraries | none | 2026-10-10 |
+| 17 | [#2724](https://github.com/boykopovar/AnyPS5/issues/2724) Hades (PPSA03355) on Windows: start-up faults in the title's own libc.prx before any file is opened (mined) | 1 | 1 | 1 | **6** | — | none | 2026-10-10 |
+| 18 | [#2689](https://github.com/boykopovar/AnyPS5/issues/2689) libkernel: export pthread_mutexattr_setprioceiling / getprioceiling (ZLvf6lVAc4M) (mined) | 1 | 1 | 1 | **6** | libkernel | [#2899](https://github.com/boykopovar/AnyPS5/pull/2899) open | 2026-10-10 |
+| 19 | [#2686](https://github.com/boykopovar/AnyPS5/issues/2686) Cult of the Lamb (PPSA06465): start-up stops on unresolved import pXJh3aVk8Ks (sceContentDeleteById) (mined) | 1 | 1 | 1 | **6** | HLE libraries | none | 2026-10-10 |
+| 20 | [#2591](https://github.com/boykopovar/AnyPS5/issues/2591) Road of Death (PPSA07286) fails on startup: missing libSceXml.prx (mined) | 1 | 1 | 1 | **6** | — | none | 2026-10-10 |
+| 21 | [#2552](https://github.com/boykopovar/AnyPS5/issues/2552) Demon's Souls crashes 14 s after launch with a guest null read when built with ANYPS5_ENABLE_SPIRV_TOOLS=OFF (the default) (mined) | 1 | 1 | 1 | **6** | — | none | 2026-10-10 |
+| 22 | [#1973](https://github.com/boykopovar/AnyPS5/issues/1973) Demons Souls v1.04 PPSA01342 Segfault upon running linked elf (mined) | 1 | 1 | 1 | **6** | — | none | 2026-10-09 |
+| 23 | [#1930](https://github.com/boykopovar/AnyPS5/issues/1930) Linux: PPSA28997 (Sons of Sparta) aborts at start-up with "RTLD application heap: cannot replace an active allocator" (#693 regressed after #1515) (mined) | 1 | 1 | 1 | **6** | — | none | 2026-10-09 |
+| 24 | [#1497](https://github.com/boykopovar/AnyPS5/issues/1497) Linux: a bundled libc.prx loader shim (ps5-native-app-boilerplate) binds libc imports to placeholder exports; DOOM PPSA99666 finds no WAD (mined) | 1 | 1 | 1 | **6** | Relinker | [#1529](https://github.com/boykopovar/AnyPS5/pull/1529) open, [#2332](https://github.com/boykopovar/AnyPS5/pull/2332) open, [#1307](https://github.com/boykopovar/AnyPS5/pull/1307) open, [#690](https://github.com/boykopovar/AnyPS5/pull/690) open | 2026-10-10 |
+| 25 | [#1455](https://github.com/boykopovar/AnyPS5/issues/1455) Startup crash: display interface built with a null backend pointer (mined) | 1 | 1 | 1 | **6** | — | [#1630](https://github.com/boykopovar/AnyPS5/pull/1630) closed | 2026-10-09 |
+| 26 | [#1034](https://github.com/boykopovar/AnyPS5/issues/1034) Balatro PPSA21402 on Windows: the title overwrites its own register lists when more than 2 flips are pending (VIDEO_OUT_FLIP_QUEUE_CAPACITY is 16) (mined) | 1 | 1 | 1 | **6** | — | [#1597](https://github.com/boykopovar/AnyPS5/pull/1597) merged, [#1100](https://github.com/boykopovar/AnyPS5/pull/1100) merged, [#1038](https://github.com/boykopovar/AnyPS5/pull/1038) merged | 2026-10-10 |
+| 27 | [#1033](https://github.com/boykopovar/AnyPS5/issues/1033) Marvels Wolverine PPSA03671 Relies on consoles .prxs (mined) | 1 | 1 | 1 | **6** | — | [#1461](https://github.com/boykopovar/AnyPS5/pull/1461) merged, [#1317](https://github.com/boykopovar/AnyPS5/pull/1317) merged, [#2390](https://github.com/boykopovar/AnyPS5/pull/2390) closed | 2026-10-10 |
+| 28 | [row in #1578](https://github.com/boykopovar/AnyPS5/issues/1578) Module libSceOpusDec.prx is missing (mined) | 1 | 1 | 1 | **6** | HLE libraries | none | 2026-10-08 |
+| 29 | [row in #1578](https://github.com/boykopovar/AnyPS5/issues/1578#issuecomment-6092658382) gethostname (-nvxBWa0iDs) is not exported (mined) | 1 | 1 | 1 | **6** | libc | [#2019](https://github.com/boykopovar/AnyPS5/pull/2019) closed, [#1975](https://github.com/boykopovar/AnyPS5/pull/1975) closed, [#1594](https://github.com/boykopovar/AnyPS5/pull/1594) closed | 2026-10-10 |
+| 30 | [row in #1578](https://github.com/boykopovar/AnyPS5/issues/1578#issuecomment-6091750552) atoll (fLcU5G6Qrjs) is not exported (mined) | 1 | 1 | 1 | **6** | libc | [#2932](https://github.com/boykopovar/AnyPS5/pull/2932) open, [#2186](https://github.com/boykopovar/AnyPS5/pull/2186) closed, [#1852](https://github.com/boykopovar/AnyPS5/pull/1852) closed, [#1591](https://github.com/boykopovar/AnyPS5/pull/1591) closed | 2026-10-10 |
+| 31 | [row in #1578](https://github.com/boykopovar/AnyPS5/issues/1578#issuecomment-6092658382) arc4random_buf (n1KOc0lTUEs) is not exported (mined) | 1 | 1 | 1 | **6** | HLE libraries | [#2865](https://github.com/boykopovar/AnyPS5/pull/2865) open, [#1637](https://github.com/boykopovar/AnyPS5/pull/1637) closed | 2026-10-10 |
+| 32 | [#2523](https://github.com/boykopovar/AnyPS5/issues/2523) 007 First Light (PPSA11386) on Linux: start-up stops in order and the PRs that pass them (mined) | 1 | 0 | 2 | **4** | AGC driver | [#2813](https://github.com/boykopovar/AnyPS5/pull/2813) open, [#2589](https://github.com/boykopovar/AnyPS5/pull/2589) open, [#1961](https://github.com/boykopovar/AnyPS5/pull/1961) open, [#757](https://github.com/boykopovar/AnyPS5/pull/757) open | 2026-10-10 |
+| 33 | [#2783](https://github.com/boykopovar/AnyPS5/issues/2783) NVIDIA: wave64 NGG culling program reads lane 63 (curated) | 1 | 0 | 1 | **3** | Shader recompiler | [#1825](https://github.com/boykopovar/AnyPS5/pull/1825) open, [AlxcBTW#25](https://github.com/AlxcBTW/AnyPS5/pull/25) open | 2026-10-10 |
+| 34 | [PR #2471](https://github.com/boykopovar/AnyPS5/pull/2471) Structurizer: selections joined at a shared loop exit (curated) | 1 | 0 | 1 | **3** | Shader recompiler | [#2471](https://github.com/boykopovar/AnyPS5/pull/2471) draft | 2026-10-10 |
+| 35 | [siglongjmp](https://github.com/boykopovar/AnyPS5/issues/1578) siglongjmp is not exported (libkernel) (curated) | 1 | 0 | 1 | **3** | libkernel | none | — |
+| 36 | [#2476](https://github.com/boykopovar/AnyPS5/issues/2476) Windows: Astro's Playroom (PPSA01325) fails to load libSceJobManager.prx (error 126) (mined) | 1 | 0 | 1 | **3** | — | [#2924](https://github.com/boykopovar/AnyPS5/pull/2924) closed | 2026-10-10 |
+| 37 | [#1920](https://github.com/boykopovar/AnyPS5/issues/1920) Ghost of Yōtei (PPSA26344): unsupported scalar source operand code 235 at program counter 856 (mined) | 1 | 0 | 1 | **3** | Shader recompiler | [#1940](https://github.com/boykopovar/AnyPS5/pull/1940) open, [#1837](https://github.com/boykopovar/AnyPS5/pull/1837) merged, [#2700](https://github.com/boykopovar/AnyPS5/pull/2700) closed | 2026-10-10 |
+| 38 | [#479](https://github.com/boykopovar/AnyPS5/issues/479) AGC: SRT walker statically evaluates a scalar load behind a per-lane exec guard and fails on a NULL pointer (mined) | 1 | 0 | 1 | **3** | AGC driver | [#290](https://github.com/boykopovar/AnyPS5/pull/290) open, [#759](https://github.com/boykopovar/AnyPS5/pull/759) merged, [#285](https://github.com/boykopovar/AnyPS5/pull/285) merged, [#283](https://github.com/boykopovar/AnyPS5/pull/283) merged | 2026-10-10 |
+| 39 | [#2631](https://github.com/boykopovar/AnyPS5/issues/2631) v_fma_mix* in FLOAT_MODE 0xcc (f16 round toward zero) (curated) | 0 | 0 | 2 | **2** | Shader recompiler | [AlxcBTW#19](https://github.com/AlxcBTW/AnyPS5/pull/19) open, [AlxcBTW#23](https://github.com/AlxcBTW/AnyPS5/pull/23) open, [AlxcBTW#17](https://github.com/AlxcBTW/AnyPS5/pull/17) closed | 2026-10-10 |
+| 40 | [#2682](https://github.com/boykopovar/AnyPS5/issues/2682) Recompiler: f32 product tininess is checked before rounding (RDNA2 checks after), and the check makes float-heavy shaders slow to compile (mined) | 0 | 0 | 2 | **2** | Shader recompiler | none | 2026-10-10 |
+| 41 | [#2642](https://github.com/boykopovar/AnyPS5/issues/2642) Structurizer: shared merge splitting never terminates in a two-latch loop (curated) | 0 | 0 | 1 | **1** | Shader recompiler | [AlxcBTW#20](https://github.com/AlxcBTW/AnyPS5/pull/20) open, [AlxcBTW#24](https://github.com/AlxcBTW/AnyPS5/pull/24) open, [#2471](https://github.com/boykopovar/AnyPS5/pull/2471) draft | 2026-10-10 |
+| 42 | [PR #2054](https://github.com/boykopovar/AnyPS5/pull/2054) Windows: direct memory mapped one 16 KiB view at a time (curated) | 0 | 0 | 1 | **1** | libkernel | [#2054](https://github.com/boykopovar/AnyPS5/pull/2054) open | 2026-10-10 |
+| 43 | [PR #425](https://github.com/boykopovar/AnyPS5/pull/425) Depth surface sampled as a cube texture (curated) | 0 | 0 | 1 | **1** | AGC driver | [#425](https://github.com/boykopovar/AnyPS5/pull/425) open | 2026-10-10 |
+| 44 | [#2914](https://github.com/boykopovar/AnyPS5/issues/2914) Astro's Playroom (PPSA01325): shader ABI resolution passes a different Shader* header pointer for the same code (mined) | 0 | 0 | 1 | **1** | AGC driver | none | 2026-10-10 |
 | 45 | [#2775](https://github.com/boykopovar/AnyPS5/issues/2775) Astro Bot: GPU hang (ring timeout) in a mesh-shader draw of 0x50000ab00, 40 workgroups, on RADV/RDNA4 (mined) | 0 | 0 | 1 | **1** | — | none | 2026-10-10 |
 | 46 | [#2774](https://github.com/boykopovar/AnyPS5/issues/2774) Recompiler: MemoryIndexBelongsTo walks the whole program on every call; about half of a warm start-up's CPU on 007 First Light (mined) | 0 | 0 | 1 | **1** | Shader recompiler | [#2813](https://github.com/boykopovar/AnyPS5/pull/2813) open, [SleglJan#23](https://github.com/SleglJan/AnyPS5/pull/23) open | 2026-10-10 |
 | 47 | [#2747](https://github.com/boykopovar/AnyPS5/issues/2747) Shader recompile fails on v_cvt_f16_u16 SDWA with a byte source select (Silent Hill: Townfall) (mined) | 0 | 0 | 1 | **1** | Shader recompiler | [#2838](https://github.com/boykopovar/AnyPS5/pull/2838) open, [#757](https://github.com/boykopovar/AnyPS5/pull/757) open | 2026-10-10 |
@@ -78,101 +78,103 @@ Score = 3 × one_fix_away + 2 × frontier + total. Frontier: titles for which th
 
 ## Titles
 
-| ID | Title | Best stage | Where | Open blockers, in order |
-|---|---|---|---|---|
-| `PPSA02929` | Dreaming Sarah | Playable (upstream) | Windows · main | — |
-| `PPSA16064` | Minecraft Dungeons II | Playable (curated) | main + open PRs | [#2811](https://github.com/boykopovar/AnyPS5/issues/2811) |
-| `PPSA04263` | Grand Theft Auto V | Ingame (mined) | PR #153 | — |
-| `PPSA04264` | GTA V | Ingame (mined) | Windows · NVIDIA · PR #494 | — |
-| `PPSA36082` | Hades II | Ingame (mined) | Linux · NVIDIA · PR #2169 | — |
-| `PPSA05684` | Uncharted: Legacy of Thieves Collection | Ingame (mined) | Linux · NVIDIA · PR #2915 | — |
-| `PPSA21564` | Astro Bot | Ingame (mined) | Linux · NVIDIA · PR #305 | [#2871](https://github.com/boykopovar/AnyPS5/issues/2871) |
-| `PPSA01341` | Demon's Souls | Ingame (mined) | Linux · NVIDIA · PR #1924 | [#2552](https://github.com/boykopovar/AnyPS5/issues/2552) |
-| `PPSA28997` | God of War: Sons of Sparta | Ingame (mined) | Linux · NVIDIA · PR #1479 | [#1930](https://github.com/boykopovar/AnyPS5/issues/1930) |
-| `PPSA14632` | LEGO Horizon Adventures | Ingame (mined) | Linux · AMD · PR #2792 | [#2548](https://github.com/boykopovar/AnyPS5/issues/2548) |
-| `PPSA15657` | Disney Epic Mickey: Rebrushed | Ingame (mined) | Windows · AMD · PR #2481 | [#2102](https://github.com/boykopovar/AnyPS5/issues/2102) → [#2365](https://github.com/boykopovar/AnyPS5/issues/2365) → [#2366](https://github.com/boykopovar/AnyPS5/issues/2366) |
-| `PPSA26344` | Ghost of Yōtei | Ingame (mined) | Windows · NVIDIA · PR #1267 | [#1920](https://github.com/boykopovar/AnyPS5/issues/1920) → [#2355](https://github.com/boykopovar/AnyPS5/issues/2355) → [#2715](https://github.com/boykopovar/AnyPS5/issues/2715) |
-| `PPSA12544` | Hollow Knight: Silksong | Ingame (mined) | Windows · NVIDIA · main | [PR #1482](https://github.com/boykopovar/AnyPS5/pull/1482) → [#865](https://github.com/boykopovar/AnyPS5/issues/865) → [#1970](https://github.com/boykopovar/AnyPS5/issues/1970) |
-| `PPSA21567` | Astro Bot | Ingame (mined) | Linux · AMD · PR #1584 | [#479](https://github.com/boykopovar/AnyPS5/issues/479) → [#665](https://github.com/boykopovar/AnyPS5/issues/665) → [#2712](https://github.com/boykopovar/AnyPS5/issues/2712) → [#2775](https://github.com/boykopovar/AnyPS5/issues/2775) → [#2871](https://github.com/boykopovar/AnyPS5/issues/2871) |
-| `PPSA29141` | Adds LEGO Party! | Menus (mined) | Windows · NVIDIA · PR #2055 | — |
-| `PPSA22520` | Seen | Menus (mined) | Windows · PR #964 | — |
-| `PPSA05324` | Sonic Origins | Menus (mined) | Windows · NVIDIA · PR #849 | — |
-| `PPSA21402` | Balatro | Menus (mined) | Linux · NVIDIA · PR #1197 | [#1034](https://github.com/boykopovar/AnyPS5/issues/1034) |
-| `PPSA01342` | Demon's Souls | Menus (mined) | Windows · NVIDIA · main | [#1973](https://github.com/boykopovar/AnyPS5/issues/1973) |
-| `PPSA99920` | Prospero Vibrate | Menus (curated) | Windows · NVIDIA · main + #2821, #2106 and AlxcBTW#21 | [PR #2106](https://github.com/boykopovar/AnyPS5/pull/2106) |
-| `PPSA01325` | Astro's Playroom | Menus (mined) | Windows · NVIDIA · PR #2156 | [#2476](https://github.com/boykopovar/AnyPS5/issues/2476) → [#2914](https://github.com/boykopovar/AnyPS5/issues/2914) |
-| `PPSA99050` | Homebrew UI Lab | Menus (curated) | Windows · NVIDIA · main + AlxcBTW#12 | [#1413](https://github.com/boykopovar/AnyPS5/issues/1413) → [#2682](https://github.com/boykopovar/AnyPS5/issues/2682) |
-| `PPSA39410` | VITA5 | Menus (curated) | Windows · NVIDIA · main + AlxcBTW#12 | [#1413](https://github.com/boykopovar/AnyPS5/issues/1413) → [#2682](https://github.com/boykopovar/AnyPS5/issues/2682) |
-| `PPSA98001` | PokeMMO | Menus (curated) | Windows · NVIDIA · main + #1482, #2106, #1872, siglongjmp and AlxcBTW#19 | [siglongjmp](https://github.com/boykopovar/AnyPS5/issues/1578) → [PR #1482](https://github.com/boykopovar/AnyPS5/pull/1482) → [PR #2106](https://github.com/boykopovar/AnyPS5/pull/2106) → [PR #1872](https://github.com/boykopovar/AnyPS5/pull/1872) → [#2631](https://github.com/boykopovar/AnyPS5/issues/2631) |
-| `PPSA09706` | Persona 5 Tactica | Presents (mined) | Windows · PR #1222 | — |
-| `PPSA01736` | Planet Coaster | Presents (mined) | Windows · NVIDIA · PR #2152 | — |
-| `PPSA07906` |  | Presents (mined) | Windows · NVIDIA · PR #1709 | — |
-| `PPSA59322` |  | Presents (mined) | Linux · AMD · PR #1915 | — |
-| `PPSA99006` | ProsperoPuzzles | Presents (mined) | Windows · NVIDIA · main | — |
-| `PPSA01289` | Sackboy: A Big Adventure | Presents (mined) | Windows · PR #2075 | — |
-| `PPSA28416` | STAR WARS: Galactic Racer | Presents (mined) | Windows · PR #2888 | — |
-| `PPSA23566` | UFC 6 | Presents (mined) | Windows · NVIDIA · PR #1235 | — |
-| `PPSA29413` | Wobbly Life | Presents (mined) | Windows · NVIDIA · PR #2212 | — |
-| `PPSA99666` | DOOM | Presents (mined) | Windows · NVIDIA · PR #1688 | [#1497](https://github.com/boykopovar/AnyPS5/issues/1497) |
-| `PPSA03671` | Marvel's Wolverine | Presents (mined) | Windows · NVIDIA · PR #197 | [#1033](https://github.com/boykopovar/AnyPS5/issues/1033) |
-| `PPSA02100` | Stray | Presents (curated) | Windows · NVIDIA · main | [#2548](https://github.com/boykopovar/AnyPS5/issues/2548) |
-| `PPSA30279` | Taxi Chaos 2 | Presents (curated) | Windows · NVIDIA · main + local patches | [#2783](https://github.com/boykopovar/AnyPS5/issues/2783) (Windows/NVIDIA) → [#2548](https://github.com/boykopovar/AnyPS5/issues/2548) → [PR #2054](https://github.com/boykopovar/AnyPS5/pull/2054) → [#1409](https://github.com/boykopovar/AnyPS5/issues/1409) → [PR #425](https://github.com/boykopovar/AnyPS5/pull/425) → [#2102](https://github.com/boykopovar/AnyPS5/issues/2102) |
-| `PPSA99005` | ps5-opengl showcase | First draw (curated) | Windows · NVIDIA · main + AlxcBTW#12 | [#1413](https://github.com/boykopovar/AnyPS5/issues/1413) → [#2631](https://github.com/boykopovar/AnyPS5/issues/2631) |
-| `PPSA34356` | Marsupilami: Hoobadventure | Starts (mined) | Windows · PR #2558 | — |
-| `PPSA05510` | Minecraft Legends | Starts (mined) | PR #1405 | — |
-| `PPSA01317` |  | Starts (mined) | Windows · NVIDIA · PR #2583 | — |
-| `PPSA02530` | PRAGMATA | Starts (mined) | Windows · PR #369 | — |
-| `PPSA13934` | Spirit of the Island | Starts (mined) | Windows · PR #696 | — |
-| `PPSA02262` | Dying Light 2 | Starts (mined) | Windows · NVIDIA · PR #1830 | [#1794](https://github.com/boykopovar/AnyPS5/issues/1794) |
-| `PPSA33286` | Silent Hill: Townfall | Starts (mined) | Windows · NVIDIA · main | [#2102](https://github.com/boykopovar/AnyPS5/issues/2102) → [#2747](https://github.com/boykopovar/AnyPS5/issues/2747) |
-| `PPSA99600` | Cloud Play | Converts (mined) | Windows · main | — |
-| `PPSA99039` | EVO-PLAYER | Converts (mined) | Windows · PR #2932 | — |
-| `PPSA99082` | OpenNOW | Converts (mined) | Windows · main | — |
-| `PPSA99728` | OpenRCT2 Native Port | Converts (mined) | Windows · PR #2933 | — |
-| `PPSA99764` | Porpoise | Converts (mined) | Linux · PR #1987 | — |
-| `PPSA13427` |  | Converts (mined) | Linux · NVIDIA · PR #1481 | — |
-| `PPSA69420` | ScreenTester5 | Converts (mined) | Windows · NVIDIA · PR #2332 | — |
-| `PPSA03306` | Silt | Converts (mined) | Windows · NVIDIA · PR #1243 | — |
-| `PPSA21607` | Smurfs Dreams | Converts (mined) | Windows · PR #911 | — |
-| `PPSA74126` | Stremio Plus | Converts (mined) | Windows · PR #2934 | — |
-| `PPSA25344` | Sword of the Sea | Converts (mined) | Windows · PR #2412 | — |
-| `PPSA99515` | Emby5 | Converts (mined) | Linux · main | [PR #1872](https://github.com/boykopovar/AnyPS5/pull/1872) |
-| `PPSA99505` | Jelly5 | Converts (mined) | Linux · main | [PR #1872](https://github.com/boykopovar/AnyPS5/pull/1872) |
-| `PPSA99009` | ProsperoLichess | Converts (mined) | Windows · main | [PR #1482](https://github.com/boykopovar/AnyPS5/pull/1482) |
-| `PPSA99002` | ProsperoLight | Converts (mined) | Windows · main | [PR #1482](https://github.com/boykopovar/AnyPS5/pull/1482) |
-| `PPSA99001` | ProsperoRadio | Converts (mined) | Windows · main | [row in #1578](https://github.com/boykopovar/AnyPS5/issues/1578) |
-| `PPSA99000` | ProsperoStore | Converts (mined) | PR #2906 | [#2908](https://github.com/boykopovar/AnyPS5/issues/2908) |
-| `PPSA99003` | ProsperoTV | Converts (mined) | Windows · main | [row in #1578](https://github.com/boykopovar/AnyPS5/issues/1578#issuecomment-6092658382) |
-| `PPSA97510` | PSXS5 | Converts (mined) | Windows · main | [row in #1578](https://github.com/boykopovar/AnyPS5/issues/1578#issuecomment-6091750552) |
-| `PPSA68091` | Ruffle Flash | Converts (mined) | Windows · main | [PR #2106](https://github.com/boykopovar/AnyPS5/pull/2106) |
-| `PPSA19111` | XashPS5 | Converts (mined) | Windows · main | [row in #1578](https://github.com/boykopovar/AnyPS5/issues/1578#issuecomment-6092658382) |
-| `PPSA99007` | Yamagi Quake II | Converts (mined) | Windows · main | [PR #2106](https://github.com/boykopovar/AnyPS5/pull/2106) |
-| `PPSA15508` | Last of Us Part II Remastered | Converts (mined) | Windows · NVIDIA · PR #2830 | [#2523](https://github.com/boykopovar/AnyPS5/issues/2523) → [#2701](https://github.com/boykopovar/AnyPS5/issues/2701) |
-| `PPSA11386` | 007 First Light | Converts (mined) | Windows · NVIDIA · PR #2830 | [PR #2471](https://github.com/boykopovar/AnyPS5/pull/2471) → [#2523](https://github.com/boykopovar/AnyPS5/issues/2523) → [#2642](https://github.com/boykopovar/AnyPS5/issues/2642) → [#2774](https://github.com/boykopovar/AnyPS5/issues/2774) |
-| `PPSA92280` | Capy Mobile | — |  | [#2701](https://github.com/boykopovar/AnyPS5/issues/2701) |
-| `PPSA34547` | Control Resonant | — |  | [#2689](https://github.com/boykopovar/AnyPS5/issues/2689) |
-| `PPSA06465` | Cult of the Lamb | — |  | [#2686](https://github.com/boykopovar/AnyPS5/issues/2686) |
-| `PPSA03355` | Hades | — |  | [#2724](https://github.com/boykopovar/AnyPS5/issues/2724) |
-| `PPSA01521` | Horizon Forbidden West | — |  | [#2809](https://github.com/boykopovar/AnyPS5/issues/2809) |
-| `PPSA01746` | Kena: Bridge of Spirits | — |  | [#2548](https://github.com/boykopovar/AnyPS5/issues/2548) |
-| `PPSA01802` | Kena: Bridge of Spirits | — |  | [#2548](https://github.com/boykopovar/AnyPS5/issues/2548) |
-| `PPSA10261` | Lies of P | — |  | [#2548](https://github.com/boykopovar/AnyPS5/issues/2548) |
-| `PPSA99109` | Prospero Explorer | — |  | [PR #2106](https://github.com/boykopovar/AnyPS5/pull/2106) |
-| `PPSA99110` | Prospero Multi Tools | — |  | [PR #2106](https://github.com/boykopovar/AnyPS5/pull/2106) |
-| `PPSA28502` | Pure Pool Pro | — |  | [#1455](https://github.com/boykopovar/AnyPS5/issues/1455) |
-| `PPSA07411` | Resident Evil 4 | — |  | [#2776](https://github.com/boykopovar/AnyPS5/issues/2776) |
-| `PPSA04540` | Rise of the Ronin | — |  | [#2621](https://github.com/boykopovar/AnyPS5/issues/2621) |
-| `PPSA07286` | Road of Death | — |  | [#2591](https://github.com/boykopovar/AnyPS5/issues/2591) |
-| `PPSA03001` | Sifu | — |  | [#1409](https://github.com/boykopovar/AnyPS5/issues/1409) |
-| `PPSA10112` | Silent Hill: The Short Message | — |  | [#1409](https://github.com/boykopovar/AnyPS5/issues/1409) |
-| `PPSA99902` | Sonic Unleashed Recompiled | — |  | [#2886](https://github.com/boykopovar/AnyPS5/issues/2886) |
-| `PPSA23126` | Palworld | — |  | [#1794](https://github.com/boykopovar/AnyPS5/issues/1794) → [#2648](https://github.com/boykopovar/AnyPS5/issues/2648) |
-| `PPSA01474` | Ratchet & Clank: Rift Apart | — |  | [#2102](https://github.com/boykopovar/AnyPS5/issues/2102) → [#2621](https://github.com/boykopovar/AnyPS5/issues/2621) → [#2687](https://github.com/boykopovar/AnyPS5/issues/2687) |
+Best stage counts only verified stages: curated, upstream, or mined below Menus. A mined claim of Menus or higher that nobody has reviewed is listed as an unverified claim and is not sorted on.
+
+| ID | Title | Best stage | Where | Source | Unverified claim | Open blockers, in order |
+|---|---|---|---|---|---|---|
+| `PPSA02929` | Dreaming Sarah | Playable (upstream) | Windows · main | [COMPATIBILITY.md](https://github.com/boykopovar/AnyPS5/blob/main/docs/user/COMPATIBILITY.md) | — | — |
+| `PPSA22520` | Animal Well | Menus (curated, reviewed) | Windows · main | [#964](https://github.com/boykopovar/AnyPS5/pull/964) | — | — |
+| `PPSA04263` | Grand Theft Auto V | Menus (curated, reviewed) | main at the merge of #153 | [#153](https://github.com/boykopovar/AnyPS5/pull/153) | — | — |
+| `PPSA04264` | GTA V | Menus (curated, reviewed) | Windows · NVIDIA · main + #153 (merged) | [#167](https://github.com/boykopovar/AnyPS5/pull/167) | Ingame, [source](https://github.com/boykopovar/AnyPS5/pull/493) | — |
+| `PPSA21402` | Balatro | Menus (curated, reviewed) | Linux · NVIDIA · main + #1020, #861, #1038, #1100 (all merged by 2026-10-10) | [#1197](https://github.com/boykopovar/AnyPS5/pull/1197) | — | [#1034](https://github.com/boykopovar/AnyPS5/issues/1034) |
+| `PPSA01342` | Demon's Souls | Menus (curated, reviewed) | Windows · NVIDIA · main at the merge of #5 | [#5](https://github.com/boykopovar/AnyPS5/pull/5) | — | [#1973](https://github.com/boykopovar/AnyPS5/issues/1973) |
+| `PPSA99920` | Prospero Vibrate | Menus (curated) | Windows · NVIDIA · main + #2821, #2106 and AlxcBTW#21 | [#2761](https://github.com/boykopovar/AnyPS5/issues/2761) | — | [PR #2106](https://github.com/boykopovar/AnyPS5/pull/2106) |
+| `PPSA99050` | Homebrew UI Lab | Menus (curated) | Windows · NVIDIA · main + AlxcBTW#12 | [#1413 comment](https://github.com/boykopovar/AnyPS5/issues/1413#issuecomment-6095663977) | — | [#1413](https://github.com/boykopovar/AnyPS5/issues/1413) → [#2682](https://github.com/boykopovar/AnyPS5/issues/2682) |
+| `PPSA39410` | VITA5 | Menus (curated) | Windows · NVIDIA · main + AlxcBTW#12 | [#1413 comment](https://github.com/boykopovar/AnyPS5/issues/1413#issuecomment-6095663977) | — | [#1413](https://github.com/boykopovar/AnyPS5/issues/1413) → [#2682](https://github.com/boykopovar/AnyPS5/issues/2682) |
+| `PPSA98001` | PokeMMO | Menus (curated) | Windows · NVIDIA · main + #1482, #2106, #1872, siglongjmp and AlxcBTW#19 | [#2631 comment](https://github.com/boykopovar/AnyPS5/issues/2631#issuecomment-6097885704) | — | [siglongjmp](https://github.com/boykopovar/AnyPS5/issues/1578) → [PR #1482](https://github.com/boykopovar/AnyPS5/pull/1482) → [PR #2106](https://github.com/boykopovar/AnyPS5/pull/2106) → [PR #1872](https://github.com/boykopovar/AnyPS5/pull/1872) → [#2631](https://github.com/boykopovar/AnyPS5/issues/2631) |
+| `PPSA36082` | Hades II | Presents (mined) | Linux · NVIDIA · PR #681 | [#681](https://github.com/boykopovar/AnyPS5/pull/681) | Menus, [source](https://github.com/boykopovar/AnyPS5/pull/1037) | — |
+| `PPSA29141` | LEGO Party! | Presents (mined) | Windows · NVIDIA · PR #2053 | [#2053](https://github.com/boykopovar/AnyPS5/pull/2053) | Menus, [source](https://github.com/boykopovar/AnyPS5/pull/2052) | — |
+| `PPSA09706` | Persona 5 Tactica | Presents (mined) | Windows · PR #1222 | [#1222](https://github.com/boykopovar/AnyPS5/pull/1222) | — | — |
+| `PPSA01736` | Planet Coaster | Presents (mined) | Windows · NVIDIA · PR #2152 | [#2152](https://github.com/boykopovar/AnyPS5/pull/2152) | — | — |
+| `PPSA07906` |  | Presents (mined) | Windows · NVIDIA · PR #1709 | [#1709](https://github.com/boykopovar/AnyPS5/pull/1709) | — | — |
+| `PPSA59322` |  | Presents (mined) | Linux · AMD · PR #1915 | [#1915](https://github.com/boykopovar/AnyPS5/pull/1915) | — | — |
+| `PPSA99006` | ProsperoPuzzles | Presents (mined) | Windows · NVIDIA · main | [#2026 comment](https://github.com/boykopovar/AnyPS5/issues/2026#issuecomment-6094252292) | — | — |
+| `PPSA01289` | Sackboy: A Big Adventure | Presents (mined) | Windows · PR #2075 | [#2075](https://github.com/boykopovar/AnyPS5/pull/2075) | — | — |
+| `PPSA05324` | Sonic Origins | Presents (mined) | Linux · AMD · PR #2479 | [#2479](https://github.com/boykopovar/AnyPS5/pull/2479) | — | — |
+| `PPSA28416` | STAR WARS: Galactic Racer | Presents (mined) | Windows · PR #2888 | [#2888](https://github.com/boykopovar/AnyPS5/pull/2888) | — | — |
+| `PPSA23566` | UFC 6 | Presents (mined) | Windows · NVIDIA · PR #1235 | [#1235](https://github.com/boykopovar/AnyPS5/pull/1235) | — | — |
+| `PPSA29413` | Wobbly Life | Presents (mined) | Windows · NVIDIA · PR #2212 | [#2212](https://github.com/boykopovar/AnyPS5/pull/2212) | — | — |
+| `PPSA99666` | DOOM | Presents (mined) | Windows · NVIDIA · PR #1688 | [#1688](https://github.com/boykopovar/AnyPS5/pull/1688) | — | [#1497](https://github.com/boykopovar/AnyPS5/issues/1497) |
+| `PPSA28997` | God of War: Sons of Sparta | Presents (mined) | Windows · PR #1530 | [#1530](https://github.com/boykopovar/AnyPS5/pull/1530) | Ingame, [source](https://github.com/boykopovar/AnyPS5/pull/593) | [#1930](https://github.com/boykopovar/AnyPS5/issues/1930) |
+| `PPSA14632` | LEGO Horizon Adventures | Presents (mined) | Windows · PR #1188 | [#1188](https://github.com/boykopovar/AnyPS5/pull/1188) | Ingame, [source](https://github.com/boykopovar/AnyPS5/pull/2791) | [#2548](https://github.com/boykopovar/AnyPS5/issues/2548) |
+| `PPSA03671` | Marvel's Wolverine | Presents (mined) | Windows · NVIDIA · PR #197 | [#197](https://github.com/boykopovar/AnyPS5/pull/197) | — | [#1033](https://github.com/boykopovar/AnyPS5/issues/1033) |
+| `PPSA16064` | Minecraft Dungeons II | Presents (mined) | Windows · NVIDIA · PR #1118 | [#1118](https://github.com/boykopovar/AnyPS5/pull/1118) | Menus, [source](https://github.com/boykopovar/AnyPS5/pull/2233) | [#2811](https://github.com/boykopovar/AnyPS5/issues/2811) |
+| `PPSA02100` | Stray | Presents (curated) | Windows · NVIDIA · main | [#2749](https://github.com/boykopovar/AnyPS5/issues/2749) | — | [#2548](https://github.com/boykopovar/AnyPS5/issues/2548) |
+| `PPSA12544` | Hollow Knight: Silksong | Presents (mined) | Windows · PR #2351 | [#2351](https://github.com/boykopovar/AnyPS5/pull/2351) | Ingame, [source](https://github.com/boykopovar/AnyPS5/pull/2536) | [PR #1482](https://github.com/boykopovar/AnyPS5/pull/1482) → [#865](https://github.com/boykopovar/AnyPS5/issues/865) → [#1970](https://github.com/boykopovar/AnyPS5/issues/1970) |
+| `PPSA30279` | Taxi Chaos 2 | Presents (curated) | Windows · NVIDIA · main + local patches | [#2783](https://github.com/boykopovar/AnyPS5/issues/2783) | — | [#2783](https://github.com/boykopovar/AnyPS5/issues/2783) (Windows/NVIDIA) → [#2548](https://github.com/boykopovar/AnyPS5/issues/2548) → [PR #2054](https://github.com/boykopovar/AnyPS5/pull/2054) → [#1409](https://github.com/boykopovar/AnyPS5/issues/1409) → [PR #425](https://github.com/boykopovar/AnyPS5/pull/425) → [#2102](https://github.com/boykopovar/AnyPS5/issues/2102) |
+| `PPSA99005` | ps5-opengl showcase | First draw (curated) | Windows · NVIDIA · main + AlxcBTW#12 | [#1413 comment](https://github.com/boykopovar/AnyPS5/issues/1413#issuecomment-6095663977) | — | [#1413](https://github.com/boykopovar/AnyPS5/issues/1413) → [#2631](https://github.com/boykopovar/AnyPS5/issues/2631) |
+| `PPSA34356` | Marsupilami: Hoobadventure | Starts (mined) | Windows · PR #2558 | [#2558](https://github.com/boykopovar/AnyPS5/pull/2558) | — | — |
+| `PPSA05510` | Minecraft Legends | Starts (mined) | PR #1405 | [#1405](https://github.com/boykopovar/AnyPS5/pull/1405) | — | — |
+| `PPSA01317` |  | Starts (mined) | Windows · NVIDIA · PR #2583 | [#2583](https://github.com/boykopovar/AnyPS5/pull/2583) | — | — |
+| `PPSA02530` | PRAGMATA | Starts (mined) | Windows · PR #369 | [#369](https://github.com/boykopovar/AnyPS5/pull/369) | — | — |
+| `PPSA13934` | Spirit of the Island | Starts (mined) | Windows · PR #696 | [#696](https://github.com/boykopovar/AnyPS5/pull/696) | — | — |
+| `PPSA05684` | Uncharted: Legacy of Thieves Collection | Starts (curated, reviewed) | main | [#2219](https://github.com/boykopovar/AnyPS5/pull/2219) | Menus, [source](https://github.com/boykopovar/AnyPS5/pull/2916) | — |
+| `PPSA21564` | Astro Bot | Starts (curated, reviewed) | Linux · NVIDIA · main de5e541d | [#2871](https://github.com/boykopovar/AnyPS5/issues/2871) | Ingame, [source](https://github.com/boykopovar/AnyPS5/pull/304) | [#2871](https://github.com/boykopovar/AnyPS5/issues/2871) |
+| `PPSA01341` | Demon's Souls | Starts (curated, reviewed) | Linux · main + #861 (merged) | [#2552](https://github.com/boykopovar/AnyPS5/issues/2552) | Ingame, [source](https://github.com/boykopovar/AnyPS5/pull/1896) | [#2552](https://github.com/boykopovar/AnyPS5/issues/2552) |
+| `PPSA02262` | Dying Light 2 | Starts (mined) | Windows · NVIDIA · PR #1830 | [#1830](https://github.com/boykopovar/AnyPS5/pull/1830) | — | [#1794](https://github.com/boykopovar/AnyPS5/issues/1794) |
+| `PPSA01325` | Astro's Playroom | Starts (curated, reviewed) | Windows · NVIDIA · main | [#2156](https://github.com/boykopovar/AnyPS5/pull/2156) | Menus, [source](https://github.com/boykopovar/AnyPS5/pull/2085) | [#2476](https://github.com/boykopovar/AnyPS5/issues/2476) → [#2914](https://github.com/boykopovar/AnyPS5/issues/2914) |
+| `PPSA33286` | Silent Hill: Townfall | Starts (mined) | Windows · NVIDIA · main | [#2102 comment](https://github.com/boykopovar/AnyPS5/issues/2102#issuecomment-6081268754) | — | [#2102](https://github.com/boykopovar/AnyPS5/issues/2102) → [#2747](https://github.com/boykopovar/AnyPS5/issues/2747) |
+| `PPSA15657` | Disney Epic Mickey: Rebrushed | Starts (mined) | Linux · AMD · PR #2101 | [#2101](https://github.com/boykopovar/AnyPS5/pull/2101) | Menus, [source](https://github.com/boykopovar/AnyPS5/issues/2365) | [#2102](https://github.com/boykopovar/AnyPS5/issues/2102) → [#2365](https://github.com/boykopovar/AnyPS5/issues/2365) → [#2366](https://github.com/boykopovar/AnyPS5/issues/2366) |
+| `PPSA26344` | Ghost of Yōtei | Starts (curated, reviewed) | main | [#1920](https://github.com/boykopovar/AnyPS5/issues/1920) | Menus, [source](https://github.com/boykopovar/AnyPS5/pull/1112) | [#1920](https://github.com/boykopovar/AnyPS5/issues/1920) → [#2355](https://github.com/boykopovar/AnyPS5/issues/2355) → [#2715](https://github.com/boykopovar/AnyPS5/issues/2715) |
+| `PPSA21567` | Astro Bot | Starts (mined) | Windows · PR #2817 | [#2817](https://github.com/boykopovar/AnyPS5/pull/2817) | Menus, [source](https://github.com/boykopovar/AnyPS5/pull/797) | [#479](https://github.com/boykopovar/AnyPS5/issues/479) → [#665](https://github.com/boykopovar/AnyPS5/issues/665) → [#2712](https://github.com/boykopovar/AnyPS5/issues/2712) → [#2775](https://github.com/boykopovar/AnyPS5/issues/2775) → [#2871](https://github.com/boykopovar/AnyPS5/issues/2871) |
+| `PPSA99600` | Cloud Play | Converts (mined) | Windows · main | [#2525 comment](https://github.com/boykopovar/AnyPS5/issues/2525#issuecomment-6095102807) | — | — |
+| `PPSA99039` | EVO-PLAYER | Converts (mined) | Windows · PR #2932 | [#2932](https://github.com/boykopovar/AnyPS5/pull/2932) | — | — |
+| `PPSA99082` | OpenNOW | Converts (mined) | Windows · main | [#1578 comment](https://github.com/boykopovar/AnyPS5/issues/1578#issuecomment-6092658382) | — | — |
+| `PPSA99728` | OpenRCT2 Native Port | Converts (mined) | Windows · PR #2933 | [#2933](https://github.com/boykopovar/AnyPS5/pull/2933) | — | — |
+| `PPSA99764` | Porpoise | Converts (mined) | Linux · PR #1987 | [#1987](https://github.com/boykopovar/AnyPS5/pull/1987) | — | — |
+| `PPSA13427` |  | Converts (mined) | Linux · NVIDIA · PR #1481 | [#1481](https://github.com/boykopovar/AnyPS5/pull/1481) | — | — |
+| `PPSA69420` | ScreenTester5 | Converts (mined) | Windows · NVIDIA · PR #2332 | [#2332](https://github.com/boykopovar/AnyPS5/pull/2332) | — | — |
+| `PPSA03306` | Silt | Converts (mined) | Windows · NVIDIA · PR #1243 | [#1243](https://github.com/boykopovar/AnyPS5/pull/1243) | — | — |
+| `PPSA21607` | Smurfs Dreams | Converts (mined) | Windows · PR #911 | [#911](https://github.com/boykopovar/AnyPS5/pull/911) | — | — |
+| `PPSA74126` | Stremio Plus | Converts (mined) | Windows · PR #2934 | [#2934](https://github.com/boykopovar/AnyPS5/pull/2934) | — | — |
+| `PPSA25344` | Sword of the Sea | Converts (mined) | Windows · PR #2412 | [#2412](https://github.com/boykopovar/AnyPS5/pull/2412) | — | — |
+| `PPSA99515` | Emby5 | Converts (mined) | Linux · main | [#1578 comment](https://github.com/boykopovar/AnyPS5/issues/1578#issuecomment-6098180041) | — | [PR #1872](https://github.com/boykopovar/AnyPS5/pull/1872) |
+| `PPSA99505` | Jelly5 | Converts (mined) | Linux · main | [#1578 comment](https://github.com/boykopovar/AnyPS5/issues/1578#issuecomment-6098180041) | — | [PR #1872](https://github.com/boykopovar/AnyPS5/pull/1872) |
+| `PPSA99009` | ProsperoLichess | Converts (mined) | Windows · main | [#1578 comment](https://github.com/boykopovar/AnyPS5/issues/1578#issuecomment-6091750552) | — | [PR #1482](https://github.com/boykopovar/AnyPS5/pull/1482) |
+| `PPSA99002` | ProsperoLight | Converts (mined) | Windows · main | [#1578 comment](https://github.com/boykopovar/AnyPS5/issues/1578#issuecomment-6091750552) | — | [PR #1482](https://github.com/boykopovar/AnyPS5/pull/1482) |
+| `PPSA99001` | ProsperoRadio | Converts (mined) | Windows · main | [#1578](https://github.com/boykopovar/AnyPS5/issues/1578) | — | [row in #1578](https://github.com/boykopovar/AnyPS5/issues/1578) |
+| `PPSA99000` | ProsperoStore | Converts (mined) | PR #2906 | [#2906](https://github.com/boykopovar/AnyPS5/pull/2906) | — | [#2908](https://github.com/boykopovar/AnyPS5/issues/2908) |
+| `PPSA99003` | ProsperoTV | Converts (mined) | Windows · main | [#1578 comment](https://github.com/boykopovar/AnyPS5/issues/1578#issuecomment-6092658382) | — | [row in #1578](https://github.com/boykopovar/AnyPS5/issues/1578#issuecomment-6092658382) |
+| `PPSA97510` | PSXS5 | Converts (mined) | Windows · main | [#1578 comment](https://github.com/boykopovar/AnyPS5/issues/1578#issuecomment-6091750552) | — | [row in #1578](https://github.com/boykopovar/AnyPS5/issues/1578#issuecomment-6091750552) |
+| `PPSA68091` | Ruffle Flash | Converts (mined) | Windows · main | [#1578 comment](https://github.com/boykopovar/AnyPS5/issues/1578#issuecomment-6092658382) | — | [PR #2106](https://github.com/boykopovar/AnyPS5/pull/2106) |
+| `PPSA19111` | XashPS5 | Converts (mined) | Windows · main | [#1578 comment](https://github.com/boykopovar/AnyPS5/issues/1578#issuecomment-6092658382) | — | [row in #1578](https://github.com/boykopovar/AnyPS5/issues/1578#issuecomment-6092658382) |
+| `PPSA99007` | Yamagi Quake II | Converts (mined) | Windows · main | [#1578 comment](https://github.com/boykopovar/AnyPS5/issues/1578#issuecomment-6092658382) | — | [PR #2106](https://github.com/boykopovar/AnyPS5/pull/2106) |
+| `PPSA15508` | Last of Us Part II Remastered | Converts (mined) | Windows · NVIDIA · PR #2830 | [#2830](https://github.com/boykopovar/AnyPS5/pull/2830) | — | [#2523](https://github.com/boykopovar/AnyPS5/issues/2523) → [#2701](https://github.com/boykopovar/AnyPS5/issues/2701) |
+| `PPSA11386` | 007 First Light | Converts (mined) | Windows · NVIDIA · PR #2830 | [#2830](https://github.com/boykopovar/AnyPS5/pull/2830) | — | [PR #2471](https://github.com/boykopovar/AnyPS5/pull/2471) → [#2523](https://github.com/boykopovar/AnyPS5/issues/2523) → [#2642](https://github.com/boykopovar/AnyPS5/issues/2642) → [#2774](https://github.com/boykopovar/AnyPS5/issues/2774) |
+| `PPSA92280` | Capy Mobile | — |  | — | — | [#2701](https://github.com/boykopovar/AnyPS5/issues/2701) |
+| `PPSA34547` | Control Resonant | — |  | — | — | [#2689](https://github.com/boykopovar/AnyPS5/issues/2689) |
+| `PPSA06465` | Cult of the Lamb | — |  | — | — | [#2686](https://github.com/boykopovar/AnyPS5/issues/2686) |
+| `PPSA03355` | Hades | — |  | — | — | [#2724](https://github.com/boykopovar/AnyPS5/issues/2724) |
+| `PPSA01521` | Horizon Forbidden West | — |  | — | — | [#2809](https://github.com/boykopovar/AnyPS5/issues/2809) |
+| `PPSA01746` | Kena: Bridge of Spirits | — |  | — | — | [#2548](https://github.com/boykopovar/AnyPS5/issues/2548) |
+| `PPSA01802` | Kena: Bridge of Spirits | — |  | — | — | [#2548](https://github.com/boykopovar/AnyPS5/issues/2548) |
+| `PPSA10261` | Lies of P | — |  | — | — | [#2548](https://github.com/boykopovar/AnyPS5/issues/2548) |
+| `PPSA99109` | Prospero Explorer | — |  | — | — | [PR #2106](https://github.com/boykopovar/AnyPS5/pull/2106) |
+| `PPSA99110` | Prospero Multi Tools | — |  | — | — | [PR #2106](https://github.com/boykopovar/AnyPS5/pull/2106) |
+| `PPSA28502` | Pure Pool Pro | — |  | — | — | [#1455](https://github.com/boykopovar/AnyPS5/issues/1455) |
+| `PPSA07411` | Resident Evil 4 | — |  | — | — | [#2776](https://github.com/boykopovar/AnyPS5/issues/2776) |
+| `PPSA04540` | Rise of the Ronin | — |  | — | — | [#2621](https://github.com/boykopovar/AnyPS5/issues/2621) |
+| `PPSA07286` | Road of Death | — |  | — | — | [#2591](https://github.com/boykopovar/AnyPS5/issues/2591) |
+| `PPSA03001` | Sifu | — |  | — | — | [#1409](https://github.com/boykopovar/AnyPS5/issues/1409) |
+| `PPSA10112` | Silent Hill: The Short Message | — |  | — | — | [#1409](https://github.com/boykopovar/AnyPS5/issues/1409) |
+| `PPSA99902` | Sonic Unleashed Recompiled | — |  | — | — | [#2886](https://github.com/boykopovar/AnyPS5/issues/2886) |
+| `PPSA23126` | Palworld | — |  | — | — | [#1794](https://github.com/boykopovar/AnyPS5/issues/1794) → [#2648](https://github.com/boykopovar/AnyPS5/issues/2648) |
+| `PPSA01474` | Ratchet & Clank: Rift Apart | — |  | — | — | [#2102](https://github.com/boykopovar/AnyPS5/issues/2102) → [#2621](https://github.com/boykopovar/AnyPS5/issues/2621) → [#2687](https://github.com/boykopovar/AnyPS5/issues/2687) |
 
 ## Coverage
 
 - RDNA ISA decode: 1166 of 1166 (100.0%)
-- HLE functions: 2708 of 3202 (84.57%)
+- HLE functions: 2710 of 3208 (84.48%)
 - PM4 type-3 packets: 35 handled, 4 conditional, 16 rejected of 55
 
 | Opcode | Packet | Status | Reason | Issues |
@@ -247,9 +249,9 @@ Missing HLE functions named in issues:
 - [#2701](https://github.com/boykopovar/AnyPS5/issues/2701) libkernel: support kern.sdk_version in sysctlbyname (Capy Mobile PPSA92280): First open blocker for 1 title; no open fix PR
 - [#2621](https://github.com/boykopovar/AnyPS5/issues/2621) Ratchet & Clank: Rift Apart: a registered pixel shader is drawn with DB_SHADER_CONTROL=0 while its header sets 0x20601: First open blocker for 1 title; no open fix PR
 - [#2908](https://github.com/boykopovar/AnyPS5/issues/2908) ProsperoStore (PPSA99000): startup stop on unresolved sceKernelGetSystemSwVersion: First open blocker for 1 title; no open fix PR
+- [#2811](https://github.com/boykopovar/AnyPS5/issues/2811) libSceNet Sockets implementation issue: First open blocker for 1 title; no open fix PR
 - [#2809](https://github.com/boykopovar/AnyPS5/issues/2809) HFW loading: fixed host-import budget forces a multi-GiB heap mirror and OOM: First open blocker for 1 title; no open fix PR
 - [#2776](https://github.com/boykopovar/AnyPS5/issues/2776) Resident Evil 4 (PPSA07411): start-up needs a library named Party.prx; with the missing exports added it stops at sce::Json::InitParameter2::setSpecialFloatFormatType: First open blocker for 1 title; no open fix PR
-- [#2724](https://github.com/boykopovar/AnyPS5/issues/2724) Hades (PPSA03355) on Windows: start-up faults in the title's own libc.prx before any file is opened: First open blocker for 1 title; no open fix PR
 
 ## Known gaps
 
@@ -263,4 +265,5 @@ Missing HLE functions named in issues:
 - Stages mined from PR bodies describe the PR branch (build “PR #N”), not main.
 - An issue that names seven or more titles is treated as a tracker: only its per-title stop rows count, as separate blockers.
 - HLE “named in issues” counts any mention of a missing function, including lists of imports that were never reached.
+- A mined stage of Menus or higher is only a claim until a person reviews it; most such claims in PR text were made on branches with open PRs.
 

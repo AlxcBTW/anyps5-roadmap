@@ -2,7 +2,7 @@
 
 > Generated technical roadmap for the AnyPS5 PS5 emulator (https://github.com/boykopovar/AnyPS5): which open issues block which PS5 titles, ranked by how many titles a fix would move, plus HLE, RDNA ISA and PM4 coverage. Community prototype, not official; regenerated from GitHub data by roadmap.py.
 
-Snapshot 2026-10-10T18:47:51Z, upstream commit 29380369. 65 open blockers, 154 titles. Top of the ranking:
+Snapshot 2026-10-10T19:04:58Z, upstream commit 3cb317fc. 65 open blockers, 154 titles. Top of the ranking:
 
 - [#2548](https://github.com/boykopovar/AnyPS5/issues/2548) Packed pixel ancillary word read whole after its VGPR is reused (score 33: frontier 6, one fix away 5, total 6)
 - [PR #2106](https://github.com/boykopovar/AnyPS5/pull/2106) pthread_sigmask is not exported (libkernel) (score 31: frontier 5, one fix away 5, total 6)
@@ -12,7 +12,9 @@ Snapshot 2026-10-10T18:47:51Z, upstream commit 29380369. 65 open blockers, 154 t
 
 How to read the data:
 
-- Stages, lowest to highest: Converts, Loads, Starts, First draw, Presents, Menus, Ingame, Playable. `best_stage` is the highest reported one with os, gpu, build and a source url.
+- Stages, lowest to highest: Converts, Loads, Starts, First draw, Presents, Menus, Ingame, Playable. `best_stage` is the highest verified stage, with os, gpu, build, a source `url` and `verified` (true for curated and upstream entries, false for mined ones below Menus).
+- Verification policy: a mined stage of Menus or higher never becomes `best_stage` until a person reviews it (`stage_reviews` in data/blockers.json). Until then it is `unverified_claim` = {stage, url, quote}: a claim from issue or PR text, often made on a branch with open PRs. Do not report an unverified claim as the title's stage, and do not rank or sort titles by it. Only main, or main plus PRs that are merged, counts as reaching a stage.
+- `stage_reviews` on a title lists the hand verdicts (confirmed, downgraded, suppressed) with the quote they rest on.
 - A title's `open_blockers` are ordered: the first entry is where it stops now. `scope` limits a step to an OS/GPU path.
 - `origin` is `curated` (data/blockers.json, reviewed by a person), `mined` (regex rules over issue and PR text), `upstream` (docs/user/COMPATIBILITY.md) or `github` (native blocked-by links). Prefer curated facts when they conflict.
 - Blocker ids are upstream issue numbers, `pr-N` for blockers known only through a PR, `N~symbol` for a crash site that only appears as a row in tracker issue N, or a slug.

@@ -8,6 +8,12 @@
      "fix_prs": [{"number": 30}]}
   ],
   "not_blockers": [],
+  "stage_reviews": [
+    {"title": "PPSA02929", "claim": "Menus", "claim_url": "https://github.com/example/AnyPS5/pull/31",
+     "verdict": "confirmed", "stage": "Menus", "os": "Windows", "gpu": null, "build": "main", "date": "2026-10-08",
+     "url": "https://github.com/example/AnyPS5/pull/31",
+     "quote": "Dreaming Sarah (PPSA02929) reaches its main menu on main with this change.", "reason": "fixture"}
+  ],
   "titles": [
     {"id": "PPSA30279", "name": "Taxi Chaos 2", "kind": "retail", "paths": ["Windows/NVIDIA", "Windows/AMD"],
      "blockers": [{"id": "pr-30"}, {"id": "10", "scope": ["Windows/AMD"]}],
