@@ -1804,11 +1804,11 @@ def main(argv=None) -> int:
     lf = {"encoding": "utf-8", "newline": "\n"}  # same bytes on Windows and on the Actions runner
     (out / "roadmap.json").write_text(json.dumps(doc, indent=1, ensure_ascii=False) + "\n", **lf)
     (out / "ROADMAP.md").write_text(render_markdown(doc), **lf)
-    (out / "index.html").write_text(render_html.Page(doc).render(), **lf)
     (out / "llms.txt").write_text(render_llms(doc), **lf)
     if (ROOT / "AGENTS.md").exists():
         shutil.copyfile(ROOT / "AGENTS.md", out / "AGENTS.md")
     (out / ".nojekyll").write_text("", encoding="utf-8")
+    (out / "index.html").write_text(render_html.Page(doc, out).render(), **lf)  # last: it lists the sizes of the other files
     s = doc["stats"]
     log(f"issues {s['issues_scanned']} (open {s['issues_open']}), PRs {s['prs_scanned']}, titles {s['titles']}, "
         f"open blockers {s['blockers_open']} ({s['blockers_ranked']} ranked), wrote {out}")
