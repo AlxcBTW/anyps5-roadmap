@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import datetime as dt
-from collections import defaultdict
+from collections import Counter, defaultdict
 from typing import TYPE_CHECKING
 
 from .config import (
@@ -108,6 +108,7 @@ def assemble(model: Model, coverage: dict, raw: dict, upstream: Upstream, now: d
                 "issues": sorted({m["number"] for m in t["mentions"] if m["kind"] == "issue"}),
                 "prs": sorted({m["number"] for m in t["mentions"] if m["kind"] == "pr"}),
                 "last_evidence": last,
+                "confidence": model.confidence(t),
             }
         )
     blockers = []
@@ -146,6 +147,18 @@ def assemble(model: Model, coverage: dict, raw: dict, upstream: Upstream, now: d
             "blockers_ranked": sum(1 for b in blockers if b["status"] == "open" and b["score"] > 0),
             "blockers_curated": sum(1 for b in blockers if b["origin"] == "curated"),
             "rate_limit": rl,
+            "api": raw.get("api"),
+            "evidence_items": sum(len(t["evidence"]) for t in model.titles.values()),
+            "evidence_by_part": dict(
+                sorted(
+                    Counter(e.get("part") or e["origin"] for t in model.titles.values() for e in t["evidence"]).items()
+                )
+            ),
+            "stops_from_log_blocks": sum(
+                1 for t in model.titles.values() for s in t["stops"] if s.get("via") == "log block"
+            ),
+            "titles_with_two_or_more_reports": sum(1 for t in titles if (t["confidence"]["reports_on_main"] or 0) >= 2),
+            "links": link_stats(model),
         },
         "ranking": [b["id"] for b in ranking],
         "blockers": blockers,
@@ -153,7 +166,7 @@ def assemble(model: Model, coverage: dict, raw: dict, upstream: Upstream, now: d
         "coverage": coverage,
         "focus": focus,
         "not_blockers": [{"issue": n, "reason": r} for n, r in sorted(model.not_blockers.items())],
-        "gaps": model.gaps + KNOWN_GAPS,
+        "gaps": model.gaps + [f"Not read in full: {t}." for t in raw.get("truncated", [])][:5] + KNOWN_GAPS,
         "sources": {
             "issues_and_prs": f"https://github.com/{model.repo} via gh api graphql (open + closed in the last {WINDOW_DAYS} days)",
             "dependencies": f"/repos/{model.repo}/issues/{{n}}/dependencies/blocked_by",
@@ -165,15 +178,36 @@ def assemble(model: Model, coverage: dict, raw: dict, upstream: Upstream, now: d
     }
 
 
+def link_stats(model: Model) -> dict:
+    """Issue-to-PR links by how they are known: closing references, timeline cross-references, PR text."""
+    vias = [v for per_issue in model.link_via.values() for v in per_issue.values()]
+    return {
+        "total": len(vias),
+        "closing": sum(1 for v in vias if "closing" in v),
+        "xref": sum(1 for v in vias if "xref" in v),
+        "text": sum(1 for v in vias if "text" in v),
+        "text_only": sum(1 for v in vias if v == {"text"}),
+    }
+
+
 KNOWN_GAPS = [
     "Title names, engines and stages are mined with keyword rules per line; negation and context are handled only roughly.",
     "Mined chain order is a heuristic: the latest recorded stop first, then issues by creation date.",
-    "PR comments and review threads are not read; only PR titles and bodies are.",
+    "Read: issue and PR bodies, their comments, PR reviews and review-thread comments (up to 100 threads and 50 comments "
+    "per thread), and timeline cross-references. Not read: commit messages, diffs, attached logs and screenshots "
+    "(images, gists, uploaded files), edit history, and bot comments.",
+    "Issues and PRs closed more than 60 days ago are not read, even when they hold the last report on a title.",
+    "Stops are read from a fenced log only when the comment names exactly one title ID; the last error line in the "
+    "block counts as the stop.",
+    "“N reports on main” counts distinct GitHub accounts whose text puts the title at that stage on main. It cannot "
+    "tell whether two accounts tested the same build, and text without a stated build counts as main in issues and as "
+    "the PR branch in PRs.",
     "Titles without a PPSA ID (some homebrew) appear only when curated.",
     "Discord reports are invisible unless someone copies them into GitHub or the curated file.",
     "Signatures are matched by prefix after hex addresses and long numbers are masked; reworded messages split into separate keys.",
     "PM4 status reads Pm4::UnsupportedReason(); a packet can pass that check and still be emulated partially.",
-    "Stages mined from PR bodies describe the PR branch (build “PR #N”), not main.",
+    "Stages mined from PR text describe the PR branch (build “PR #N”), not main, unless the sentence says main and "
+    "names no patches.",
     "An issue that names seven or more titles is treated as a tracker: only its per-title stop rows count, as separate blockers.",
     "HLE “named in issues” counts any mention of a missing function, including lists of imports that were never reached.",
     "A mined stage of Menus or higher is only a claim until a person reviews it; most such claims in PR text were made on branches with open PRs.",

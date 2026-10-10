@@ -12,7 +12,6 @@ from .mine import (
     GPU_RULES,
     LINE_TITLE_LIMIT,
     OS_RULES,
-    PATCHED_BUILD,
     QUOTED_RE,
     REGISTER_RE,
     REPORT_FIELD,
@@ -20,11 +19,15 @@ from .mine import (
     STOP_WORDS,
     TITLE_RE,
     TRACKER_TITLES,
+    block_stop,
+    build_of,
     classify,
     clean_name,
     clip,
     closing_refs,
+    code_blocks,
     compute_nid,
+    is_bot,
     name_after,
     name_before,
     name_import,
@@ -74,6 +77,9 @@ class Model:
         self.issues = {i["number"]: i for i in raw["issues"]}
         self.prs: dict[str, dict] = {}
         self.links: dict[int, dict[str, str]] = defaultdict(dict)  # issue -> {pr key: fixes|mentions}
+        # issue -> pr key -> how the link is known: closing (GitHub's closing references),
+        # xref (a timeline cross-reference) or text (a reference read from PR text)
+        self.link_via: dict[int, dict[str, set[str]]] = defaultdict(lambda: defaultdict(set))
         self.titles: dict[str, dict] = {}
         self.blockers: dict[str, dict] = {}
         self.issue_info: dict[int, dict] = {}
@@ -102,8 +108,9 @@ class Model:
         for item in self.raw["issues"] + self.raw["prs"]:
             names.update(ident.findall(item.get("title") or ""))
             names.update(ident.findall(item.get("body") or ""))
-            for c in item.get("comments", []) if isinstance(item.get("comments"), list) else []:
-                names.update(ident.findall(c.get("body") or ""))
+            for key in ("comments", "reviews", "review_comments"):
+                for c in item.get(key) if isinstance(item.get(key), list) else []:
+                    names.update(ident.findall(c.get("body") or ""))
         return {compute_nid(n): n for n in names}
 
     def resolve_sig(self, sig: dict) -> dict:
@@ -172,32 +179,37 @@ class Model:
             )
             rec["merged_at"] = p.get("mergedAt")
 
-    def _add_link(self, issue: int, pr_key: str, kind: str):
+    def _add_link(self, issue: int, pr_key: str, kind: str, via: str):
         if issue not in self.issues or pr_key not in self.prs:
             return
         if self.links[issue].get(pr_key) != "fixes":
             self.links[issue][pr_key] = kind
+        self.link_via[issue][pr_key].add(via)
 
     def _link(self):
         for i in self.raw["issues"]:
             for x in i["closed_by"]:
-                self._add_link(i["number"], key_of(x["repo"], x["number"]), "fixes")
+                self._add_link(i["number"], key_of(x["repo"], x["number"]), "fixes", "closing")
             for x in i["xrefs"]:
                 if x["kind"] == "pr":
-                    self._add_link(
-                        i["number"], key_of(x["repo"], x["number"]), "fixes" if x.get("willClose") else "mentions"
-                    )
+                    kind = "fixes" if x.get("willClose") else "mentions"
+                    self._add_link(i["number"], key_of(x["repo"], x["number"]), kind, "xref")
         for p in self.raw["prs"]:
             pk = key_of(self.repo, p["number"])
+            for c in p.get("closes", []):
+                if c["repo"] == self.repo:
+                    self._add_link(c["number"], pk, "fixes", "closing")
+            # the PR's own timeline: an upstream issue (or a comment on it) that names this PR
+            for x in p.get("xrefs", []):
+                if x["kind"] == "issue" and x["repo"] == self.repo:
+                    self._add_link(x["number"], pk, "mentions", "xref")
             text = f"{p['title']}\n{p.get('body') or ''}"
-            closing = {(r, n) for r, n in closing_refs(text, self.repo)}
-            closing |= {(c["repo"], c["number"]) for c in p.get("closes", [])}
-            for r, n in closing:
+            for r, n in closing_refs(text, self.repo):
                 if r == self.repo:
-                    self._add_link(n, pk, "fixes")
+                    self._add_link(n, pk, "fixes", "text")
             for r, n in refs_in(text, self.repo):
                 if r == self.repo and n != p["number"]:
-                    self._add_link(n, pk, "mentions")
+                    self._add_link(n, pk, "mentions", "text")
 
     # -- titles -------------------------------------------------------------
     def title(self, tid: str) -> dict:
@@ -239,16 +251,19 @@ class Model:
             "text": f"{item['title']}\n{item.get('body') or ''}",
             "part": "body",
         }
-        for c in item.get("comments", []) if isinstance(item.get("comments"), list) else []:
-            yield {
-                "kind": kind,
-                "number": number,
-                "url": c["url"],
-                "date": c["createdAt"],
-                "author": c.get("author"),
-                "text": c.get("body") or "",
-                "part": "comment",
-            }
+        for key, part in (("comments", "comment"), ("reviews", "review"), ("review_comments", "review")):
+            for c in item.get(key) if isinstance(item.get(key), list) else []:
+                if is_bot(c.get("author")):
+                    continue
+                yield {
+                    "kind": kind,
+                    "number": number,
+                    "url": c["url"],
+                    "date": c["createdAt"],
+                    "author": c.get("author"),
+                    "text": c.get("body") or "",
+                    "part": part,
+                }
 
     def _mine_text(self, src: dict, info: dict | None):
         text = src["text"]
@@ -293,11 +308,7 @@ class Model:
                 if len(ids) <= LINE_TITLE_LIMIT:
                     os_ = classify(OS_RULES, line) or src_os
                     gpu = classify(GPU_RULES, line) or src_gpu
-                    build = (
-                        ("PR #%d" % src["number"])
-                        if src["kind"] == "pr"
-                        else ("main + patches" if PATCHED_BUILD.search(line) else "main")
-                    )
+                    build = build_of(line, src["kind"], src["number"])
                     st = stage_in(line, pos)
                     quote = clip(re.sub(r"\s+", " ", strip_md(line)).strip(), 280)
                     if st:
@@ -313,6 +324,8 @@ class Model:
                                 "quote": quote,
                                 "origin": "mined",
                                 "verified": False,
+                                "author": src.get("author"),
+                                "part": src["part"],
                             }
                         )
                     if sig:
@@ -329,6 +342,8 @@ class Model:
                                 "quote": quote,
                                 "origin": "mined",
                                 "verified": False,
+                                "author": src.get("author"),
+                                "part": src["part"],
                             }
                         )
                         t["stops"].append(
@@ -339,6 +354,7 @@ class Model:
                                 "issue": src["number"] if src["kind"] == "issue" else None,
                                 "os": os_,
                                 "gpu": gpu,
+                                "build": build,
                             }
                         )
                 if info is None:
@@ -354,6 +370,56 @@ class Model:
                     self._associate(tid, src["number"], "stop-line", src["url"], src["date"])
                 else:
                     self._associate(tid, src["number"], "mention", src["url"], src["date"])
+        self._mine_code_blocks(src, info)
+
+    def _mine_code_blocks(self, src: dict, info: dict | None):
+        """A fenced log in a comment that names exactly one title: its last error line is
+        where that title stopped, even when the ID and the error are on different lines."""
+        text = src["text"]
+        ids = list(dict.fromkeys(TITLE_RE.findall(text)))
+        if len(ids) != 1 or (info and info["tracker"]):
+            return
+        blocks = code_blocks(text)
+        if not blocks:
+            return
+        t = self.title(ids[0])
+        seen = {s["sig"]["key"] for s in t["stops"] if s["url"] == src["url"]}
+        build = build_of(text, src["kind"], src["number"])
+        os_, gpu = classify(OS_RULES, text), classify(GPU_RULES, text)
+        for block in blocks:
+            sig = block_stop(block)
+            if not sig or sig["key"] in seen:
+                continue
+            seen.add(sig["key"])
+            self.resolve_sig(sig)
+            t["evidence"].append(
+                {
+                    "stage": "Converts" if sig["family"] == "import" else "Starts",
+                    "os": os_,
+                    "gpu": gpu,
+                    "build": build,
+                    "url": src["url"],
+                    "date": src["date"],
+                    "note": "stops at: " + sig["display"] + " (log block)",
+                    "quote": clip(sig["display"], 280),
+                    "origin": "mined",
+                    "verified": False,
+                    "author": src.get("author"),
+                    "part": src["part"],
+                }
+            )
+            t["stops"].append(
+                {
+                    "sig": sig,
+                    "url": src["url"],
+                    "date": src["date"],
+                    "issue": src["number"] if src["kind"] == "issue" else None,
+                    "os": os_,
+                    "gpu": gpu,
+                    "via": "log block",
+                    "build": build,
+                }
+            )
 
     def _mine_issues(self):
         for number, issue in self.issues.items():
@@ -396,18 +462,8 @@ class Model:
 
     def _mine_prs(self):
         for p in self.raw["prs"]:
-            self._mine_text(
-                {
-                    "kind": "pr",
-                    "number": p["number"],
-                    "url": p["url"],
-                    "date": p["createdAt"],
-                    "author": p.get("author"),
-                    "text": f"{p['title']}\n{p.get('body') or ''}",
-                    "part": "body",
-                },
-                None,
-            )
+            for src in self._sources(p, "pr"):
+                self._mine_text(src, None)
 
     def _mine_compat(self):
         if not self.compat_md:
@@ -486,6 +542,7 @@ class Model:
                     "link": kind,
                     "updated": pr["updated"],
                     "origin": "mined",
+                    "via": sorted(self.link_via[number][key]),
                 }
             )
         rank = {"open": 0, "draft": 1, "merged": 2, "closed": 3, "unknown": 4}
@@ -657,9 +714,13 @@ class Model:
 
             for step in curated_chains.get(tid, []):
                 add(str(step["id"]), "curated", step.get("why", "curated"), step.get("scope"))
-            # the latest recorded stop decides which mined blocker comes first
-            latest = sorted(t["stops"], key=lambda s: s["date"] or "", reverse=True)
-            for stop in latest[:1]:
+            # the latest stop recorded on main decides which mined blocker comes first; a stop on a
+            # PR branch or a patched build can sit behind blockers that main still hits
+            on_main = [s for s in t["stops"] if s.get("build", "main") == "main"]
+            latest = sorted(on_main, key=lambda s: s["date"] or "", reverse=True)
+            # the newest stop that names a known open blocker or a tracker row; newer stops
+            # that match nothing (an unknown crash site, a quoted placeholder) are passed over
+            for stop in latest:
                 hit = next(
                     (bid for key, bid in sig_index if sig_match(key, stop["sig"]["key"]) or key == stop["sig"]["key"]),
                     None,
@@ -671,10 +732,12 @@ class Model:
                             self.blockers[hit]["issue"],
                             {"level": "signature", "url": stop["url"], "date": stop["date"]},
                         )
-                elif stop["issue"] and self.issue_info.get(stop["issue"], {}).get("tracker"):
+                    break
+                if stop["issue"] and self.issue_info.get(stop["issue"], {}).get("tracker"):
                     vid = self._virtual_blocker(stop["issue"], stop)
                     sig_index.append((self.blockers[vid]["signature_key"], vid))
                     add(vid, "mined", f"latest recorded stop, listed in tracker #{stop['issue']}")
+                    break
             strong = sorted(
                 ((n, a) for n, a in t["assoc"].items() if a["level"] != "mention"),
                 key=lambda na: self.issues.get(na[0], {}).get("createdAt", ""),
@@ -822,6 +885,39 @@ class Model:
             return None
         c = max(claims, key=lambda e: (STAGES.index(e["stage"]), e.get("date") or ""))
         return {"stage": c["stage"], "url": c["url"], "quote": c.get("quote") or c.get("note")}
+
+    def confidence(self, t: dict) -> dict:
+        """How many independent people back the shown stage: distinct GitHub accounts whose own
+        text says the title reached it (or a higher stage) on main. Claims made on PR branches or
+        patched builds are counted apart. A count, not a verdict: curated reviews decide."""
+
+        def authors(stage: str, on_main: bool) -> list[str]:
+            floor = STAGES.index(stage)
+            return sorted(
+                {
+                    e["author"]
+                    for e in t["evidence"]
+                    if e["origin"] == "mined"
+                    and e.get("author")
+                    and STAGES.index(e["stage"]) >= floor
+                    and (e.get("build") == "main") == on_main
+                }
+            )
+
+        best, claim = self.best_stage(t), self.unverified_claim(t)
+        out: dict = {"stage": best["stage"] if best else None, "reports_on_main": 0, "authors": []}
+        if best:
+            out["authors"] = authors(best["stage"], True)
+            out["reports_on_main"] = len(out["authors"])
+        if claim:
+            out["claim"] = {
+                "stage": claim["stage"],
+                "reports_on_main": len(authors(claim["stage"], True)),
+                "reports_on_branches": len(authors(claim["stage"], False)),
+            }
+        n = out["reports_on_main"]
+        out["label"] = f"{n} report{'s' if n != 1 else ''} on main" if n else None
+        return out
 
     def _rank(self):
         for b in self.blockers.values():

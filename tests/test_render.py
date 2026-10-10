@@ -83,7 +83,7 @@ class CorrectionLinks(unittest.TestCase):
 
     def test_each_link_names_what_it_corrects_for_screen_readers(self):
         self.assertIn('Report a correction<span class="sr-only"> for Dreaming Sarah (PPSA02929)</span>', self.html)
-        self.assertIn('Report a correction<span class="sr-only"> to #10</span>', self.html)
+        self.assertIn('Report a correction<span class="sr-only"> for #10</span>', self.html)
 
 
 if __name__ == "__main__":

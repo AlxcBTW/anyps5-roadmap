@@ -157,6 +157,7 @@ def main(argv=None) -> int:
         help="with --offline: never touch the network; progress.json and COMPATIBILITY.md come from the cache directory",
     )
     ap.add_argument("--validate", action="store_true", help="only check the curated file (--curated) and exit")
+    ap.add_argument("--refresh", action="store_true", help="read every thread again instead of reusing threads.json")
     args = ap.parse_args(argv)
     if args.validate:
         return validate_command(Path(args.curated))
@@ -177,10 +178,10 @@ def main(argv=None) -> int:
     else:
         cutoff = (now - dt.timedelta(days=WINDOW_DAYS)).strftime("%Y-%m-%dT%H:%M:%SZ")
         log(f"collecting {args.repo} (closed since {cutoff})")
-        raw = collect(args.repo, cutoff, curated, log)
+        raw = collect(args.repo, cutoff, curated, log, cache_dir=cache.parent, refresh=args.refresh)
         cache.parent.mkdir(parents=True, exist_ok=True)
         cache.write_text(json.dumps(raw), encoding="utf-8")
-        log(f"rate limit before/after: {raw['rate_limit']}")
+        log(f"graphql cost {raw['api']['graphql_cost']}, remaining {raw['api']['graphql_remaining']}")
     checkout = Path(args.upstream_checkout) if args.upstream_checkout else None
     network = not args.no_network
     fetch = not (args.offline or args.no_git_fetch)

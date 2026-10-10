@@ -8,14 +8,19 @@ mining gets wrong or cannot see. Curated facts always win over mined ones.
 
 ```sh
 python3 roadmap.py --upstream-checkout /path/to/AnyPS5            # live: gh api + git fetch
-python3 roadmap.py --offline --upstream-checkout /path/to/AnyPS5  # reuse data/cache/raw.json
+python3 roadmap.py --offline --upstream-checkout /path/to/AnyPS5  # rebuild from data/cache/
+python3 roadmap.py --validate                                     # check data/blockers.json only
 python3 -m unittest discover -s tests                             # fixture tests, no network
 ```
 
-`gh` must be logged in (or `GH_TOKEN` set). A full run takes about 40 paginated GraphQL
-queries (6 to 12 points off the hourly budget in practice), a few REST calls for
-`blocked_by` and no search calls; check `gh api rate_limit` first. Do not use the search
-API in loops.
+`gh` must be logged in (or `GH_TOKEN` set). A run lists every issue and PR in the window
+(about 30 queries, 70 points), then reads comments, reviews, review threads and
+cross-references only for threads whose `updatedAt` changed since `data/cache/threads.json`
+was written. With an empty cache that is about 3,000 threads in 115 batched queries, and the
+whole run costs about 190 points (4% of the hourly 5,000); with a warm cache it costs about
+75. The Roadmap workflow keeps `data/cache` between runs. Check the budget with
+`gh api graphql -f query='{ rateLimit { remaining resetAt } }'` (the REST `rate_limit`
+view of the graphql bucket lags behind). No search API calls; do not add any in loops.
 
 ## What to curate
 
@@ -64,6 +69,10 @@ counts on its own:
 - A mined stage of Menus or higher that nobody has reviewed becomes `unverified_claim`
   (`{stage, url, quote}`) when it is above the best verified stage. It is never sorted or
   ranked on, and it must never be reported as the title's stage.
+- `confidence` counts distinct GitHub accounts whose own text puts a title at its stage on
+  `main` ("2 reports on main" on the page), and separately those that reached the claimed
+  stage only on PR branches or patched builds. It never turns a claim into a stage; only a
+  `stage_reviews` entry does.
 - To settle a claim, open the source (body, comments, linked screenshots and logs) and add
   a `stage_reviews` entry.
 

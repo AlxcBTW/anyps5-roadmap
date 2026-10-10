@@ -18,7 +18,7 @@ data and links its source.
 
 ```text
   boykopovar/AnyPS5 on GitHub                          data/blockers.json
-  issues, PRs, comments                                curated by people; always wins
+  issues, PRs, comments, reviews                       curated by people; always wins
           |                                                     |
           | gh api graphql, cached by updatedAt                 |
           v                                                     |
@@ -32,8 +32,10 @@ data and links its source.
 ```
 
 1. **Mine.** `collect.py` reads the upstream issues and PRs of the last 60 days (all open ones) with
-   their comments. `mine.py` reads title IDs, game names, stages, OS, GPU, build and
-   error lines from that text, one line at a time.
+   their comments, reviews, review threads and cross-references. Threads that did not change since the
+   last run come from `data/cache/threads.json`. `mine.py` reads title IDs, game names, stages, OS, GPU,
+   the build (main, a PR branch or patches), the author and error lines from that text, one line at a
+   time, plus the last error line of a fenced log.
 2. **Curate.** `data/blockers.json` holds what mining gets wrong or cannot see: blockers, the order in
    which they stop each game, and hand reviews of mined stages. A curated fact always wins.
 3. **Render.** `assemble.py` writes `site/roadmap.json`. The page, `ROADMAP.md` and `llms.txt` are
@@ -66,7 +68,8 @@ seconds, which is the quick way to try a change to `data/blockers.json`. Add
   merged now.
 - **Titles** (one per PS5 title ID) have a `best_stage` (verified only), an `unverified_claim` (a mined
   Menus or higher that nobody has reviewed yet; never ranked on), their `open_blockers` in the order
-  they stop the game, and the `evidence` behind each stage.
+  they stop the game, the `evidence` behind each stage, and a `confidence`: how many different people
+  report that stage on `main` ("2 reports on main" on the page). A count, not a verification.
 - **Blockers** are upstream issues, PRs (`pr-N`) or crash sites listed in a tracker issue (`N~symbol`).
   Each has its fix PRs and a score: `3 × one_fix_away + 2 × frontier + total` (games for which it is
   the only open stop, the first open stop, or any stop).

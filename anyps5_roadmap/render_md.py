@@ -183,6 +183,12 @@ def render_llms(doc: dict) -> str:
         "and do not rank or sort titles by it. Only main, or main plus PRs that are merged, counts as reaching a stage.",
         "- `stage_reviews` on a title lists the hand verdicts (confirmed, downgraded, suppressed) with the quote they rest on.",
         "- A title's `open_blockers` are ordered: the first entry is where it stops now. `scope` limits a step to an OS/GPU path.",
+        "- `confidence` on a title counts reports, it does not verify them: `reports_on_main` is the number of distinct GitHub "
+        "accounts whose own text puts the title at its best stage (or higher) on main; `claim.reports_on_main` and "
+        "`claim.reports_on_branches` do the same for the unverified claim on main and on PR branches or patched builds.",
+        "- Each mined evidence item has an `author`, a `part` (body, comment or review) and a `build` (`main`, `main + patches` "
+        "or `PR #N`). A PR link on a blocker has `via`: `closing` (GitHub's closing references), `xref` (a timeline "
+        "cross-reference) or `text` (read from PR text).",
         "- `origin` is `curated` (data/blockers.json, reviewed by a person), `mined` (regex rules over issue and PR text), "
         "`upstream` (docs/user/COMPATIBILITY.md) or `github` (native blocked-by links). Prefer curated facts when they conflict.",
         "- Blocker ids are upstream issue numbers, `pr-N` for blockers known only through a PR, `N~symbol` for a crash site that only "

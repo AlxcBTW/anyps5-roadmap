@@ -422,7 +422,7 @@ class Page:
 <div class="p-head"><h3>{esc(b["title"])}</h3>
 <p class="meta">{num}<span class="mono">{esc(self.ref(b))}</span> · {esc(self.area(b))} · {self.status_html(b)}</p></div>
 <dl>{dl}</dl>
-<p class="out">{ext(b["url"], f"Open {esc(self.ref(b))} on GitHub")}<span class="muted"> · last activity {esc(fmt_date(b.get("last_activity")))} · </span>{self.blocker_report(b)}</p>
+<p class="out">{ext(b["url"], f"Open {esc(self.ref(b))} on GitHub")}<span class="muted"> · last activity {esc(fmt_date(b.get("last_activity")))}</span> <span class="tail"><span class="muted">· </span>{self.blocker_report(b)}</span></p>
 </div>"""
 
     def blocker_report(self, b: dict) -> str:
@@ -433,7 +433,7 @@ class Page:
             "page_source": b.get("url") or "",
             "error": b.get("signature") or "",
         }
-        return self.report("blocker.yml", f"to {self.ref(b)}", fields)
+        return self.report("blocker.yml", f"for {self.ref(b)}", fields)
 
     def game_report(self, t: dict) -> str:
         best, claim = t.get("best_stage") or {}, t.get("unverified_claim") or {}
@@ -518,10 +518,15 @@ class Page:
     def game_row(self, t: dict) -> str:
         stage = self.stage_of(t)
         claim = t.get("unverified_claim")
+        conf = t.get("confidence") or {}
+        # how many people back the shown stage on main; a count, never a promotion
+        reports = f'<span class="note">{esc(conf["label"])}</span>' if stage and conf.get("label") else ""
         claim_html = ""
         if claim and claim.get("url"):
+            n = (conf.get("claim") or {}).get("reports_on_main") or 0
+            said = f"Claimed {claim.get('stage', '')}" + (f" in {n} reports on main" if n >= 2 else "")
             claim_html = (
-                f'<span class="note">Claimed {esc(claim.get("stage", ""))}, unverified · '
+                f'<span class="note">{esc(said)}, unverified · '
                 f"{ext(claim['url'], esc(source_label(claim['url'], self.repo)))}</span>"
             )
         steps = [s for s in (t.get("open_blockers") or []) if s["id"] in self.blockers]
@@ -551,7 +556,7 @@ class Page:
         search = " ".join(w for w in words if w).lower()
         return f"""<tr class="game" id="g-{esc(t["id"])}" data-stage="{slug(stage) if stage else "none"}" data-search="{esc(search)}">
 <td data-label="Game"><span class="g-name">{esc(t.get("name") or t["id"])}</span><span class="meta">{" · ".join(meta)}</span></td>
-<td data-label="Stage"><div><span class="stage">{self.pips(stage)}<span>{esc(stage or "No stage yet")}</span></span>{claim_html}</div></td>
+<td data-label="Stage"><div><span class="stage">{self.pips(stage)}<span>{esc(stage or "No stage yet")}</span></span>{reports}{claim_html}</div></td>
 <td data-label="Stops at">{stop}</td>
 <td data-label="Then">{then}</td>
 <td data-label="Source">{source}</td>
@@ -1035,6 +1040,8 @@ details[open]>summary .chev{transform:rotate(90deg)}
 .pr-note{font-size:var(--fs-s);color:var(--text-3)}
 .out{font-size:var(--fs-s)}
 .report{color:var(--text-3);white-space:nowrap}
+.note .report{display:inline-block;padding-block:3px}
+.out .tail{white-space:nowrap}
 .panel{position:sticky;top:calc(var(--bar-h) + 24px);max-height:calc(100dvh - var(--bar-h) - 48px);overflow:auto;
   overscroll-behavior:contain;padding:28px 28px 24px;border:1px solid var(--line);border-radius:16px;background:var(--surface);scrollbar-width:thin}
 .panel-in{display:grid;gap:20px;transition:opacity 180ms var(--ease-out),translate 180ms var(--ease-out)}
@@ -1077,7 +1084,7 @@ table.games{width:100%;margin-top:16px;border-collapse:collapse;font-size:var(--
 .games th:nth-child(4){width:24%}.games th:nth-child(5){width:14%}
 @media (hover:hover){.games tbody tr{transition:background-color 150ms ease}.games tbody tr:hover{background:var(--hover)}}
 .games tr:target td{background:var(--selected)}
-@media (min-width:861px){.games tr{scroll-margin-top:44px}}  /* a jump to a row clears the sticky table header */
+@media (min-width:861px){.games tr{scroll-margin-top:24px}}  /* a jump to a row clears the sticky table header */
 .g-name{display:block;font-size:var(--fs-m);font-weight:550}
 .games .meta{display:block;margin-top:2px}
 .stage{display:flex;align-items:center;gap:10px;white-space:nowrap}

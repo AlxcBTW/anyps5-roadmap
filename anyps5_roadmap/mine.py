@@ -161,7 +161,17 @@ STAGE_RULES = [
 ]
 PATCHED_BUILD = re.compile(
     r"\bwith (?:#|PR|AlxcBTW/|the fix|this|these|both|all)|\bplus #|\+ ?#\d|\bon #\d+'s branch|\bthis branch\b|"
-    r"\blocal(?:ly)?\b|\bfork\b|\bhack\b|#\d+ (?:took|takes|gets|brings)\b|\b(?:integration|test|testing|bring-up|working) (?:branch|stack)\b|\bstacked\b",
+    r"\blocal(?:ly)?\b|\bfork\b|\bhack\b|#\d+ (?:took|takes|gets|brings)\b|\b(?:integration|test|testing|bring-up|working) (?:branch|stack)\b|\bstacked\b|"
+    # "on oneandonlydean's astrobot branch", "on my audio branch"
+    r"\b(?:my|our|their|his|her|[\w-]+'s)\s+(?:[\w-]+\s+)?branch\b|"
+    # "on `main` de5e541d plus this PR", "main + the patch"
+    r"(?:\bplus|\+)\s+(?:this|that|these|those|the|my|our)\s+(?:PR|PRs|pull request|change|changes|patch|patches|fix|branch)\b",
+    re.I,
+)
+# A line that says it ran on main: "on current main", "main at 262c031", "tested on main after the merge".
+MAIN_BUILD = re.compile(
+    r"\b(?:on|with|current|latest|today's|plain|clean|stock|upstream)\s+`?main`?(?![\w-])|"
+    r"(?<![\w-])`?main`?\s+(?:at|@)\s+`?[0-9a-f]{7,40}\b|(?<![\w-])main\s+\(`?[0-9a-f]{7,40}`?\)",
     re.I,
 )
 
@@ -464,3 +474,65 @@ def clip(text: str, n: int) -> str:
         return text
     cut = text[:n].rsplit(" ", 1)[0].rstrip(",;:-–—(")
     return cut + "…"
+
+
+def build_of(text: str, kind: str, number: int) -> str:
+    """What a report ran on. Issue text is taken as main unless it names patches or a branch;
+    PR text is the PR's branch unless it says main and names no patches."""
+    patched = PATCHED_BUILD.search(text)
+    if kind == "pr":
+        return "main" if MAIN_BUILD.search(text) and not patched else f"PR #{number}"
+    return "main + patches" if patched else "main"
+
+
+FENCE = re.compile(r"^\s*(`{3,}|~{3,})(.*)$")
+# Crash lines that count only inside a fenced log block, where they cannot be prose.
+CODE_SIG = re.compile(
+    r"(?:LowLevelFatalError|Assertion failed|assertion failed|Unhandled exception|Segmentation fault|"
+    r"EXCEPTION_ACCESS_VIOLATION|Fatal error:)[^\n]*"
+)
+
+
+def code_blocks(text: str) -> list[list[str]]:
+    """The lines of every fenced code block (``` or ~~~); an unclosed block runs to the end."""
+    blocks: list[list[str]] = []
+    cur: list[str] | None = None
+    fence = ""
+    for line in text.splitlines():
+        m = FENCE.match(line)
+        if cur is None:
+            if m:
+                cur, fence = [], m.group(1)
+            continue
+        if m and m.group(1)[0] == fence[0] and len(m.group(1)) >= len(fence) and not m.group(2).strip():
+            blocks.append(cur)
+            cur = None
+            continue
+        cur.append(line)
+    if cur:
+        blocks.append(cur)
+    return blocks
+
+
+def block_stop(lines: list[str]) -> dict | None:
+    """The last error line in a fenced log block: where that run stopped."""
+    found = None
+    for idx, line in enumerate(lines):
+        sig = None
+        if SIG_START.search(line):
+            sig = signature_from(line, lines[idx + 1] if idx + 1 < len(lines) else "")
+        if not sig:
+            m = CODE_SIG.search(line)
+            core = normalise_message(m.group(0)) if m else ""
+            if len(core) >= 16:
+                sig = {"family": "crash", "key": core.lower(), "display": core}
+        if sig:
+            found = sig
+    return found
+
+
+BOT_LOGINS = re.compile(r"\[bot\]$|^(?:github-actions|dependabot|copilot-pull-request-reviewer|coderabbitai)$", re.I)
+
+
+def is_bot(login: str | None) -> bool:
+    return bool(login and BOT_LOGINS.search(login))

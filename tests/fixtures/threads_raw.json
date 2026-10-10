@@ -1,0 +1,69 @@
+{
+  "fetched_at": "2026-10-10T12:00:00Z",
+  "repo": "example/AnyPS5",
+  "cutoff": "2026-08-11T12:00:00Z",
+  "dependencies": {},
+  "external_prs": {},
+  "rate_limit": {},
+  "api": {"graphql_queries": 6, "graphql_cost": 6, "graphql_remaining": 4994, "threads_read": 4, "threads_from_cache": 0, "threads_without_text": 0, "thread_cost": 1},
+  "truncated": [],
+  "issues": [
+    {
+      "number": 40, "state": "OPEN", "stateReason": null,
+      "title": "AGC: storage image access to a depth surface",
+      "body": "```\npresentation failed: compute shader 0x2006410000: AGC graphics: storage image access to depth/stencil surface 0x20183b0000 is not implemented\n```",
+      "url": "https://github.com/example/AnyPS5/issues/40",
+      "createdAt": "2026-10-01T10:00:00Z", "updatedAt": "2026-10-09T10:00:00Z", "closedAt": null,
+      "author": "zoe", "assignees": [], "labels": [], "comment_count": 3,
+      "comments": [
+        {"body": "Ghostrunner (PPSA01999) on main, Windows 11, RTX 4070. The loading screen renders, then:\n\n```\n[Info] Pipeline compiled\nterminate called after throwing an instance of 'std::runtime_error'\n  what():  AGC graphics: storage image access to depth/stencil surface 0x53a500000 is not implemented\n```", "url": "https://github.com/example/AnyPS5/issues/40#issuecomment-401", "createdAt": "2026-10-02T10:00:00Z", "author": "alice"},
+        {"body": "Same on Linux with RADV: PPSA01999 shows its loading screen on current main.", "url": "https://github.com/example/AnyPS5/issues/40#issuecomment-402", "createdAt": "2026-10-03T10:00:00Z", "author": "bob"},
+        {"body": "PPSA01999 reaches the main menu in the nightly smoke run.", "url": "https://github.com/example/AnyPS5/issues/40#issuecomment-403", "createdAt": "2026-10-03T11:00:00Z", "author": "github-actions[bot]"}
+      ],
+      "xrefs": [], "closed_by": [],
+      "issueDependenciesSummary": {"blockedBy": 0, "totalBlockedBy": 0, "blocking": 0, "totalBlocking": 0}
+    },
+    {
+      "number": 41, "state": "OPEN", "stateReason": null,
+      "title": "Ghostrunner (PPSA01999): audio stutters",
+      "body": "The music stutters every few seconds.",
+      "url": "https://github.com/example/AnyPS5/issues/41",
+      "createdAt": "2026-10-04T10:00:00Z", "updatedAt": "2026-10-08T10:00:00Z", "closedAt": null,
+      "author": "carol", "assignees": [], "labels": [], "comment_count": 1,
+      "comments": [
+        {"body": "Gone for me with #50.", "url": "https://github.com/example/AnyPS5/issues/41#issuecomment-411", "createdAt": "2026-10-08T10:00:00Z", "author": "carol"}
+      ],
+      "xrefs": [], "closed_by": [],
+      "issueDependenciesSummary": {"blockedBy": 0, "totalBlockedBy": 0, "blocking": 0, "totalBlocking": 0}
+    }
+  ],
+  "prs": [
+    {
+      "number": 50, "title": "fix(audio): mix ports without set levels",
+      "body": "Mixes object ports even when no level was set.",
+      "url": "https://github.com/example/AnyPS5/pull/50", "state": "OPEN", "merged": false, "mergedAt": null, "closedAt": null,
+      "createdAt": "2026-10-06T09:00:00Z", "updatedAt": "2026-10-09T11:00:00Z", "isDraft": false, "author": "dave",
+      "labels": ["prx"], "closes": [], "comment_count": 1, "review_count": 1, "thread_count": 1, "xref_count": 1,
+      "comments": [
+        {"body": "With this PR, Ghostrunner (PPSA01999) reaches the main menu.", "url": "https://github.com/example/AnyPS5/pull/50#issuecomment-501", "createdAt": "2026-10-07T09:00:00Z", "author": "dave"}
+      ],
+      "reviews": [
+        {"body": "On current main PPSA01999 still stops at the loading screen.", "url": "https://github.com/example/AnyPS5/pull/50#pullrequestreview-502", "createdAt": "2026-10-07T10:00:00Z", "author": "erin", "state": "COMMENTED"}
+      ],
+      "review_comments": [
+        {"body": "PPSA01999 boots fine on my audio branch.", "url": "https://github.com/example/AnyPS5/pull/50#discussion_r503", "createdAt": "2026-10-07T11:00:00Z", "author": "frank", "path": "core/audio/Mixer.cpp"}
+      ],
+      "xrefs": [
+        {"kind": "issue", "repo": "example/AnyPS5", "number": 41, "title": "Ghostrunner (PPSA01999): audio stutters", "url": "https://github.com/example/AnyPS5/issues/41", "state": "OPEN", "merged": null, "draft": null, "updatedAt": "2026-10-08T10:00:00Z", "event": "CrossReferencedEvent", "createdAt": "2026-10-08T10:00:00Z", "willClose": false}
+      ]
+    },
+    {
+      "number": 51, "title": "feat(agc): storage images over depth surfaces",
+      "body": "Implements the missing path.",
+      "url": "https://github.com/example/AnyPS5/pull/51", "state": "MERGED", "merged": true, "mergedAt": "2026-10-09T09:00:00Z", "closedAt": "2026-10-09T09:00:00Z",
+      "createdAt": "2026-10-08T09:00:00Z", "updatedAt": "2026-10-09T09:00:00Z", "isDraft": false, "author": "gus",
+      "labels": ["agc"], "closes": [{"repo": "example/AnyPS5", "number": 40}], "comment_count": 0, "review_count": 0, "thread_count": 0, "xref_count": 0,
+      "comments": [], "reviews": [], "review_comments": [], "xrefs": []
+    }
+  ]
+}
