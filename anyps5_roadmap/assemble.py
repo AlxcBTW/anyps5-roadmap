@@ -6,7 +6,16 @@ import datetime as dt
 from collections import defaultdict
 from typing import TYPE_CHECKING
 
-from .config import PM4_HEADER, PM4_SOURCE, PROGRESS_URL, SCHEMA_VERSION, STAGE_HELP, STAGES, WINDOW_DAYS
+from .config import (
+    PM4_HEADER,
+    PM4_SOURCE,
+    PROGRESS_URL,
+    PROJECT_REPO,
+    SCHEMA_VERSION,
+    STAGE_HELP,
+    STAGES,
+    WINDOW_DAYS,
+)
 
 if TYPE_CHECKING:  # used in annotations only
     from .model import Model
@@ -110,6 +119,11 @@ def assemble(model: Model, coverage: dict, raw: dict, upstream: Upstream, now: d
         "generated_at": now.strftime("%Y-%m-%dT%H:%M:%SZ"),
         "fetched_at": raw.get("fetched_at"),
         "upstream": {"repo": model.repo, "ref": upstream.ref, "commit": upstream.commit},
+        "project": {
+            "repo": PROJECT_REPO,
+            "corrections": f"https://github.com/{PROJECT_REPO}/issues/new/choose",
+            "issue_forms": ["wrong-stage.yml", "blocker.yml", "mining-bug.yml"],
+        },
         "window": {"days": WINDOW_DAYS, "since": raw.get("cutoff")},
         "stages": [{"name": s, "rank": i, "meaning": STAGE_HELP[s]} for i, s in enumerate(STAGES)],
         "scoring": {

@@ -11,6 +11,7 @@ CURATED = DATA / "blockers.json"
 CACHE = DATA / "cache" / "raw.json"
 
 UPSTREAM = "boykopovar/AnyPS5"
+PROJECT_REPO = "AlxcBTW/anyps5-roadmap"  # this repository: corrections are filed here
 WINDOW_DAYS = 60
 PROGRESS_URL = "https://boykopovar.github.io/AnyPS5/progress.json"
 PM4_HEADER = "core/libs/prx/libSceAgcDriver/Execution/include/Pm4Opcodes.hpp"

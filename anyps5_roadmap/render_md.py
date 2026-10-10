@@ -200,6 +200,8 @@ def render_llms(doc: dict) -> str:
         "## Curation",
         "",
         "- [AGENTS.md](AGENTS.md): how to add or correct curated blockers and title chains in data/blockers.json, and how to verify them.",
+        f"- Report a wrong entry: {doc.get('project', {}).get('corrections', '')} (issue forms for a wrong or missing stage, a "
+        "missing or wrong blocker, and a mining bug; a public source link is required).",
         "",
         "## Optional",
         "",

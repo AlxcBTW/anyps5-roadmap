@@ -20,6 +20,7 @@ import html
 import json
 import math
 import sys
+import urllib.parse
 from pathlib import Path
 
 TOP = 10
@@ -180,6 +181,7 @@ class Page:
         self.doc = doc
         self.site = site
         self.repo = doc["upstream"]["repo"]
+        self.project = (doc.get("project") or {}).get("repo") or "AlxcBTW/anyps5-roadmap"
         self.blockers = {b["id"]: b for b in doc["blockers"]}
         self.titles = {t["id"]: t for t in doc["titles"]}
         self.stages = [s["name"] for s in doc["stages"]]
@@ -257,6 +259,12 @@ class Page:
         if name:
             text += f' <span class="b-name">{esc(b["title"])}</span>'
         return f'<a class="b-link" href="{esc(self.blocker_href(b))}">{text}</a>'
+
+    def report(self, template: str, about: str, fields: dict[str, str]) -> str:
+        """A small link to a prefilled issue form of this project (issue forms take ?<field id>=value)."""
+        query = urllib.parse.urlencode({"template": template, **{k: v for k, v in fields.items() if v}})
+        url = f"https://github.com/{self.project}/issues/new?{query}"
+        return f'<a class="report" href="{esc(url)}">Report a correction<span class="sr-only"> {esc(about)}</span></a>'
 
     def area(self, b: dict) -> str:
         return AREAS.get(b.get("area"), b.get("area") or "Other")
@@ -414,8 +422,33 @@ class Page:
 <div class="p-head"><h3>{esc(b["title"])}</h3>
 <p class="meta">{num}<span class="mono">{esc(self.ref(b))}</span> · {esc(self.area(b))} · {self.status_html(b)}</p></div>
 <dl>{dl}</dl>
-<p class="out">{ext(b["url"], f"Open {esc(self.ref(b))} on GitHub")}<span class="muted"> · last activity {esc(fmt_date(b.get("last_activity")))}</span></p>
+<p class="out">{ext(b["url"], f"Open {esc(self.ref(b))} on GitHub")}<span class="muted"> · last activity {esc(fmt_date(b.get("last_activity")))} · </span>{self.blocker_report(b)}</p>
 </div>"""
+
+    def blocker_report(self, b: dict) -> str:
+        label = f"{self.ref(b)} {b['title']}"
+        fields = {
+            "title": f"Blocker: {label}"[:120],
+            "blocker": label,
+            "page_source": b.get("url") or "",
+            "error": b.get("signature") or "",
+        }
+        return self.report("blocker.yml", f"to {self.ref(b)}", fields)
+
+    def game_report(self, t: dict) -> str:
+        best, claim = t.get("best_stage") or {}, t.get("unverified_claim") or {}
+        now = f"{best['stage']} ({best.get('origin', 'mined')})" if best.get("stage") else "No stage yet"
+        if claim.get("stage"):
+            now += f"; claimed {claim['stage']}, unverified"
+        name = t.get("name") or ""
+        fields = {
+            "title": f"Stage: {name} ({t['id']})" if name else f"Stage: {t['id']}",
+            "title_id": t["id"],
+            "game": name,
+            "page_stage": now,
+            "page_source": best.get("url") or claim.get("url") or "",
+        }
+        return self.report("wrong-stage.yml", f"for {name or t['id']}" + (f" ({t['id']})" if name else ""), fields)
 
     def blocker_item(self, b: dict, rank: int | None) -> str:
         n = len(self.names(b.get("titles", [])))
@@ -504,11 +537,12 @@ class Page:
         if best and best.get("url"):
             where = " · ".join(x for x in (best.get("os"), best.get("gpu")) if x)
             source = (
-                f"<div>{ext(best['url'], esc(source_label(best['url'], self.repo)))}"
-                f"{f'<span class=note>{esc(where)}</span>' if where else ''}</div>"
+                f"{ext(best['url'], esc(source_label(best['url'], self.repo)))}"
+                f"{f'<span class=note>{esc(where)}</span>' if where else ''}"
             )
         else:
             source = '<span class="muted">—</span>'
+        source = f'<div>{source}<span class="note">{self.game_report(t)}</span></div>'
         meta = [f'<span class="mono">{esc(t["id"])}</span>'] + [esc(x) for x in (t.get("engine"), t.get("kind")) if x]
         words = [t.get("name"), t["id"], t.get("engine"), t.get("kind")]
         for s in steps:
@@ -1000,6 +1034,7 @@ details[open]>summary .chev{transform:rotate(90deg)}
 .prs li{display:grid;gap:2px;overflow-wrap:break-word}
 .pr-note{font-size:var(--fs-s);color:var(--text-3)}
 .out{font-size:var(--fs-s)}
+.report{color:var(--text-3);white-space:nowrap}
 .panel{position:sticky;top:calc(var(--bar-h) + 24px);max-height:calc(100dvh - var(--bar-h) - 48px);overflow:auto;
   overscroll-behavior:contain;padding:28px 28px 24px;border:1px solid var(--line);border-radius:16px;background:var(--surface);scrollbar-width:thin}
 .panel-in{display:grid;gap:20px;transition:opacity 180ms var(--ease-out),translate 180ms var(--ease-out)}
@@ -1042,6 +1077,7 @@ table.games{width:100%;margin-top:16px;border-collapse:collapse;font-size:var(--
 .games th:nth-child(4){width:24%}.games th:nth-child(5){width:14%}
 @media (hover:hover){.games tbody tr{transition:background-color 150ms ease}.games tbody tr:hover{background:var(--hover)}}
 .games tr:target td{background:var(--selected)}
+@media (min-width:861px){.games tr{scroll-margin-top:44px}}  /* a jump to a row clears the sticky table header */
 .g-name{display:block;font-size:var(--fs-m);font-weight:550}
 .games .meta{display:block;margin-top:2px}
 .stage{display:flex;align-items:center;gap:10px;white-space:nowrap}

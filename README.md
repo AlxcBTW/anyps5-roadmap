@@ -18,7 +18,7 @@ data and links its source.
 
 ```text
   boykopovar/AnyPS5 on GitHub                          data/blockers.json
-  issues, PRs, comments, review threads                curated by people; always wins
+  issues, PRs, comments                                curated by people; always wins
           |                                                     |
           | gh api graphql, cached by updatedAt                 |
           v                                                     |
@@ -32,7 +32,7 @@ data and links its source.
 ```
 
 1. **Mine.** `collect.py` reads the upstream issues and PRs of the last 60 days (all open ones) with
-   their comments and review threads. `mine.py` reads title IDs, game names, stages, OS, GPU, build and
+   their comments. `mine.py` reads title IDs, game names, stages, OS, GPU, build and
    error lines from that text, one line at a time.
 2. **Curate.** `data/blockers.json` holds what mining gets wrong or cannot see: blockers, the order in
    which they stop each game, and hand reviews of mined stages. A curated fact always wins.

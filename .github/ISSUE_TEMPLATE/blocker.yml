@@ -15,6 +15,13 @@ body:
       placeholder: "#2548 Recompiler: packed pixel ancillary word"
     validations:
       required: false
+  - type: input
+    id: page_source
+    attributes:
+      label: Link on the page now
+      description: Filled in by the link on the page.
+    validations:
+      required: false
   - type: dropdown
     id: problem
     attributes:
