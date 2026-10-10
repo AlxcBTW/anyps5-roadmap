@@ -1,0 +1,107 @@
+name: CI
+
+# Runs on every PR (forks included) and on every push to main. Needs no secrets and
+# no write access: lint, tests, curated-data validation, an offline build from the
+# fixtures and, on PRs, a preview of what the change does to the blocker map.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    name: check
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.11" # the oldest supported version
+
+      - name: Install ruff (dev tooling only; the generator is stdlib-only)
+        run: python -m pip install --disable-pip-version-check -r requirements-dev.txt
+
+      - name: Lint
+        run: ruff check --output-format=github .
+
+      - name: Format
+        run: ruff format --check --diff .
+
+      - name: Compile
+        run: python -m compileall -q roadmap.py render_html.py anyps5_roadmap tests
+
+      - name: Validate data/blockers.json
+        run: python roadmap.py --validate --curated data/blockers.json
+
+      - name: Tests
+        run: python -m unittest discover -s tests -v
+
+      - name: Offline build from the fixtures
+        run: |
+          python roadmap.py --offline --no-network --cache tests/fixtures/raw.json \
+            --curated tests/fixtures/curated.json --out build/fixture-site
+          test -s build/fixture-site/index.html && test -s build/fixture-site/roadmap.json
+
+  preview:
+    name: preview
+    if: github.event_name == 'pull_request'
+    needs: check
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0 # the base commit is built too
+
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.11"
+
+      # The hourly Roadmap workflow saves its API snapshot from main; PRs (also from
+      # forks) may read caches of the base branch. Without one, the fixtures are used.
+      - name: Restore the latest API snapshot
+        uses: actions/cache/restore@v6
+        with:
+          path: data/cache
+          key: api-snapshot-none
+          restore-keys: api-snapshot-
+
+      - name: Build the base branch and this PR from the same snapshot
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+        run: |
+          if [ -s data/cache/raw.json ]; then
+            snap="data/cache/raw.json"
+            label="the API snapshot of $(python -c 'import json; print(json.load(open("data/cache/raw.json"))["fetched_at"])')"
+            curated_args=()
+          else
+            snap="tests/fixtures/raw.json"
+            label="the test fixtures (no API snapshot was available)"
+            curated_args=(--curated tests/fixtures/curated.json)
+          fi
+          git worktree add --detach build/base-src "$BASE_SHA"
+          python roadmap.py --offline --no-network --cache "$snap" "${curated_args[@]}" --out build/head
+          base_curated=("${curated_args[@]}")
+          if [ ${#base_curated[@]} -gt 0 ]; then base_curated=(--curated build/base-src/tests/fixtures/curated.json); fi
+          python build/base-src/roadmap.py --offline --no-network --cache "$PWD/$snap" "${base_curated[@]}" --out build/base \
+            || python build/base-src/roadmap.py --offline --cache "$PWD/$snap" "${base_curated[@]}" --out build/base \
+            || echo "::warning::The base branch did not build; the summary shows this PR only."
+          cp -r site/fonts build/head/
+          python -m anyps5_roadmap.preview build/base build/head --snapshot "$label" >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload the built site
+        uses: actions/upload-artifact@v7
+        with:
+          name: site-preview
+          path: build/head
+          retention-days: 14

@@ -1,0 +1,20 @@
+# Labels for pull requests by the files they change (actions/labeler, .github/workflows/labeler.yml).
+data-correction:
+  - changed-files:
+      - any-glob-to-any-file: 'data/**'
+
+mining:
+  - changed-files:
+      - any-glob-to-any-file:
+          - 'roadmap.py'
+          - 'anyps5_roadmap/**'
+          - 'tests/test_roadmap.py'
+          - 'tests/fixtures/**'
+
+rendering:
+  - changed-files:
+      - any-glob-to-any-file:
+          - 'render_html.py'
+          - 'anyps5_roadmap/render_md.py'
+          - 'tests/test_render.py'
+          - 'site/fonts/**'

@@ -1,13 +1,26 @@
 name: Roadmap
 
-# Rebuilds the blocker map from live GitHub data and deploys site/ to GitHub Pages.
-# The hourly schedule stays dormant until the repository variable ROADMAP_SCHEDULE
-# is set to "on" (gh variable set ROADMAP_SCHEDULE --body on); a manual dispatch
-# always runs.
+# Rebuilds the blocker map from live GitHub data and deploys site/ to GitHub Pages:
+# hourly (while the repository variable ROADMAP_SCHEDULE is "on"), on every push to
+# main that touches the data or the generator, so merged corrections go live at
+# once, and on manual dispatch.
+#
+# The API cache (data/cache) is kept between runs with actions/cache: threads whose
+# updatedAt did not change are not fetched again, and CI builds PR previews from
+# the latest snapshot.
 
 on:
   schedule:
     - cron: '23 * * * *'
+  push:
+    branches: [main]
+    paths:
+      - 'data/**'
+      - '*.py'
+      - 'anyps5_roadmap/**'
+      - 'site/fonts/**'
+      - 'AGENTS.md'
+      - '.github/workflows/roadmap.yml'
   workflow_dispatch:
 
 permissions:
@@ -21,7 +34,7 @@ concurrency:
 
 jobs:
   build:
-    if: github.event_name == 'workflow_dispatch' || vars.ROADMAP_SCHEDULE == 'on'
+    if: github.event_name != 'schedule' || vars.ROADMAP_SCHEDULE == 'on'
     runs-on: ubuntu-latest
     timeout-minutes: 20
     environment:
@@ -42,12 +55,25 @@ jobs:
       - name: Tests
         run: python3 -m unittest discover -s tests -v
 
+      - name: Restore the API cache
+        uses: actions/cache/restore@v6
+        with:
+          path: data/cache
+          key: api-snapshot-${{ github.run_id }}
+          restore-keys: api-snapshot-
+
       - name: Build site
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           gh api rate_limit --jq '.resources | {core: .core.remaining, graphql: .graphql.remaining}'
           python3 roadmap.py --upstream-checkout upstream --ref HEAD --no-git-fetch --out site
+
+      - name: Save the API cache
+        uses: actions/cache/save@v6
+        with:
+          path: data/cache
+          key: api-snapshot-${{ github.run_id }}-${{ github.run_attempt }}
 
       - uses: actions/upload-pages-artifact@v5
         with:
