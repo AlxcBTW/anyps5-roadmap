@@ -1,0 +1,277 @@
+{
+  "schema_version": 1,
+  "about": "Curated facts that text mining misses. Every entry is marked origin=curated in the output. Verify numbers with `gh issue view N -R boykopovar/AnyPS5` before adding. See AGENTS.md.",
+  "verified": "2026-10-10",
+  "blockers": [
+    {
+      "id": "2548",
+      "issue": 2548,
+      "title": "Packed pixel ancillary word read whole after its VGPR is reused",
+      "signature": "ShaderRecompiler::Recompile: shader info collection failed: packed pixel ancillary input has an unsupported live use",
+      "area": "shader",
+      "fix_prs": [
+        {"repo": "AlxcBTW/AnyPS5", "number": 25, "note": "partial: proves helper-only reads unused; LEGO Horizon still hits the visit limit and Kena has loop (back-edge phi) cases"}
+      ],
+      "next": "Carry a sound fix upstream. The rest needs the RDNA 2 ancillary bit layout (Eye_id and undocumented bits) or a loop-aware proof.",
+      "help_wanted": "Test AlxcBTW/AnyPS5#25 on Stray, LEGO Horizon, Kena and Lies of P and report which shaders still fail.",
+      "sources": ["https://github.com/boykopovar/AnyPS5/issues/2548#issuecomment-6099758845"]
+    },
+    {
+      "id": "2102",
+      "issue": 2102,
+      "title": "Layered rendering: color views of several array slices",
+      "signature": "AGC graphics: color views of several array slices are unsupported",
+      "area": "agc",
+      "fix_prs": [],
+      "next": "Render layered draws into all slices of a 3D or array color target.",
+      "sources": ["https://github.com/boykopovar/AnyPS5/issues/2102#issuecomment-6099873138"]
+    },
+    {
+      "id": "1409",
+      "issue": 1409,
+      "title": "Storage image access to a depth/stencil surface",
+      "signature": "AGC graphics: storage image access to depth/stencil surface 0x… is not implemented",
+      "area": "agc",
+      "fix_prs": [
+        {"number": 454, "note": "retire a depth surface once another writer covers its memory"},
+        {"number": 2519, "note": "closed by the intake rule"}
+      ],
+      "related_prs": [{"number": 1495, "note": "merged: same idea for sampled views"}],
+      "next": "Treat a storage view of a different size than the depth surface as ordinary storage memory.",
+      "sources": ["https://github.com/boykopovar/AnyPS5/issues/1409#issuecomment-6099871848"]
+    },
+    {
+      "id": "pr-2054",
+      "issue": null,
+      "title": "Windows: direct memory mapped one 16 KiB view at a time",
+      "signature": null,
+      "area": "libkernel",
+      "fix_prs": [{"number": 2054, "note": "maps direct memory as write-watched private pages; 2.4 GB in about 2.3 s instead of minutes"}],
+      "next": "Review and merge #2054. Without it one sceKernelMapDirectMemory of 64-155 MiB takes 10-120 s and Unreal's RenderThread watchdog fires.",
+      "notes": "Stall, no error line. WindowsMappings::Map makes one MapViewOfFile3 per 16 KiB page.",
+      "sources": ["https://github.com/boykopovar/AnyPS5/pull/2054"]
+    },
+    {
+      "id": "pr-425",
+      "issue": null,
+      "title": "Depth surface sampled as a cube texture",
+      "signature": null,
+      "area": "agc",
+      "fix_prs": [{"number": 425, "note": "depth surfaces read as textures and storage images"}],
+      "next": "Land #425 or its cube case: a 512x512 D16 depth target is sampled as a cube map.",
+      "sources": ["https://github.com/boykopovar/AnyPS5/pull/425"]
+    },
+    {
+      "id": "2783",
+      "issue": 2783,
+      "title": "NVIDIA: wave64 NGG culling program reads lane 63",
+      "signature": null,
+      "area": "shader",
+      "fix_prs": [],
+      "next": "Maintainer decision: report 32-wide waves in s3 on hosts with 32-lane subgroups.",
+      "help_wanted": "Design decision needed from maintainers; there is no sound per-shader fix.",
+      "sources": ["https://github.com/boykopovar/AnyPS5/issues/2783"]
+    },
+    {
+      "id": "2642",
+      "issue": 2642,
+      "title": "Structurizer: shared merge splitting never terminates in a two-latch loop",
+      "signature": null,
+      "area": "shader",
+      "fix_prs": [
+        {"repo": "AlxcBTW/AnyPS5", "number": 20, "note": "merge a loop selection where its arms meet in the iteration"},
+        {"repo": "AlxcBTW/AnyPS5", "number": 24, "note": "loop exits that leave before they meet; depends on #20"}
+      ],
+      "next": "Carry #20 and #24 upstream. 007 First Light's shader has the other shape (see pr-2471).",
+      "sources": ["https://github.com/boykopovar/AnyPS5/issues/2642#issuecomment-6097500996"]
+    },
+    {
+      "id": "pr-2471",
+      "issue": null,
+      "title": "Structurizer: selections joined at a shared loop exit",
+      "signature": null,
+      "area": "shader",
+      "fix_prs": [{"number": 2471}],
+      "next": "Review and merge #2471; 007 First Light's stop-9 shader (125 blocks) has this shape.",
+      "sources": ["https://github.com/boykopovar/AnyPS5/issues/2642#issuecomment-6097500996"]
+    },
+    {
+      "id": "pr-2106",
+      "issue": null,
+      "title": "pthread_sigmask is not exported (libkernel)",
+      "signature": "FAIL: unresolved ELF import JZKw5+Wrnaw (pthread_sigmask) from libkernel",
+      "area": "libkernel",
+      "fix_prs": [{"number": 2106, "note": "closed without merge"}],
+      "next": "Reopen #2106 or submit pthread_sigmask again.",
+      "help_wanted": "Needs an author who passes the PR intake rule, or a maintainer to reopen #2106.",
+      "sources": ["https://github.com/boykopovar/AnyPS5/pull/2106", "https://github.com/boykopovar/AnyPS5/issues/1578"]
+    },
+    {
+      "id": "2761",
+      "issue": 2761,
+      "title": "Windows: TLS reads left unpatched after zero alignment padding",
+      "signature": null,
+      "area": "relinker",
+      "fix_prs": [{"number": 2821}],
+      "related_prs": [{"repo": "AlxcBTW/AnyPS5", "number": 22, "note": "same patch, carried as #2821"}],
+      "next": "Review and merge #2821.",
+      "sources": ["https://github.com/boykopovar/AnyPS5/issues/2761#issuecomment-6098155605"]
+    },
+    {
+      "id": "1413",
+      "issue": 1413,
+      "title": "v_interp_mov P10/P20 of a flat input without pass-through",
+      "signature": null,
+      "area": "shader",
+      "fix_prs": [{"repo": "AlxcBTW/AnyPS5", "number": 12, "note": "reads P10 of a flat input as the provoking vertex"}],
+      "next": "Settle what PS5 hardware returns for P10/P20 here, then land the matching recompiler rule.",
+      "help_wanted": "Hardware answer needed (tools/hw-oracle on a PS5-class GPU).",
+      "sources": ["https://github.com/boykopovar/AnyPS5/issues/1413#issuecomment-6095663977"]
+    },
+    {
+      "id": "2631",
+      "issue": 2631,
+      "title": "v_fma_mix* in FLOAT_MODE 0xcc (f16 round toward zero)",
+      "signature": null,
+      "area": "shader",
+      "fix_prs": [{"repo": "AlxcBTW/AnyPS5", "number": 19, "note": "matches hardware in all four f16 rounding modes"}],
+      "next": "Carry #19 upstream.",
+      "sources": ["https://github.com/boykopovar/AnyPS5/issues/2631#issuecomment-6099900950"]
+    },
+    {
+      "id": "siglongjmp",
+      "issue": null,
+      "title": "siglongjmp is not exported (libkernel)",
+      "signature": "FAIL: unresolved ELF import pebqbE5ws8s (siglongjmp) from libkernel",
+      "area": "libkernel",
+      "fix_prs": [],
+      "next": "A ready branch is posted in #1578; it can go up as a PR now that the intake threshold is 10.",
+      "sources": ["https://github.com/boykopovar/AnyPS5/issues/1578"]
+    },
+    {
+      "id": "pr-1482",
+      "issue": null,
+      "title": "_umtx_op wait and wake are not implemented",
+      "signature": "FAIL: unresolved ELF import 04AjkP0jO9U (_umtx_op) from libkernel",
+      "area": "libkernel",
+      "fix_prs": [{"number": 1482}],
+      "next": "Review and merge #1482.",
+      "sources": ["https://github.com/boykopovar/AnyPS5/pull/1482"]
+    },
+    {
+      "id": "pr-1872",
+      "issue": null,
+      "title": "pthread_set_name_np is not exported (libkernel)",
+      "signature": "FAIL: unresolved ELF import oxMp8uPqa+U (pthread_set_name_np) from libkernel",
+      "area": "libkernel",
+      "fix_prs": [{"number": 1872, "note": "closed without merge"}],
+      "next": "Submit pthread_set_name_np again.",
+      "sources": ["https://github.com/boykopovar/AnyPS5/pull/1872", "https://github.com/boykopovar/AnyPS5/issues/1578"]
+    }
+  ],
+  "not_blockers": [
+    {"issue": 2749, "reason": "Title report for Stray (PPSA02100); its stop is #2548."}
+  ],
+  "titles": [
+    {
+      "id": "PPSA30279", "name": "Taxi Chaos 2", "engine": "Unreal Engine", "kind": "retail",
+      "paths": ["Windows/NVIDIA", "Windows/AMD"],
+      "blockers": [
+        {"id": "2783", "scope": ["Windows/NVIDIA"], "why": "culling vertex programs fail to prepare at subgroup size 32"},
+        {"id": "2548", "why": "first fatal stop on AMD"},
+        {"id": "pr-2054", "why": "direct-memory stall, then the 120 s RenderThread watchdog"},
+        {"id": "1409", "why": "compute takes the depth plane of a 512x512 surface as a 2048x2048 storage image"},
+        {"id": "pr-425", "why": "D16 depth target sampled as a cube"},
+        {"id": "2102", "why": "first menu frame draws into several array slices"}
+      ],
+      "evidence": [
+        {"stage": "Presents", "os": "Windows", "gpu": "NVIDIA", "build": "main + local patches", "date": "2026-10-10",
+         "url": "https://github.com/boykopovar/AnyPS5/issues/2783", "note": "Intro video at 35-60 FPS with a local narrow-wave patch, then black frames and the direct-memory stall"},
+        {"stage": "Presents", "os": "Windows", "gpu": "AMD", "build": "main + local patches", "date": "2026-10-10",
+         "url": "https://github.com/boykopovar/AnyPS5/issues/2102#issuecomment-6099873138", "note": "Main menu runs (music plays) but frames stay black; stops at its first menu frame"}
+      ]
+    },
+    {
+      "id": "PPSA02100", "name": "Stray", "engine": "Unreal Engine 4", "kind": "retail",
+      "blockers": [{"id": "2548", "why": "402 shaders fail to prepare"}],
+      "evidence": [
+        {"stage": "Presents", "os": "Windows", "gpu": "NVIDIA", "build": "main", "date": "2026-10-10",
+         "url": "https://github.com/boykopovar/AnyPS5/issues/2749", "note": "Never renders past the loading screen"}
+      ]
+    },
+    {"id": "PPSA14632", "name": "LEGO Horizon Adventures", "kind": "retail", "blockers": [{"id": "2548", "why": "shaders refused by the visit limit"}]},
+    {"id": "PPSA01746", "name": "Kena: Bridge of Spirits", "kind": "retail", "blockers": [{"id": "2548", "why": "loop (back-edge phi) cases"}]},
+    {"id": "PPSA01802", "name": "Kena: Bridge of Spirits", "kind": "retail", "blockers": [{"id": "2548", "why": "loop (back-edge phi) cases"}]},
+    {"id": "PPSA10261", "name": "Lies of P", "engine": "Unreal Engine 4", "kind": "retail", "blockers": [{"id": "2548", "why": "listed on #2548"}]},
+    {"id": "PPSA01474", "name": "Ratchet & Clank: Rift Apart", "kind": "retail", "blockers": [{"id": "2102", "why": "stops about 25 s in"}]},
+    {
+      "id": "PPSA33286", "name": "Silent Hill: Townfall", "kind": "retail",
+      "blockers": [{"id": "2102", "why": "stops at its first presentation"}]
+    },
+    {"id": "PPSA03001", "name": "Sifu", "engine": "Unreal Engine 4", "kind": "retail", "blockers": [{"id": "1409", "why": "same 8-bit storage access pattern"}]},
+    {"id": "PPSA68091", "name": "Ruffle Flash", "kind": "homebrew", "blockers": [{"id": "pr-2106", "why": "next import stop"}]},
+    {"id": "PPSA99007", "name": "Yamagi Quake II", "kind": "homebrew", "blockers": [{"id": "pr-2106", "why": "next import stop"}]},
+    {
+      "id": "PPSA99109", "name": "Prospero Explorer", "engine": ".NET NativeAOT", "kind": "homebrew", "paths": ["Windows", "Linux"],
+      "blockers": [{"id": "2761", "scope": ["Windows"], "why": "faults reading 0x28 through an unpatched TLS read"}, {"id": "pr-2106", "why": "pthread_sigmask import"}]
+    },
+    {
+      "id": "PPSA99110", "name": "Prospero Multi Tools", "engine": ".NET NativeAOT", "kind": "homebrew", "paths": ["Windows", "Linux"],
+      "blockers": [{"id": "2761", "scope": ["Windows"], "why": "faults reading 0x28 through an unpatched TLS read"}, {"id": "pr-2106", "why": "pthread_sigmask import"}]
+    },
+    {
+      "id": "PPSA99920", "name": "Prospero Vibrate", "engine": ".NET NativeAOT", "kind": "homebrew", "paths": ["Windows", "Linux"],
+      "blockers": [{"id": "2761", "scope": ["Windows"], "why": "faults reading 0x28 through an unpatched TLS read"}, {"id": "pr-2106", "why": "pthread_sigmask import"}],
+      "evidence": [
+        {"stage": "Menus", "os": "Windows", "gpu": "NVIDIA", "build": "main + #2821, #2106 and AlxcBTW#21", "date": "2026-10-10",
+         "url": "https://github.com/boykopovar/AnyPS5/issues/2761", "note": "Stays up for 40 s and draws its full UI"}
+      ]
+    },
+    {
+      "id": "PPSA99050", "name": "Homebrew UI Lab", "engine": "Mesa (OpenGL)", "kind": "homebrew",
+      "blockers": [{"id": "1413", "why": "every UI shape gets alpha 0"}],
+      "evidence": [
+        {"stage": "Menus", "os": "Windows", "gpu": "NVIDIA", "build": "main + AlxcBTW#12", "date": "2026-10-10",
+         "url": "https://github.com/boykopovar/AnyPS5/issues/1413#issuecomment-6095663977", "note": "Full home screen renders"}
+      ]
+    },
+    {
+      "id": "PPSA39410", "name": "VITA5", "engine": "Mesa (OpenGL)", "kind": "homebrew",
+      "blockers": [{"id": "1413", "why": "flat inputs read as deltas"}],
+      "evidence": [
+        {"stage": "Menus", "os": "Windows", "gpu": "NVIDIA", "build": "main + AlxcBTW#12", "date": "2026-10-10",
+         "url": "https://github.com/boykopovar/AnyPS5/issues/1413#issuecomment-6095663977", "note": "Complete UI renders"}
+      ]
+    },
+    {
+      "id": "PPSA99005", "name": "ps5-opengl showcase", "engine": "Mesa (OpenGL)", "kind": "homebrew",
+      "blockers": [{"id": "1413", "why": "flat P10 check"}],
+      "evidence": [
+        {"stage": "First draw", "os": "Windows", "gpu": "NVIDIA", "build": "main + AlxcBTW#12", "date": "2026-10-10",
+         "url": "https://github.com/boykopovar/AnyPS5/issues/1413#issuecomment-6095663977", "note": "Gets past the P10 check, then ends on its own 2 s retirement wait"}
+      ]
+    },
+    {"id": "PPSA11386", "name": "007 First Light", "kind": "retail", "blockers": [{"id": "pr-2471", "why": "stop-9 shader has the shared-loop-exit shape"}]},
+    {
+      "id": "PPSA98001", "name": "PokeMMO", "kind": "homebrew",
+      "blockers": [
+        {"id": "siglongjmp", "why": "first stop on main 57f96fd2"},
+        {"id": "pr-1482", "why": "import needed for start-up"},
+        {"id": "pr-2106", "why": "import needed for start-up"},
+        {"id": "pr-1872", "why": "import needed for start-up"},
+        {"id": "2631", "why": "stops after about 6 s at v_fma_mixlo/mixhi"}
+      ],
+      "evidence": [
+        {"stage": "Menus", "os": "Windows", "gpu": "NVIDIA", "build": "main + #1482, #2106, #1872, siglongjmp and AlxcBTW#19", "date": "2026-10-10",
+         "url": "https://github.com/boykopovar/AnyPS5/issues/2631#issuecomment-6097885704", "note": "Start screen at 54 FPS"}
+      ]
+    },
+    {
+      "id": "PPSA16064", "name": "Minecraft Dungeons II", "engine": "Unreal Engine 5", "kind": "retail",
+      "evidence": [
+        {"stage": "Playable", "os": null, "gpu": null, "build": "main + open PRs", "date": "2026-10-09", "url": null,
+         "note": "Shown playable in the project Discord (#showcase); not documented on GitHub"}
+      ]
+    }
+  ]
+}

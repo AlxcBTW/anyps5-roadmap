@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "blockers": [
+    {"id": "10", "issue": 10, "title": "Packed pixel ancillary word", "area": "shader",
+     "signature": "ShaderRecompiler::Recompile: shader info collection failed: packed pixel ancillary input has an unsupported live use",
+     "fix_prs": [{"number": 20}], "next": "Land #20."},
+    {"id": "pr-30", "issue": null, "title": "Direct memory stall on Windows", "area": "libkernel",
+     "fix_prs": [{"number": 30}]}
+  ],
+  "not_blockers": [],
+  "titles": [
+    {"id": "PPSA30279", "name": "Taxi Chaos 2", "kind": "retail", "paths": ["Windows/NVIDIA", "Windows/AMD"],
+     "blockers": [{"id": "pr-30"}, {"id": "10", "scope": ["Windows/AMD"]}],
+     "evidence": [{"stage": "Presents", "os": "Windows", "gpu": "NVIDIA", "build": "main", "date": "2026-10-09",
+                   "url": "https://github.com/example/AnyPS5/pull/30", "note": "black frames"}]}
+  ]
+}

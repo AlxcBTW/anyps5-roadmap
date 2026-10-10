@@ -1,0 +1,57 @@
+name: Roadmap
+
+# Rebuilds the blocker map from live GitHub data and deploys site/ to GitHub Pages.
+# The hourly schedule stays dormant until the repository variable ROADMAP_SCHEDULE
+# is set to "on" (gh variable set ROADMAP_SCHEDULE --body on); a manual dispatch
+# always runs.
+
+on:
+  schedule:
+    - cron: '23 * * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    if: github.event_name == 'workflow_dispatch' || vars.ROADMAP_SCHEDULE == 'on'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v7
+
+      # Only the AGC driver sources are needed: roadmap.py reads the PM4 handler
+      # table and greps opcode and register names with git show / git grep.
+      - uses: actions/checkout@v7
+        with:
+          repository: boykopovar/AnyPS5
+          path: upstream
+          fetch-depth: 1
+          sparse-checkout: core/libs/prx/libSceAgcDriver
+
+      - name: Tests
+        run: python3 -m unittest discover -s tests -v
+
+      - name: Build site
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh api rate_limit --jq '.resources | {core: .core.remaining, graphql: .graphql.remaining}'
+          python3 roadmap.py --upstream-checkout upstream --ref HEAD --no-git-fetch --out site
+
+      - uses: actions/upload-pages-artifact@v5
+        with:
+          path: site
+
+      - id: deployment
+        uses: actions/deploy-pages@v5

@@ -1,0 +1,80 @@
+{
+  "fetched_at": "2026-10-10T12:00:00Z",
+  "repo": "example/AnyPS5",
+  "cutoff": "2026-08-11T12:00:00Z",
+  "dependencies": {},
+  "external_prs": {},
+  "rate_limit": {},
+  "issues": [
+    {
+      "number": 10, "state": "OPEN", "stateReason": null,
+      "title": "Recompiler: packed pixel ancillary word read whole",
+      "body": "Stray (PPSA02100, UE4) never renders past the loading screen and stops with:\n\n```\nterminate called after throwing an instance of 'std::runtime_error'\n  what():  ShaderRecompiler::Recompile: shader info collection failed: packed pixel ancillary input has an unsupported live use (used by SelectU32 ? ?)\n```",
+      "url": "https://github.com/example/AnyPS5/issues/10",
+      "createdAt": "2026-10-01T10:00:00Z", "updatedAt": "2026-10-09T10:00:00Z", "closedAt": null,
+      "author": "alice", "assignees": [], "labels": [],
+      "comments": [
+        {"body": "Another title: Kena: Bridge of Spirits (PPSA01746) stops here too.", "url": "https://github.com/example/AnyPS5/issues/10#issuecomment-1", "createdAt": "2026-10-02T10:00:00Z", "author": "bob"},
+        {"body": "Measured on Dreaming Sarah (PPSA02929) and Astro Bot (PPSA21564) and DOOM (PPSA99666): no change.", "url": "https://github.com/example/AnyPS5/issues/10#issuecomment-2", "createdAt": "2026-10-03T10:00:00Z", "author": "carol"}
+      ],
+      "comment_count": 2, "xrefs": [], "closed_by": [],
+      "issueDependenciesSummary": {"blockedBy": 0, "totalBlockedBy": 0, "blocking": 0, "totalBlocking": 0}
+    },
+    {
+      "number": 11, "state": "OPEN", "stateReason": null,
+      "title": "Kena: Bridge of Spirits (PPSA01746): layered draw aborts",
+      "body": "**Title:** Kena: Bridge of Spirits (PPSA01746, retail, UE4)\n\n`AGC graphics: color views of several array slices are unsupported`\n\nWindows 11, RTX 4070.",
+      "url": "https://github.com/example/AnyPS5/issues/11",
+      "createdAt": "2026-10-05T10:00:00Z", "updatedAt": "2026-10-06T10:00:00Z", "closedAt": null,
+      "author": "dave", "assignees": ["erin"], "labels": ["help wanted"],
+      "comments": [], "comment_count": 0, "xrefs": [], "closed_by": [],
+      "issueDependenciesSummary": {"blockedBy": 0, "totalBlockedBy": 0, "blocking": 0, "totalBlocking": 0}
+    },
+    {
+      "number": 12, "state": "CLOSED", "stateReason": "COMPLETED",
+      "title": "Stray (PPSA02100): old start-up crash",
+      "body": "Fixed by #19.",
+      "url": "https://github.com/example/AnyPS5/issues/12",
+      "createdAt": "2026-09-20T10:00:00Z", "updatedAt": "2026-09-25T10:00:00Z", "closedAt": "2026-09-25T10:00:00Z",
+      "author": "alice", "assignees": [], "labels": [],
+      "comments": [], "comment_count": 0, "xrefs": [], "closed_by": [],
+      "issueDependenciesSummary": {"blockedBy": 0, "totalBlockedBy": 0, "blocking": 0, "totalBlocking": 0}
+    },
+    {
+      "number": 13, "state": "OPEN", "stateReason": null,
+      "title": "Homebrew catalog: where each title stops",
+      "body": "| Title | Stop |\n|---|---|\n| PPSA99001 | `FAIL: unresolved ELF import JZKw5+Wrnaw from libkernel.prx` |\n| PPSA99002 | `FAIL: unresolved ELF import JZKw5+Wrnaw from libkernel.prx` |\n| PPSA99003 | `FAIL: unresolved ELF import JZKw5+Wrnaw from libkernel.prx` |\n| PPSA99004 | `FAIL: unresolved ELF import JZKw5+Wrnaw from libkernel.prx` |\n| PPSA99005 | `FAIL: unresolved ELF import uEtgPWgPxOk from libScePosixForWebKit.prx` |\n| PPSA99006 | `FAIL: unresolved ELF import uEtgPWgPxOk from libScePosixForWebKit.prx` |",
+      "url": "https://github.com/example/AnyPS5/issues/13",
+      "createdAt": "2026-10-04T10:00:00Z", "updatedAt": "2026-10-08T10:00:00Z", "closedAt": null,
+      "author": "frank", "assignees": [], "labels": [],
+      "comments": [
+        {"body": "On Linux PPSA99007 stops at `undefined symbol: JZKw5+Wrnaw`.", "url": "https://github.com/example/AnyPS5/issues/13#issuecomment-3", "createdAt": "2026-10-08T10:00:00Z", "author": "gina"}
+      ],
+      "comment_count": 1, "xrefs": [], "closed_by": [],
+      "issueDependenciesSummary": {"blockedBy": 0, "totalBlockedBy": 0, "blocking": 0, "totalBlocking": 0}
+    }
+  ],
+  "prs": [
+    {
+      "number": 20, "title": "fix(shader): prove helper-only reads of the ancillary word unused",
+      "body": "Fixes #10. Tested with Stray (PPSA02100): the loading screen renders.",
+      "url": "https://github.com/example/AnyPS5/pull/20", "state": "OPEN", "merged": false, "mergedAt": null, "closedAt": null,
+      "createdAt": "2026-10-09T09:00:00Z", "updatedAt": "2026-10-09T11:00:00Z", "isDraft": false, "author": "hank",
+      "labels": ["shader", "docs"], "closes": [{"repo": "example/AnyPS5", "number": 10}], "comment_count": 0
+    },
+    {
+      "number": 21, "title": "feat(libkernel): implement pthread_sigmask",
+      "body": "Exports pthread_sigmask. See #13.",
+      "url": "https://github.com/example/AnyPS5/pull/21", "state": "OPEN", "merged": false, "mergedAt": null, "closedAt": null,
+      "createdAt": "2026-10-07T09:00:00Z", "updatedAt": "2026-10-07T11:00:00Z", "isDraft": false, "author": "ivy",
+      "labels": ["libkernel"], "closes": [], "comment_count": 0
+    },
+    {
+      "number": 30, "title": "fix(libkernel): map direct memory as private pages",
+      "body": "One view per page made Taxi Chaos 2 (PPSA30279) stall on Windows.",
+      "url": "https://github.com/example/AnyPS5/pull/30", "state": "OPEN", "merged": false, "mergedAt": null, "closedAt": null,
+      "createdAt": "2026-10-06T09:00:00Z", "updatedAt": "2026-10-06T11:00:00Z", "isDraft": false, "author": "jo",
+      "labels": ["libkernel"], "closes": [], "comment_count": 0
+    }
+  ]
+}
