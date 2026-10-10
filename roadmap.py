@@ -25,6 +25,8 @@ from anyps5_roadmap.collect import collect
 from anyps5_roadmap.config import SCHEMA_VERSION, STAGES, VERIFY_FROM
 from anyps5_roadmap.coverage import build_coverage, parse_pm4_opcodes, parse_unsupported_reason
 from anyps5_roadmap.mine import (
+    OS_RULES,
+    classify,
     clean_name,
     closing_refs,
     compute_nid,
@@ -42,6 +44,7 @@ from anyps5_roadmap.upstream import Upstream
 
 __all__ = [
     "KNOWN_GAPS",
+    "OS_RULES",
     "SCHEMA_VERSION",
     "STAGES",
     "VERIFY_FROM",
@@ -50,6 +53,7 @@ __all__ = [
     "assemble",
     "build_coverage",
     "clean_name",
+    "classify",
     "closing_refs",
     "collect",
     "compute_nid",

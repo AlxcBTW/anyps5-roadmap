@@ -68,6 +68,32 @@ class Extraction(unittest.TestCase):
         )
         self.assertEqual(r.stage_in("PPSA05684 crashed right after loading its first level.", 0)[0], "Menus")
 
+    def test_os_names_map_distros_and_macs(self):
+        linux = [
+            "SteamOS",
+            "Steam Deck",
+            "Bazzite",
+            "NixOS",
+            "Debian",
+            "openSUSE",
+            "Pop!_OS",
+            "Linux Mint",
+            "Gentoo",
+            "Manjaro",
+        ]
+        for name in linux:
+            with self.subTest(name=name):
+                self.assertEqual(r.classify(r.OS_RULES, f"tested on {name}"), "Linux")
+        macos = ["Apple M1", "Apple M2", "Apple M3", "Apple M4", "MacBook", "Mac mini", "Sonoma", "Sequoia"]
+        for name in macos:
+            with self.subTest(name=name):
+                self.assertEqual(r.classify(r.OS_RULES, f"tested on {name}"), "macOS")
+        self.assertEqual(r.classify(r.OS_RULES, "tested on Windows 11"), "Windows")
+        self.assertEqual(r.classify(r.OS_RULES, "tested on Ubuntu 24.04"), "Linux")
+        for bare in ["deck", "mint", "arch"]:
+            with self.subTest(bare=bare):
+                self.assertIsNone(r.classify(r.OS_RULES, f"my {bare} runs it"))
+
     def test_leading_verbs_are_not_part_of_a_name(self):
         line = "Adds LEGO Party! (PPSA29141, Unity 2022.3 IL2CPP, FMOD) to the tested compatibility list"
         self.assertEqual(r.name_before(line, line.find("PPSA")), "LEGO Party!")

@@ -100,8 +100,17 @@ ENGINE_RULES = [
 ]
 OS_RULES = [
     (re.compile(r"\bWindows\b|MinGW|MSVC"), "Windows"),
-    (re.compile(r"\bLinux\b|CachyOS|Fedora|Ubuntu|Arch Linux|bubblewrap|RADV"), "Linux"),
-    (re.compile(r"\bmacOS\b|MoltenVK"), "macOS"),
+    (
+        re.compile(
+            r"\bLinux\b|CachyOS|Fedora|Ubuntu|Arch Linux|bubblewrap|RADV|"
+            r"SteamOS|Steam Deck|Bazzite|NixOS|Debian|openSUSE|Pop!_OS|Linux Mint|Gentoo|Manjaro"
+        ),
+        "Linux",
+    ),
+    (
+        re.compile(r"\bmacOS\b|MoltenVK|Apple M[1-4]\b|MacBook|Mac mini|Sonoma|Sequoia"),
+        "macOS",
+    ),
 ]
 GPU_RULES = [
     (re.compile(r"\bRTX\b|\bGTX\b|NVIDIA|GeForce"), "NVIDIA"),
