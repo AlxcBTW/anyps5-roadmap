@@ -461,30 +461,43 @@ class Page:
         return (f'<article class="card tile"><h3>{label}</h3><p class="t-val">{value}</p>'
                 f'<span class="track" aria-hidden="true">{fills}</span><p class="t-sub">{sub}</p>{extra}</article>')
 
+    @staticmethod
+    def band(top: float, height: float, first: int, count: int, cols: int, done: int, cell: float) -> str:
+        """A run of full grid rows holding cells [first, first + count); cells from `done` on are missing."""
+        rows = math.ceil(count / cols)
+        miss = "".join(
+            f'<i style="left:{100 * c / cols:.3f}%;top:{100 * r / rows:.3f}%;'
+            f'width:{100 * nc / cols:.3f}%;height:{100 * nr / rows:.3f}%"></i>'
+            for c, r, nc, nr in cell_runs(max(done - first, 0), count, cols))
+        grid = " grid" if cell >= 3.2 else ""
+        return (f'<div class="tm-band{grid}" style="top:{top:.3f}%;height:{height:.3f}%;--c:{cols};--r:{rows}">'
+                f'{miss}</div>')
+
     def treemap(self, groups: list[dict], name_key: str, width: float, height: float, unit: str) -> str:
-        """One treemap panel like upstream's progress map: a tile per group, a cell per function."""
+        """One treemap panel like upstream's progress map: a tile per group, a cell per function.
+
+        The last row is stretched to the tile width, so every cell is a function and no slot stays empty."""
         items = sorted(((g["done"] + g["todo"], g) for g in groups if g["done"] + g["todo"]),
                        key=lambda it: -it[0])
         tiles = []
         for g, x, y, w, h in squarify(items, 0, 0, width, height):
             n = g["done"] + g["todo"]
             cols, rows = grid_for(n, w, h)
-            cells = "".join(
-                f'<i class="{cls}" style="left:{100 * c / cols:.3f}%;top:{100 * r / rows:.3f}%;'
-                f'width:{100 * nc / cols:.3f}%;height:{100 * nr / rows:.3f}%"></i>'
-                for start, stop, cls in ((g["done"], n, "miss"), (n, rows * cols, "void"))
-                for c, r, nc, nr in cell_runs(start, stop, cols))
+            full = n if rows * cols == n else (rows - 1) * cols
+            cell = min(w / cols, h / rows)
+            bands = self.band(0, 100 * (full // cols) / rows, 0, full, cols, g["done"], cell) if full else ""
+            if full < n:
+                bands += self.band(100 * (rows - 1) / rows, 100 / rows, full, n - full, n - full, g["done"], cell)
             asked = g.get("requested") or {}
             missing = [f'{m} (asked in {", ".join(f"#{i}" for i in asked[m])})' if m in asked else m
                        for m in sorted(g.get("todo_names") or [], key=lambda m: (m not in asked, m))]
-            grid = " grid" if min(w / cols, h / rows) >= 3.2 else ""
             label = g.get(name_key) or g.get("label") or "?"
             tiles.append(
-                f'<div class="tm-tile{grid}" style="left:calc({100 * x / width:.3f}% + 1.5px);'
+                f'<div class="tm-tile" style="left:calc({100 * x / width:.3f}% + 1.5px);'
                 f'top:calc({100 * y / height:.3f}% + 1.5px);width:calc({100 * w / width:.3f}% - 3px);'
-                f'height:calc({100 * h / height:.3f}% - 3px);--c:{cols};--r:{rows}" '
+                f'height:calc({100 * h / height:.3f}% - 3px)" '
                 f'data-name="{esc(label)}" data-done="{g["done"]}" data-total="{n}" data-unit="{unit}" '
-                f'data-missing="{esc(chr(10).join(missing))}">{cells}<span class="tm-l">{esc(label)}</span></div>')
+                f'data-missing="{esc(chr(10).join(missing))}">{bands}<span class="tm-l">{esc(label)}</span></div>')
         return "".join(tiles)
 
     def coverage_map(self, isa: dict, hle: dict) -> str:
@@ -941,11 +954,10 @@ table.games{width:100%;border-collapse:collapse;font-size:14px}
 .tm-sub{font-size:13px;padding-bottom:10px}
 .tm-sub b{font-weight:600}
 .tm-area{position:relative;width:100%}
-.tm-tile{position:absolute;overflow:hidden;background:var(--ok);border-radius:3px;container-type:size}
-.tm-tile i{position:absolute;display:block}
-.tm-tile i.miss{background:var(--miss)}
-.tm-tile i.void{background:var(--surface)}
-.tm-tile.grid::after{content:"";position:absolute;inset:0;pointer-events:none;
+.tm-tile{position:absolute;overflow:hidden;border-radius:3px;container-type:size}
+.tm-band{position:absolute;inset-inline:0;background:var(--ok)}
+.tm-band i{position:absolute;display:block;background:var(--miss)}
+.tm-band.grid::after{content:"";position:absolute;inset:0;pointer-events:none;
   background-image:linear-gradient(to right,var(--grid) 1px,transparent 1px),linear-gradient(to bottom,var(--grid) 1px,transparent 1px);
   background-size:calc(100% / var(--c)) calc(100% / var(--r))}
 .tm-tile::before{content:"";position:absolute;inset:0;z-index:2;border-radius:4px;pointer-events:none;
@@ -1016,7 +1028,7 @@ table.games{width:100%;border-collapse:collapse;font-size:14px}
   *,*::before,*::after{transition-property:opacity,background-color,color,text-decoration-color!important}
   @starting-style{.panel-in{translate:none}}
 }
-@media (forced-colors:active){.dots i.on,.fill,.b-fill,.pips i.on,.s-review i,.tm-tile{background:CanvasText}.tm-tile i.miss{background:Canvas}}
+@media (forced-colors:active){.dots i.on,.fill,.b-fill,.pips i.on,.s-review i,.tm-band{background:CanvasText}.tm-band i{background:Canvas}}
 """
 
 
