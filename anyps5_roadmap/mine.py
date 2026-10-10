@@ -155,13 +155,26 @@ STAGE_RULES = [
     ("Playable", re.compile(r"(?<!un)(?<!not )\bplayable\b", re.I)),
     (
         "Ingame",
-        re.compile(r"\bin-game\b|\bingame\b|\bgameplay\b|\b(?:first|tutorial) level\b|\bminutes of play\b", re.I),
+        re.compile(
+            r"\bin-game\b|\bingame\b|\bgameplay\b|\b(?:first|tutorial) level\b|\bminutes of play\b|"
+            r"\bhub world\b",
+            re.I,
+        ),
     ),
-    ("Menus", re.compile(r"\b(?:main|title|start|pause|home) (?:menu|screen)\b|\bmenus?\b", re.I)),
+    (
+        "Menus",
+        re.compile(
+            r"\b(?:main|title|start|pause|home) (?:menu|screen)\b|\bmenus?\b|"
+            r"\bselect screens?\b|\bcharacter creat(?:or|ion)s?\b",
+            re.I,
+        ),
+    ),
     (
         "Presents",
         re.compile(
-            r"\bloading screen\b|\bblack (?:screen|frames?)\b|\bintro (?:video|movie)\b|\bsplash\b|\brenders?\b|\bdraws? (?:its|the) (?:full |complete )?(?:ui|screen|frame)|\b\d+ ?fps\b|\bpresents\b",
+            r"\bloading screen\b|\bblack (?:screen|frames?)\b|\bboots? to black\b|\bintro\b|\bcutscenes?\b|"
+            r"\bintro (?:video|movie)\b|\bsplash\b|\brenders?\b|\bdraws? (?:its|the) (?:full |complete )?(?:ui|screen|frame)|"
+            r"\b\d+ ?fps\b|\bpresents\b",
             re.I,
         ),
     ),

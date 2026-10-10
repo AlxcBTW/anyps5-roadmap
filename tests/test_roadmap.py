@@ -94,6 +94,15 @@ class Extraction(unittest.TestCase):
             with self.subTest(bare=bare):
                 self.assertIsNone(r.classify(r.OS_RULES, f"my {bare} runs it"))
 
+    def test_stage_report_phrasings(self):
+        self.assertEqual(r.stage_in("PPSA01234 boots to black", 0)[0], "Presents")
+        self.assertEqual(r.stage_in("PPSA01234 reaches the intro", 0)[0], "Presents")
+        self.assertEqual(r.stage_in("PPSA01234 plays the opening cutscene", 0)[0], "Presents")
+        self.assertEqual(r.stage_in("PPSA01234 reaches the save select screen", 0)[0], "Menus")
+        self.assertEqual(r.stage_in("PPSA01234 gets to the character creator", 0)[0], "Menus")
+        self.assertEqual(r.stage_in("PPSA01234 makes it to the hub world", 0)[0], "Ingame")
+        self.assertIsNone(r.stage_in("PPSA01234 never boots to black", 0))
+
     def test_leading_verbs_are_not_part_of_a_name(self):
         line = "Adds LEGO Party! (PPSA29141, Unity 2022.3 IL2CPP, FMOD) to the tested compatibility list"
         self.assertEqual(r.name_before(line, line.find("PPSA")), "LEGO Party!")
