@@ -1,6 +1,6 @@
 {
  "schema_version": 1,
- "generated_at": "2026-10-10T18:44:31Z",
+ "generated_at": "2026-10-10T18:47:51Z",
  "fetched_at": "2026-10-10T18:45:51Z",
  "upstream": {
   "repo": "boykopovar/AnyPS5",
@@ -20758,7 +20758,7 @@
     "source_files": 1
    },
    {
-    "name": "PA_STEREO_CNTL",
+    "name": "GE_STEREO_CNTL",
     "issue_count": 1,
     "issues": [
      2548
@@ -20766,7 +20766,7 @@
     "source_files": 0
    },
    {
-    "name": "GE_STEREO_CNTL",
+    "name": "PA_STEREO_CNTL",
     "issue_count": 1,
     "issues": [
      2548
@@ -20780,6 +20780,14 @@
      2871
     ],
     "source_files": 1
+   },
+   {
+    "name": "CB_COLOR_ATTRIB2",
+    "issue_count": 1,
+    "issues": [
+     2102
+    ],
+    "source_files": 0
    },
    {
     "name": "CB_COLOR_INFO",
@@ -20798,14 +20806,6 @@
     "source_files": 1
    },
    {
-    "name": "CB_COLOR_ATTRIB2",
-    "issue_count": 1,
-    "issues": [
-     2102
-    ],
-    "source_files": 0
-   },
-   {
     "name": "DB_SHADER_CONTROL",
     "issue_count": 1,
     "issues": [
@@ -20822,7 +20822,7 @@
     "source_files": 0
    },
    {
-    "name": "TA_CS_BC_BASE_ADDR",
+    "name": "TA_BC_BASE_ADDR_HI",
     "issue_count": 1,
     "issues": [
      665
@@ -20838,7 +20838,7 @@
     "source_files": 0
    },
    {
-    "name": "TA_BC_BASE_ADDR_HI",
+    "name": "TA_CS_BC_BASE_ADDR",
     "issue_count": 1,
     "issues": [
      665
@@ -20862,20 +20862,20 @@
     "source_files": 0
    },
    {
-    "name": "SPI_SHADER_PGM_RSRC2_PS",
-    "issue_count": 1,
-    "issues": [
-     1901
-    ],
-    "source_files": 0
-   },
-   {
     "name": "SPI_PS_IN_CONTROL",
     "issue_count": 1,
     "issues": [
      1901
     ],
     "source_files": 2
+   },
+   {
+    "name": "SPI_SHADER_PGM_RSRC2_PS",
+    "issue_count": 1,
+    "issues": [
+     1901
+    ],
+    "source_files": 0
    },
    {
     "name": "PA_SU_POLY_OFFSET_FRONT_SCALE",

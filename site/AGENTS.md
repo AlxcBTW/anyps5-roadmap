@@ -12,8 +12,10 @@ python3 roadmap.py --offline --upstream-checkout /path/to/AnyPS5  # reuse data/c
 python3 -m unittest discover -s tests                             # fixture tests, no network
 ```
 
-`gh` must be logged in (or `GH_TOKEN` set). A full run costs about 35 GraphQL points and
-a few REST calls; check `gh api rate_limit` first. Do not use the search API in loops.
+`gh` must be logged in (or `GH_TOKEN` set). A full run takes about 40 paginated GraphQL
+queries (6 to 12 points off the hourly budget in practice), a few REST calls for
+`blocked_by` and no search calls; check `gh api rate_limit` first. Do not use the search
+API in loops.
 
 ## What to curate
 

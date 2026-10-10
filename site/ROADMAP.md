@@ -1,6 +1,6 @@
 # AnyPS5 blocker map
 
-> Generated data, community prototype, not official. Built 2026-10-10T18:44:31Z from public GitHub data of [boykopovar/AnyPS5](https://github.com/boykopovar/AnyPS5) at `29380369` plus `data/blockers.json`.
+> Generated data, community prototype, not official. Built 2026-10-10T18:47:51Z from public GitHub data of [boykopovar/AnyPS5](https://github.com/boykopovar/AnyPS5) at `29380369` plus `data/blockers.json`.
 
 Issues read: 284 · PRs read: 2597 · titles: 154 · open blockers: 65 (57 block at least one title) · curated blockers: 15
 
