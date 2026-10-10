@@ -19,6 +19,7 @@ from .mine import (
     STOP_WORDS,
     TITLE_RE,
     TRACKER_TITLES,
+    blank,
     block_stop,
     build_of,
     classify,
@@ -33,6 +34,8 @@ from .mine import (
     name_import,
     normalise_message,
     refs_in,
+    restated_spans,
+    run_text,
     sig_match,
     signature_from,
     signature_key,
@@ -268,8 +271,9 @@ class Model:
     def _mine_text(self, src: dict, info: dict | None):
         text = src["text"]
         lines = text.splitlines()
-        src_os = classify(OS_RULES, text)
-        src_gpu = classify(GPU_RULES, text)
+        runs = run_text(text)
+        src_os = classify(OS_RULES, runs)
+        src_gpu = classify(GPU_RULES, runs)
         for idx, line in enumerate(lines):
             ids = list(dict.fromkeys(TITLE_RE.findall(line)))
             sig = (
@@ -279,9 +283,13 @@ class Model:
                 self.resolve_sig(sig)
             if not ids:
                 continue
+            # what the line says itself: a restatement of the description is read for no title
+            restated = restated_spans(line)
+            own_line = blank(line, restated)
             for tid in ids:
                 t = self.title(tid)
                 pos = line.find(tid)
+                own = not any(a <= pos < b for a, b in restated)
                 n = name_before(line, pos)
                 if not n or len(n) < 3:
                     n = name_after(line, pos + len(tid))
@@ -305,11 +313,11 @@ class Model:
                 t["mentions"].append(
                     {"kind": src["kind"], "number": src["number"], "url": src["url"], "date": src["date"]}
                 )
-                if len(ids) <= LINE_TITLE_LIMIT:
-                    os_ = classify(OS_RULES, line) or src_os
-                    gpu = classify(GPU_RULES, line) or src_gpu
-                    build = build_of(line, src["kind"], src["number"])
-                    st = stage_in(line, pos)
+                if own and len(ids) <= LINE_TITLE_LIMIT:
+                    os_ = classify(OS_RULES, own_line) or src_os
+                    gpu = classify(GPU_RULES, own_line) or src_gpu
+                    build = build_of(own_line, src["kind"], src["number"])
+                    st = stage_in(own_line, pos)
                     quote = clip(re.sub(r"\s+", " ", strip_md(line)).strip(), 280)
                     if st:
                         t["evidence"].append(
@@ -366,7 +374,7 @@ class Model:
                 # measurement on some title, is kept but does not enter the chain.
                 if src["part"] == "body" and (idx == 0 or REPORT_FIELD.match(strip_md(line))):
                     self._associate(tid, src["number"], "report", src["url"], src["date"])
-                elif len(ids) <= LINE_TITLE_LIMIT and (sig or STOP_WORDS.search(line)):
+                elif own and len(ids) <= LINE_TITLE_LIMIT and (sig or STOP_WORDS.search(own_line)):
                     self._associate(tid, src["number"], "stop-line", src["url"], src["date"])
                 else:
                     self._associate(tid, src["number"], "mention", src["url"], src["date"])
@@ -385,7 +393,8 @@ class Model:
         t = self.title(ids[0])
         seen = {s["sig"]["key"] for s in t["stops"] if s["url"] == src["url"]}
         build = build_of(text, src["kind"], src["number"])
-        os_, gpu = classify(OS_RULES, text), classify(GPU_RULES, text)
+        runs = run_text(text)
+        os_, gpu = classify(OS_RULES, runs), classify(GPU_RULES, runs)
         for block in blocks:
             sig = block_stop(block)
             if not sig or sig["key"] in seen:
