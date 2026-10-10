@@ -165,8 +165,8 @@
       "signature": "FAIL: unresolved ELF import oxMp8uPqa+U (pthread_set_name_np) from libkernel",
       "area": "libkernel",
       "fix_prs": [{"number": 1872, "note": "closed without merge"}],
-      "next": "Submit pthread_set_name_np again.",
-      "sources": ["https://github.com/boykopovar/AnyPS5/pull/1872", "https://github.com/boykopovar/AnyPS5/issues/1578"]
+      "next": "Review #3031, which resubmits #1872.",
+      "sources": ["https://github.com/boykopovar/AnyPS5/pull/1872", "https://github.com/boykopovar/AnyPS5/issues/1578", "https://github.com/boykopovar/AnyPS5/pull/3031"]
     }
   ],
   "not_blockers": [

@@ -220,6 +220,12 @@ SHORT_REF_RE = re.compile(r"(?<![\w/#&])(?:(?P<repo>[\w.\-]+/[\w.\-]+))?#(?P<num
 CLOSING_RE = re.compile(
     r"(?i)\b(?:fix(?:es|ed)?|close[sd]?|resolve[sd]?)\b:?\s+(?P<refs>(?:(?:[\w.\-]+/[\w.\-]+)?#\d+|https://github\.com/[\w.\-]+/[\w.\-]+/issues/\d+)(?:\s*(?:,|and|&)\s*(?:(?:[\w.\-]+/[\w.\-]+)?#\d+|https://github\.com/[\w.\-]+/[\w.\-]+/issues/\d+))*)"
 )
+# A PR that stands in for an earlier one: "This is #1872 again", "Resubmission of #2174", "resubmits PR #1745",
+# "Reopened as a new PR of #2106", "Replaces #2481", "Supersedes #1855". Not "superseded by" or "follow-up to".
+RESUBMITS_RE = re.compile(
+    r"(?i)\bis\s+(?:PR\s+)?#(\d+)\s+again\b|\bresubmi(?:ssion|ts|tted)\s+(?:of\s+)?(?:PR\s+)?#(\d+)|"
+    r"\breopened as (?:a )?new PR (?:of|for)\s+#(\d+)|\b(?:replaces|supersedes)\s+(?:PR\s+)?#(\d+)"
+)
 REGISTER_RE = re.compile(r"\b(?:SPI|PA|CB|DB|VGT|SQ|GE|COMPUTE|SX|TA|IA|GRBM|RLC)_[A-Z0-9_]{3,}\b")
 
 TRACKER_TITLES = 7  # an issue naming this many titles is treated as a tracker
@@ -469,6 +475,11 @@ def closing_refs(text: str, default_repo: str) -> list[tuple[str, int]]:
     for m in CLOSING_RE.finditer(text or ""):
         out += refs_in(m.group("refs"), default_repo)
     return out
+
+
+def resubmitted_refs(text: str) -> list[int]:
+    """Numbers of the PRs (same repository) that a PR's text says it resubmits or replaces."""
+    return [int(next(g for g in m.groups() if g)) for m in RESUBMITS_RE.finditer(text or "")]
 
 
 def stage_in(line: str, title_pos: int) -> tuple[str, str] | None:

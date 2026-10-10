@@ -33,6 +33,7 @@ from .mine import (
     name_import,
     normalise_message,
     refs_in,
+    resubmitted_refs,
     sig_match,
     signature_from,
     signature_key,
@@ -88,6 +89,7 @@ class Model:
         self.nid_names = self._nid_index(progress)
         self._index_prs()
         self._link()
+        self._index_resubmissions()
         self._mine_issues()
         self._mine_prs()
         self._mine_compat()
@@ -210,6 +212,48 @@ class Model:
             for r, n in refs_in(text, self.repo):
                 if r == self.repo and n != p["number"]:
                     self._add_link(n, pk, "mentions", "text")
+
+    def _index_resubmissions(self):
+        """PRs that say they resubmit or replace a PR closed without merge ("This is #1872 again",
+        "Resubmission of #2174", "Replaces #2481"): closed PR key -> keys of the PRs that stand in for it."""
+        self.stand_ins: dict[str, list[str]] = defaultdict(list)
+        for p in self.raw["prs"]:
+            new = key_of(self.repo, p["number"])
+            for n in resubmitted_refs(f"{p['title']}\n{p.get('body') or ''}"):
+                old = key_of(self.repo, n)
+                if old != new and self.prs.get(old, {}).get("state") == "closed" and new not in self.stand_ins[old]:
+                    self.stand_ins[old].append(new)
+
+    def _with_stand_ins(self, prs: list[dict]) -> list[dict]:
+        """A fix PR closed without merge lives on in the PR that resubmits it, which becomes a fix PR too.
+        A partial fix (a note starting with "partial") stays partial in its resubmission."""
+        out, seen = list(prs), {p["key"] for p in prs}
+        queue = [p for p in prs if p["link"] == "fixes" and p["state"] == "closed"]
+        while queue:
+            old = queue.pop(0)
+            for key in self.stand_ins.get(old["key"], []):
+                if key in seen:
+                    continue
+                seen.add(key)
+                pr = self.prs[key]
+                note = old.get("note") if (old.get("note") or "").startswith("partial") else None
+                rec = {
+                    "key": key,
+                    "ref": short_ref(key, self.repo),
+                    "url": pr["url"],
+                    "title": pr["title"],
+                    "state": pr["state"],
+                    "link": "fixes",
+                    "updated": pr["updated"],
+                    "note": note,
+                    "origin": "mined",
+                    "via": ["resubmission"],
+                    "resubmits": old["ref"],
+                }
+                out.append(rec)
+                if pr["state"] == "closed":
+                    queue.append(rec)
+        return out
 
     # -- titles -------------------------------------------------------------
     def title(self, tid: str) -> dict:
@@ -617,6 +661,7 @@ class Model:
             mined = self._issue_prs(cb["issue"]) if issue else []
             seen = {p["key"] for p in prs}
             prs += [p for p in mined if p["key"] not in seen]
+            prs = self._with_stand_ins(prs)
             info = self.issue_info.get(cb.get("issue"), {})
             sig = info.get("signature")
             status = cb.get("status")
@@ -665,7 +710,7 @@ class Model:
             )
             if not (info["signature"] or has_titles):
                 continue
-            prs = self._issue_prs(number)
+            prs = self._with_stand_ins(self._issue_prs(number))
             sig = info["signature"]
             self.blockers[str(number)] = {
                 "id": str(number),
