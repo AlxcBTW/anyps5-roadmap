@@ -13,8 +13,9 @@ Not sure where something belongs? Open an issue with one of the forms, or ask in
 
 ## Your first data fix in 5 minutes
 
-A real example: the page listed LEGO Horizon Adventures (PPSA14632) with "Claimed Ingame, unverified ·
-PR #2791". This is how such a claim gets settled.
+A real example ([the commit](https://github.com/AlxcBTW/anyps5-roadmap/commit/32c768c)): the page
+listed LEGO Horizon Adventures (PPSA14632) with "Claimed Ingame, unverified · PR #2791". This is how
+such a claim gets settled.
 
 1. **Open the source.** Click the claim's link. PR #2791 says: "PPSA14632 (LEGO Horizon Adventures),
    on my test branch (`main` db343a93 plus #1157, #425, #2699, #423/#1077 and local stand-ins needed to
@@ -38,8 +39,10 @@ PR #2791". This is how such a claim gets settled.
    the file. Then `python3 -m unittest discover -s tests`.
 4. **Open a pull request.** CI runs the checks and posts a **Blocker map preview** in the job summary:
    the base branch and your branch, built from the same API snapshot, side by side. For this fix it
-   shows one unverified claim fewer, and PPSA14632's claim going from Ingame to none. The built site is
-   attached to the run as the `site-preview` artifact if you want to click through it.
+   showed one more stage review and PPSA14632's claim going from Ingame to Menus: the Ingame claim from
+   PR #2791 is gone, and the next one, from a comment on AnyPS5 issue #476, waits for its own review.
+   The built site is attached to the run as the `site-preview` artifact if you want to click through
+   it. A labeler adds `data-correction`.
 5. **Merge.** Every push to `main` that touches `data/` rebuilds and deploys the page, so the fix is
    live a few minutes later.
 
