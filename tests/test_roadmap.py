@@ -199,10 +199,16 @@ class Ranking(unittest.TestCase):
         doc = r.assemble(self.model, {"isa": None, "hle": None, "pm4": None, "registers": []},
                          json.loads((FIX / "raw.json").read_text(encoding="utf-8")), upstream, NOW)
         self.assertEqual(doc["schema_version"], r.SCHEMA_VERSION)
-        html = r.render_html(doc)
-        for anchor in ('id="ranking"', 'id="titles"', 'id="coverage"', 'id="focus"', 'id="about"', "not official"):
+        html = r.render_html.Page(doc).render()
+        for anchor in ('id="fix-next"', 'id="games"', 'id="data"', 'id="panel"', "not an official AnyPS5 page"):
             self.assertIn(anchor, html)
-        self.assertNotIn("<script", html)
+        for b in doc["blockers"]:
+            if b.get("total"):
+                self.assertIn(f'id="b-{b["id"]}"', html)
+        for t in doc["titles"]:
+            for step in t.get("open_blockers") or []:
+                if any(b["id"] == step["id"] and b.get("total") for b in doc["blockers"]):
+                    self.assertIn(f'href="#b-{step["id"]}"', html)
         self.assertIn("13~pthread_sigmask", r.render_markdown(doc) + json.dumps(doc))
         self.assertTrue(r.render_llms(doc).startswith("# AnyPS5 blocker map\n\n> "))
 
