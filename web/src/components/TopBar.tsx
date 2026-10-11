@@ -55,7 +55,7 @@ export function TopBar({ view, model }: { view: View; model: Model | null }) {
           <button type="button" className="ghost theme" onClick={cycle} aria-label={`Theme: ${THEME_NAMES[theme]}`}>
             <ThemeIcon mode={theme} />
             <span className="theme-t" aria-hidden="true">
-              {THEME_NAMES[theme]}
+              Theme: {THEME_NAMES[theme]}
             </span>
           </button>
           <External href={`https://github.com/${project}`} className="ghost gh">

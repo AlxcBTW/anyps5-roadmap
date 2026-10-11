@@ -7,7 +7,7 @@ import { External, ItemLink, StatusPill } from "../components/ui";
 export function BlockerDetail({ id, loc }: { id: string; loc: Location }) {
   const { model, resolvedAt } = useData();
   const row = model.blocker(id);
-  if (!row) return <Missing id={id} repo={model.repo} />;
+  if (!row) return <Missing id={id} repo={model.repo} days={model.doc.window?.days ?? 60} />;
   const b = row.blocker;
   const after = model.afterFix(id);
   const prs = b.prs.filter((p) => p.link === "fixes" || p.link === "related");
@@ -34,14 +34,14 @@ export function BlockerDetail({ id, loc }: { id: string; loc: Location }) {
 
       {row.open ? (
         <dl className="stats">
-          <Stat n={row.firstStop} label={row.firstStop === 1 ? "game stops here first" : "games stop here first"} />
-          <Stat n={row.onlyStop} label={row.onlyStop === 1 ? "game has no other stop" : "games have no other stop"} />
-          <Stat n={row.games} label={row.games === 1 ? "game in total" : "games in total"} />
-          <Stat n={row.score} label="score" hint={`3×${row.onlyStop} + 2×${row.firstStop} + ${row.games}`} />
+          <Stat n={row.firstStop} label={row.firstStop === 1 ? "Game stops here first" : "Games stop here first"} />
+          <Stat n={row.onlyStop} label={row.onlyStop === 1 ? "Game has no other stop" : "Games have no other stop"} />
+          <Stat n={row.games} label={row.games === 1 ? "Game in total" : "Games in total"} />
+          <Stat n={row.score} label="Score" hint={`3×${row.onlyStop} + 2×${row.firstStop} + ${row.games}`} />
         </dl>
       ) : (
         <p className="detail-note">
-          Resolved
+          Fixed
           {row.fix.pr && (
             <>
               {" "}by <External href={row.fix.pr.url} className="mono">{row.fix.pr.ref}</External>
@@ -131,11 +131,11 @@ export function BlockerDetail({ id, loc }: { id: string; loc: Location }) {
 function Stat({ n, label, hint }: { n: number; label: string; hint?: string }) {
   return (
     <div className="stat">
-      <dt>{label}</dt>
-      <dd>
-        <span className="stat-n">{n}</span>
+      <dt>
+        {label}
         {hint && <span className="stat-hint mono">{hint}</span>}
-      </dd>
+      </dt>
+      <dd className="stat-n">{n}</dd>
     </div>
   );
 }
@@ -149,7 +149,7 @@ export function BlockerRef({ row, loc, named = true }: { row: BlockerRow; loc: L
   );
 }
 
-function Missing({ id, repo }: { id: string; repo: string }) {
+function Missing({ id, repo, days }: { id: string; repo: string; days: number }) {
   const issue = /^\d+$/.test(id) ? id : null;
   return (
     <article className="detail">
@@ -158,7 +158,7 @@ function Missing({ id, repo }: { id: string; repo: string }) {
           {issue ? `#${issue}` : id} is not on the map
         </h2>
       </header>
-      <p className="detail-note">This snapshot has no blocker with that ID. It may have been merged into another one or left the 60-day window.</p>
+      <p className="detail-note">This snapshot has no blocker with that ID. It may have been merged into another one or left the {days}-day window.</p>
       {issue && (
         <footer className="detail-foot">
           <External href={`https://github.com/${repo}/issues/${issue}`} className="btn">

@@ -59,17 +59,17 @@ export function App() {
 
   return (
     <>
-      <a
-        className="skip"
-        href="#main"
-        onClick={(e) => {
-          e.preventDefault();
-          main.current?.focus();
-        }}
-      >
-        Skip to content
-      </a>
-      <div className="frame" inert={drawerOpen && modal}>
+      <div className="frame" inert={drawerOpen && modal} data-peek={drawerOpen && !modal ? "" : undefined}>
+        <a
+          className="skip"
+          href="#main"
+          onClick={(e) => {
+            e.preventDefault();
+            main.current?.focus();
+          }}
+        >
+          Skip to content
+        </a>
         <TopBar view={view} model={data?.model ?? null} />
         <main id="main" ref={main} tabIndex={-1} className="wrap main">
           {roadmap.status === "loading" && (

@@ -7,7 +7,7 @@ import { fmtTime, plural } from "../lib/format";
 import { setParams, type Location } from "../lib/router";
 import { Chips, Empty, ItemLink, ViewHead } from "../components/ui";
 
-const GROUP_LABELS: Record<ChangeGroup, string> = { resolved: "Resolved", ranking: "Ranking", games: "Games" };
+const GROUP_LABELS: Record<ChangeGroup, string> = { resolved: "Fixed", ranking: "Ranking", games: "Games" };
 
 function inGroup(r: ChangeRow, g: string): boolean {
   return g === "all" || (CHANGE_GROUPS[g as ChangeGroup] as readonly string[] | undefined)?.includes(r.type) === true;
@@ -62,7 +62,7 @@ export function Changes({ loc }: { loc: Location }) {
           />
           <ol className="timeline">
             {shown.map((s) => (
-              <li key={s.id} className="snap">
+              <li key={s.id} className="snap-item">
                 <header className="snap-head">
                   <h2>
                     <time dateTime={s.date}>{fmtTime(s.date)}</time>

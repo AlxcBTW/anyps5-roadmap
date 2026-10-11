@@ -3,7 +3,7 @@
 
 import { useEffect, useId, useRef, type AnchorHTMLAttributes, type MouseEvent, type ReactNode } from "react";
 import { statusRef, type BlockerRow } from "../data/model";
-import { itemHref, navigate, openItem, setFocusOnOpen, type Item, type Location } from "../lib/router";
+import { itemHref, navigate, openItem, setFocusOnOpen, setOpener, type Item, type Location } from "../lib/router";
 import type { Dir, Sort } from "../lib/sort";
 import { SearchIcon, SortIcon } from "./Icons";
 
@@ -43,6 +43,7 @@ export function ItemLink({ item, loc, className, children, ...rest }: { item: It
         if (e.defaultPrevented || !plainClick(e)) return;
         e.preventDefault();
         setFocusOnOpen(e.detail === 0 && e.nativeEvent.isTrusted); // Enter, not a mouse click or the arrow keys
+        setOpener(e.currentTarget);
         openItem(item, loc, !!loc.route.item); // moving inside the drawer replaces, opening it pushes
       }}
     >
@@ -147,7 +148,7 @@ export function SearchField({ label, placeholder, value, onChange }: { label: st
 }
 
 /** A sortable column header: a button inside the th, with aria-sort on the th. */
-export function SortHeader<K extends string>({ label, k, sort, natural, onSort, className }: { label: string; k: K; sort: Sort<K>; natural: Dir; onSort: (k: K, natural: Dir) => void; className?: string }) {
+export function SortHeader<K extends string>({ label, k, sort, natural, onSort, className }: { label: ReactNode; k: K; sort: Sort<K>; natural: Dir; onSort: (k: K, natural: Dir) => void; className?: string }) {
   const active = sort.key === k;
   return (
     <th scope="col" className={className} aria-sort={active ? (sort.dir === "asc" ? "ascending" : "descending") : undefined}>

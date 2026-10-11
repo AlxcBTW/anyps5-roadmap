@@ -1,7 +1,7 @@
 // Coverage: what AnyPS5 implements of the PS5's system libraries and GPU. Loaded on demand, with
 // its own stylesheet, the first time someone opens it.
 
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState, type KeyboardEvent } from "react";
 import "./coverage.css";
 import { layout, type Tile } from "../coverage/treemap";
 import { useData } from "../data/load";
@@ -165,25 +165,43 @@ function CovMap({ kind, title, groups, width, height, done, total, selected, onS
 }) {
   const tiles = useMemo(() => layout(groups, width, height), [groups, width, height]);
   const [tip, setTip] = useState<{ g: CoverageGroup; x: number; y: number } | null>(null);
-  const label = `Treemap of ${tiles.length} ${kind === "hle" ? "system libraries" : "shader instruction encodings"}, ${done.toLocaleString("en")} of ${total.toLocaleString("en")} ${UNIT[kind]} implemented`;
+  // one tab stop per map; the arrow keys, Home and End move between blocks, largest first
+  const [active, setActive] = useState(0);
+  const area = useRef<HTMLDivElement>(null);
+  const label = `${title}: ${tiles.length} ${kind === "hle" ? "libraries" : "instruction encodings"}, ${done.toLocaleString("en")} of ${total.toLocaleString("en")} ${UNIT[kind]} implemented`;
+  const move = (e: KeyboardEvent<HTMLDivElement>) => {
+    const step = { ArrowRight: 1, ArrowDown: 1, ArrowLeft: -1, ArrowUp: -1 }[e.key];
+    const to = e.key === "Home" ? 0 : e.key === "End" ? tiles.length - 1 : step != null ? active + step : null;
+    if (to == null || to < 0 || to >= tiles.length) return;
+    e.preventDefault();
+    setActive(to);
+    area.current?.querySelectorAll<HTMLButtonElement>(".tm-tile")[to]?.focus();
+  };
   return (
     <div className="tm-panel">
-      <h2 className="tm-sub">
+      <p className="tm-sub">
         {title} <span className="tm-n">{pct(done, total)}</span>
-      </h2>
+      </p>
       <div
+        ref={area}
         className="tm-area"
         style={{ aspectRatio: `${width} / ${height}` }}
-        role="img"
+        role="group"
         aria-label={label}
+        onKeyDown={move}
         onPointerLeave={() => setTip(null)}
       >
-        {tiles.map((t) => (
+        {tiles.map((t, i) => (
           <TileView
             key={nameOf(t.item)}
             t={t}
+            unit={UNIT[kind]}
+            tabIndex={i === active ? 0 : -1}
             selected={nameOf(t.item) === selected}
-            onClick={() => onSelect(nameOf(t.item) === selected ? null : t.item)}
+            onClick={() => {
+              setActive(i);
+              onSelect(nameOf(t.item) === selected ? null : t.item);
+            }}
             onHover={(x, y) => setTip({ g: t.item, x, y })}
           />
         ))}
@@ -193,10 +211,22 @@ function CovMap({ kind, title, groups, width, height, done, total, selected, onS
   );
 }
 
-function TileView({ t, selected, onClick, onHover }: { t: Tile<CoverageGroup>; selected: boolean; onClick: () => void; onHover: (x: number, y: number) => void }) {
+function TileView({ t, unit, tabIndex, selected, onClick, onHover }: {
+  t: Tile<CoverageGroup>;
+  unit: string;
+  tabIndex: number;
+  selected: boolean;
+  onClick: () => void;
+  onHover: (x: number, y: number) => void;
+}) {
+  const g = t.item;
   return (
-    <div
+    <button
+      type="button"
       className={selected ? "tm-tile sel" : "tm-tile"}
+      tabIndex={tabIndex}
+      aria-pressed={selected}
+      aria-label={`${nameOf(g)}: ${g.done} of ${g.done + g.todo} ${unit}${g.todo ? `, ${g.todo} missing` : ""}`}
       style={{
         left: `calc(${t.x}% + 1.5px)`,
         top: `calc(${t.y}% + 1.5px)`,
@@ -207,7 +237,7 @@ function TileView({ t, selected, onClick, onHover }: { t: Tile<CoverageGroup>; s
       onPointerMove={(e) => e.pointerType === "mouse" && onHover(e.clientX, e.clientY)}
     >
       {t.bands.map((b, i) => (
-        <div
+        <span
           key={i}
           className={b.grid ? "tm-band grid" : "tm-band"}
           style={{ top: `${b.top}%`, height: `${b.height}%`, ["--c" as string]: b.cols, ["--r" as string]: b.rows }}
@@ -215,10 +245,12 @@ function TileView({ t, selected, onClick, onHover }: { t: Tile<CoverageGroup>; s
           {b.missing.map(([l, tp, w, h], j) => (
             <i key={j} style={{ left: `${l}%`, top: `${tp}%`, width: `${w}%`, height: `${h}%` }} />
           ))}
-        </div>
+        </span>
       ))}
-      <span className="tm-l">{nameOf(t.item)}</span>
-    </div>
+      <span className="tm-l" aria-hidden="true">
+        {nameOf(g)}
+      </span>
+    </button>
   );
 }
 

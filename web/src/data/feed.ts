@@ -19,7 +19,7 @@ export interface Snapshot {
 }
 
 export const CHANGE_LABELS: Record<ChangeType, string> = {
-  resolved: "Resolved",
+  resolved: "Fixed",
   entered: "Entered",
   left: "Left",
   moved: "Moved",

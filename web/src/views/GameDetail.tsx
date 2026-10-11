@@ -2,8 +2,8 @@ import { gameReport, sourceLabel } from "../data/model";
 import { useData } from "../data/load";
 import type { Evidence } from "../data/schema";
 import { fmtDate, plural } from "../lib/format";
-import type { Location } from "../lib/router";
-import { External, ItemLink, Pips } from "../components/ui";
+import { viewHref, type Location } from "../lib/router";
+import { External, ItemLink, Pips, ViewLink } from "../components/ui";
 import { BlockerRef } from "./BlockerDetail";
 
 const VERDICTS = { confirmed: "Confirmed", downgraded: "Downgraded", suppressed: "Suppressed" } as const;
@@ -20,6 +20,11 @@ export function GameDetail({ id, loc }: { id: string; loc: Location }) {
           </h2>
         </header>
         <p className="detail-note">This snapshot has no stage, stop or claim for that title ID.</p>
+        <footer className="detail-foot">
+          <ViewLink to={viewHref("games", { q: id })} className="btn">
+            Search the games for {id}
+          </ViewLink>
+        </footer>
       </article>
     );
   }

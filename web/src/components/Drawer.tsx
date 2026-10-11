@@ -1,8 +1,8 @@
 // The detail drawer. On wide screens it is a side panel over the list, which stays usable; on
 // narrow ones it is a modal sheet over everything (the rest of the page is made inert by App).
 
-import { useEffect, useLayoutEffect, useRef, type ReactNode } from "react";
-import { takeFocusOnOpen } from "../lib/router";
+import { useEffect, useRef, type ReactNode } from "react";
+import { getOpener, takeFocusOnOpen } from "../lib/router";
 import { CloseIcon } from "./Icons";
 
 export function Drawer({ modal, label, itemKey, onClose, children }: {
@@ -13,20 +13,19 @@ export function Drawer({ modal, label, itemKey, onClose, children }: {
   children: ReactNode;
 }) {
   const ref = useRef<HTMLElement>(null);
-  const opener = useRef<Element | null>(null);
 
-  // remember what opened the drawer, and give focus back to it on close
-  useLayoutEffect(() => {
-    opener.current = document.activeElement;
-    return () => {
-      const el = opener.current as HTMLElement | null;
+  // give focus back to the link that opened the drawer (ItemLink records it) when the drawer closes
+  useEffect(
+    () => () => {
+      const el = getOpener();
       // after the commit, once the page is no longer inert; only when focus was lost with the drawer
       setTimeout(() => {
         const active = document.activeElement;
         if ((!active || active === document.body) && el?.isConnected) el.focus({ preventScroll: true });
       });
-    };
-  }, []);
+    },
+    [],
+  );
 
   useEffect(() => {
     ref.current?.querySelector(".drawer-body")?.scrollTo({ top: 0 });

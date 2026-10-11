@@ -37,7 +37,7 @@ export const BLOCKER_FILTERS = {
   nofix: { label: "No open fix", test: (r: BlockerRow) => r.open && r.fix.kind !== "review" },
   help: { label: "Help wanted", test: (r: BlockerRow) => r.open && r.helpWanted },
   unlinked: { label: "No game linked", test: (r: BlockerRow) => r.open && r.rank == null },
-  resolved: { label: "Resolved", test: (r: BlockerRow) => !r.open },
+  resolved: { label: "Fixed", test: (r: BlockerRow) => !r.open },
 } as const;
 
 export type BlockerFilter = keyof typeof BLOCKER_FILTERS;
@@ -96,11 +96,15 @@ export function filterGames(rows: readonly GameRow[], { stage, q }: GameQuery): 
   );
 }
 
-/** Title IDs per stage chip ("all", each stage name, "none"). */
+/** Games per stage chip ("all", each stage name, "none"): the names with a title ID at that stage. */
 export function stageCounts(rows: readonly GameRow[]): Map<string, number> {
-  const n = new Map<string, number>([["all", rows.length]]);
-  for (const g of rows) n.set(g.stage ?? "none", (n.get(g.stage ?? "none") ?? 0) + 1);
-  return n;
+  const names = new Map<string, Set<string>>([["all", new Set()]]);
+  for (const g of rows) {
+    names.get("all")!.add(g.name);
+    const k = g.stage ?? "none";
+    names.set(k, (names.get(k) ?? new Set()).add(g.name));
+  }
+  return new Map([...names].map(([k, s]) => [k, s.size]));
 }
 
 export function gameCount(rows: readonly GameRow[]): number {

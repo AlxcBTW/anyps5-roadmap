@@ -170,3 +170,13 @@ export function takeFocusOnOpen(): boolean {
   focusNext = false;
   return v;
 }
+
+// The link that opened the drawer, so closing it can give focus back. Links inside the drawer do not
+// count: they are gone once it closes.
+let opener: HTMLElement | null = null;
+export function setOpener(el: HTMLElement) {
+  if (!el.closest(".drawer")) opener = el;
+}
+export function getOpener(): HTMLElement | null {
+  return opener;
+}

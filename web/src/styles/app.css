@@ -308,7 +308,7 @@ input {
 }
 .block-head {
   display: flex;
-  align-items: baseline;
+  align-items: center;
   justify-content: space-between;
   gap: 12px;
   padding-bottom: 16px;
@@ -323,6 +323,7 @@ input {
 .lane-more {
   display: inline-flex;
   align-items: center;
+  min-height: 40px;
   gap: 6px;
   font-size: var(--fs-s);
   font-weight: 550;
@@ -549,6 +550,7 @@ input {
 }
 .kpi {
   display: grid;
+  align-content: start;
   gap: 2px;
   height: 100%;
   padding: 20px 20px 22px;
@@ -685,6 +687,7 @@ a.rung:focus-visible {
   gap: 8px;
 }
 .card {
+  position: relative;
   display: grid;
   gap: 8px;
   padding: 12px 14px 14px;
@@ -692,11 +695,20 @@ a.rung:focus-visible {
   background: var(--card);
   box-shadow: var(--shadow-card);
   text-decoration: none;
-  transition: box-shadow 150ms ease;
+}
+.card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  box-shadow: var(--shadow-card-hover);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 150ms ease;
 }
 @media (hover: hover) {
-  .card:hover {
-    box-shadow: var(--shadow-card-hover);
+  .card:hover::after {
+    opacity: 1;
   }
 }
 .card-title {
@@ -807,7 +819,7 @@ a.rung:focus-visible {
 .chips {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
+  gap: 8px 12px;
   margin: 12px 0 0;
   padding: 0;
   border: 0;
@@ -926,9 +938,6 @@ th[aria-sort] .sort {
   border-bottom: 1px solid var(--line);
   vertical-align: top;
   overflow-wrap: break-word;
-}
-.table tbody tr {
-  transition: background-color 150ms ease;
 }
 .table-wrap tbody tr {
   cursor: pointer;
@@ -1063,7 +1072,7 @@ th.c-num .sort {
   position: fixed;
   z-index: 30;
   inset-block: calc(var(--bar-h) + 12px) 12px;
-  inset-inline-end: 12px;
+  inset-inline-end: var(--gutter);
   width: min(540px, 44vw);
   display: flex;
   flex-direction: column;
@@ -1148,29 +1157,27 @@ th.c-num .sort {
   display: flex;
   flex-direction: column-reverse;
   justify-content: flex-end;
-  gap: 4px;
+  gap: 6px;
   padding: 12px 12px 14px;
 }
 .stat + .stat {
   border-inline-start: 1px solid var(--line);
 }
 .stat dt {
+  display: grid;
+  gap: 2px;
   font-size: var(--fs-xs);
   line-height: 1.35;
   color: var(--text-3);
 }
-.stat dd {
-  margin: 0;
-  display: grid;
-  gap: 2px;
-}
 .stat-n {
+  margin: 0;
   font-family: var(--pixel);
   font-size: 28px;
   line-height: 1;
 }
 .stat-hint {
-  font-size: 11px;
+  font-size: var(--fs-xs);
   color: var(--text-3);
 }
 .detail-sec {
@@ -1280,6 +1287,15 @@ details.detail-sec > summary h3 {
 }
 .source .tag {
   margin-inline-start: 8px;
+}
+.source-block {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 8px;
+}
+.source-block .tag {
+  margin-inline-start: 0;
 }
 .claim {
   display: grid;
@@ -1424,7 +1440,7 @@ blockquote {
 .numbers {
   margin: 0;
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
   gap: 12px;
 }
 .numbers div {
@@ -1456,7 +1472,7 @@ blockquote {
   display: none;
 }
 .disclose > summary h2 {
-  font-size: var(--fs-m);
+  font-size: var(--fs-l);
   font-weight: 650;
 }
 .disclose > summary::after {
@@ -1523,6 +1539,21 @@ blockquote {
   }
 }
 
+@media (min-width: 1280px) {
+  .frame[data-peek] .main {
+    max-width: none;
+    margin-inline: 0;
+    padding-inline-end: calc(min(540px, 44vw) + 2 * var(--gutter));
+  }
+  .frame[data-peek] .table .c-area,
+  .frame[data-peek] .table .c-date {
+    display: none;
+  }
+  .frame[data-peek] .sub-area {
+    display: inline;
+  }
+}
+
 @media (max-width: 899px) {
   .drawer {
     inset: 12px 0 0 0;
@@ -1570,7 +1601,7 @@ blockquote {
     align-items: center;
   }
   .bar-end {
-    gap: 4px;
+    gap: 12px;
   }
   .bar-data {
     display: inline-flex;
@@ -1706,6 +1737,11 @@ blockquote {
   }
   .table td.c-main {
     flex-basis: 100%;
+    min-width: 0;
+  }
+  .table td {
+    min-width: 0;
+    max-width: 100%;
   }
   .table td[data-label] {
     display: inline-flex;
@@ -1740,7 +1776,8 @@ blockquote {
     display: block;
   }
   .table td.c-stop::before {
-    content: "Stops at ";
+    content: "Stops at";
+    display: block;
   }
   .small-table td.c-num {
     display: inline-flex;
@@ -1756,9 +1793,11 @@ blockquote {
   }
   .toolbar .select {
     flex: 1 1 140px;
+    min-width: 0;
   }
   .toolbar .select select {
-    flex: 1;
+    flex: 1 1 0;
+    width: 0;
     min-width: 0;
   }
   .files li {

@@ -12,7 +12,7 @@ implements.
 A community project, not an official AnyPS5 page. Every stage and link on it comes from public GitHub
 data and links its source.
 
-![The blocker map in dark mode: the count of open blockers and games, the stage ladder, and the top of the Fix next ranking with its side panel](docs/screenshot.png)
+![The blocker map in dark mode: four headline numbers, the games by stage, and the board of blockers in review, next up and recently fixed](docs/screenshot.png)
 
 ## How it works
 

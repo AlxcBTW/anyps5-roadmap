@@ -50,7 +50,7 @@ describe("game filters", () => {
     expect(ids(filterGames(model.games, { stage: "all", q: "color views of several" }))).toEqual(["PPSA01746"]);
   });
 
-  it("counts title IDs per stage chip and games by name", () => {
+  it("counts games per stage chip, by name", () => {
     const n = stageCounts(model.games);
     expect([n.get("all"), n.get("Converts"), n.get("Presents"), n.get("none")]).toEqual([12, 8, 2, 1]);
     expect(gameCount(model.games)).toBe(12);

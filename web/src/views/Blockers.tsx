@@ -1,7 +1,7 @@
 // Every blocker in one sortable table: the ranking, the ones no game is linked to yet, and the
 // resolved ones. A row opens the blocker in the drawer.
 
-import { useMemo } from "react";
+import { useMemo, type ReactNode } from "react";
 import {
   BLOCKER_FILTERS,
   BLOCKER_SORTS,
@@ -59,7 +59,7 @@ export function Blockers({ loc }: { loc: Location }) {
     set({ sort: k === DEFAULT.key && s.dir === DEFAULT.dir ? null : formatSort(s) });
   };
   const resolvedView = status === "resolved";
-  const head = (k: BlockerSort, label: string, className?: string) => (
+  const head = (k: BlockerSort, label: ReactNode, className?: string) => (
     <SortHeader k={k} label={label} sort={sort} natural={blockerNatural[k]} onSort={onSort} className={className} />
   );
 
@@ -111,7 +111,7 @@ export function Blockers({ loc }: { loc: Location }) {
           <table className="table blockers-table">
             <thead>
               <tr>
-                {head("rank", "#", "c-rank")}
+                {head("rank", <>#<span className="sr-only"> Rank</span></>, "c-rank")}
                 {head("title", "Blocker", "c-main")}
                 {head("area", "Area", "c-area")}
                 {head("status", "Fix", "c-status")}

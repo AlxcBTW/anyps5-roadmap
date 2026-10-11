@@ -27,10 +27,10 @@ export function Roadmap({ loc }: { loc: Location }) {
       </header>
 
       <ul className="kpis" aria-label="In numbers">
-        <Kpi to={viewHref("games")} n={c.games} label="games tracked" sub={`${c.gamesWithStage} with a confirmed stage`} />
-        <Kpi to={viewHref("blockers")} n={c.open} label="open blockers" sub={`stop ${plural(c.gamesWaiting, "game")}`} />
-        <Kpi to={viewHref("blockers", { status: "review" })} n={c.inReview} label="fixes in review" sub="open fix PRs" />
-        <Kpi to={viewHref("blockers", { status: "resolved" })} n={c.resolved} label="fixed" sub={`in the last ${days} days`} />
+        <Kpi to={viewHref("games")} n={c.games} label="Games tracked" sub={`${c.gamesWithStage} with a confirmed stage`} />
+        <Kpi to={viewHref("blockers")} n={c.open} label="Open blockers" sub={`Stop ${plural(c.gamesWaiting, "game")}`} />
+        <Kpi to={viewHref("blockers", { status: "review" })} n={c.inReview} label="Fixes in review" sub="A fix PR is open" />
+        <Kpi to={viewHref("blockers", { status: "resolved" })} n={c.resolved} label="Fixed" sub={`In the last ${days} days`} />
       </ul>
 
       <section className="block" aria-labelledby="h-ladder">
@@ -109,7 +109,7 @@ export function Roadmap({ loc }: { loc: Location }) {
           <Lane
             id="fixed"
             title="Recently fixed"
-            caption={`Resolved in the last ${days} days`}
+            caption={`Closed upstream in the last ${days} days`}
             size={size}
             count={lanes.fixed.length}
             more={viewHref("blockers", { status: "resolved" })}
@@ -145,10 +145,11 @@ function Lane({ id, title, caption, count, size, more, children }: { id: string;
         </h3>
         <p className="lane-cap">{caption}</p>
       </header>
-      {count ? <ol className="cards">{children}</ol> : <p className="lane-empty">Nothing here in this snapshot.</p>}
+      {count ? <ol className="cards">{children}</ol> : <p className="lane-empty">None in this snapshot.</p>}
       {count > size && (
         <ViewLink to={more} className="lane-more">
-          All {count} <ArrowIcon />
+          All {count}
+          <span className="sr-only"> {title.toLowerCase()}</span> <ArrowIcon />
         </ViewLink>
       )}
     </section>
@@ -177,7 +178,7 @@ function Card({ row, loc, date, fromFeed }: { row: BlockerRow; loc: Location; da
           ) : (
             date && (
               <span className="card-games muted">
-                {fromFeed ? "Resolved" : "Last activity"} {fmtDate(date)}
+                {fromFeed ? "Fixed" : "Last activity"} {fmtDate(date)}
               </span>
             )
           )}
