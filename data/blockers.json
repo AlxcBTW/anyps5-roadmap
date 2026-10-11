@@ -183,10 +183,40 @@
       "fix_prs": [{"number": 1922, "note": "closed without merge"}],
       "next": "Submit #1922 again; PS5VR stops here once #3031 is in.",
       "sources": ["https://github.com/boykopovar/AnyPS5/pull/1922", "https://github.com/boykopovar/AnyPS5/pull/3031"]
+    },
+    {
+      "id": "2908",
+      "issue": 2908,
+      "fix_prs": [{"number": 2945}],
+      "status": "resolved",
+      "sources": ["https://github.com/boykopovar/AnyPS5/pull/2945", "https://github.com/boykopovar/AnyPS5/issues/2908#issuecomment-6107237368"]
+    },
+    {
+      "id": "3249",
+      "issue": 3249,
+      "area": "libc",
+      "next": "Submit localeconv again; the intake rule closed #3245 and its resubmission #3310.",
+      "sources": ["https://github.com/boykopovar/AnyPS5/issues/3249", "https://github.com/boykopovar/AnyPS5/issues/3249#issuecomment-6107237599"]
+    },
+    {
+      "id": "pr-1841",
+      "issue": null,
+      "title": "getcontext, setcontext and makecontext are not exported",
+      "signature": "FAIL: unresolved ELF import 2VRU7xiqLO8 (setcontext) from libkernel",
+      "area": "libkernel",
+      "fix_prs": [{"number": 1841, "note": "closed without merge"}],
+      "next": "Reopen or resubmit #1841 and settle its ucontext size (0x500 bytes in the PR, 0x370 in FreeBSD's headers).",
+      "sources": [
+        "https://github.com/boykopovar/AnyPS5/pull/1841",
+        "https://github.com/boykopovar/AnyPS5/pull/1841#issuecomment-6106311200",
+        "https://github.com/boykopovar/AnyPS5/pull/1841#issuecomment-6107169569",
+        "https://github.com/boykopovar/AnyPS5/pull/1841#issuecomment-6107351873"
+      ]
     }
   ],
   "not_blockers": [
-    {"issue": 2749, "reason": "Title report for Stray (PPSA02100); its stop is #2548."}
+    {"issue": 2749, "reason": "Title report for Stray (PPSA02100); its stop is #2548."},
+    {"issue": 3251, "reason": "Names vkQuake (PPSA99010), whose catalog build does not import shm_unlink; its stop is pr-1482."}
   ],
   "stage_reviews_note": "Hand review of every mined stage of Menus or higher (2026-10-10). claim_url is the source the miner quoted; it is dropped for that title. confirmed/downgraded add a curated stage from url. Only main or main plus PRs that are merged now counts; branches with open PRs, local stand-ins or hacks do not.",
   "stage_reviews": [
@@ -405,6 +435,28 @@
       "evidence": [
         {"stage": "Menus", "os": "Windows", "gpu": "NVIDIA", "build": "main + #1482, #2106, #1872, siglongjmp and AlxcBTW#19", "date": "2026-10-10",
          "url": "https://github.com/boykopovar/AnyPS5/issues/2631#issuecomment-6097885704", "note": "Start screen at 54 FPS"}
+      ]
+    },
+    {
+      "id": "PPSA99000", "name": "ProsperoStore", "kind": "homebrew",
+      "blockers": [
+        {"id": "pr-1482", "why": "first stop on main ccf9ff90, after #2945"},
+        {"id": "pr-1841", "why": "getcontext, setcontext and makecontext are absent imports"}
+      ]
+    },
+    {
+      "id": "PPSA99010", "name": "vkQuake", "kind": "homebrew",
+      "blockers": [
+        {"id": "pr-1482", "why": "stop on main 9c5d67fb with #2967"},
+        {"id": "3249", "why": "localeconv is an absent import"}
+      ]
+    },
+    {
+      "id": "PPSA99600", "name": "Cloud Play", "kind": "homebrew",
+      "blockers": [
+        {"id": "3249", "why": "first stop on main"},
+        {"id": "pr-1482", "why": "_umtx_op is an absent import"},
+        {"id": "pr-1841", "why": "getcontext, setcontext and makecontext are absent imports"}
       ]
     },
     {"id": "PPSA22520", "name": "Animal Well"},
