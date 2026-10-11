@@ -1,6 +1,7 @@
 name: Roadmap
 
-# Rebuilds the blocker map from live GitHub data and deploys site/ to GitHub Pages:
+# Rebuilds the blocker map from live GitHub data and deploys site/ to GitHub Pages, with the
+# web app from web/ as its front page:
 # hourly (while the repository variable ROADMAP_SCHEDULE is "on"), on every push to
 # main that touches the data or the generator, so merged corrections go live at
 # once, and on manual dispatch.
@@ -19,6 +20,7 @@ on:
       - '*.py'
       - 'anyps5_roadmap/**'
       - 'site/fonts/**'
+      - 'web/**'
       - 'AGENTS.md'
       - '.github/workflows/roadmap.yml'
   workflow_dispatch:
@@ -68,6 +70,21 @@ jobs:
         run: |
           gh api graphql -f query='{ rateLimit { limit remaining resetAt } }' --jq .data.rateLimit
           python3 roadmap.py --upstream-checkout upstream --ref HEAD --no-git-fetch --out site
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: "24"
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+
+      # The front page is the React app in web/, which reads roadmap.json and feed.json at runtime.
+      # It takes the place of the classic page that roadmap.py wrote to index.html (also at classic.html).
+      - name: Build the web app
+        working-directory: web
+        run: |
+          npm ci --no-audit --no-fund
+          npm run build
+          cp -R dist/. ../site/
 
       - name: Save the API cache
         uses: actions/cache/save@v6

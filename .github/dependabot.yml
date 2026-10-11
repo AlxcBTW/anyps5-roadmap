@@ -6,6 +6,15 @@ updates:
       interval: weekly
     commit-message:
       prefix: "ci"
+  - package-ecosystem: npm
+    directory: /web
+    schedule:
+      interval: monthly
+    commit-message:
+      prefix: "web"
+    groups:
+      web:
+        patterns: ["*"]
   - package-ecosystem: pip
     directory: /
     schedule:
