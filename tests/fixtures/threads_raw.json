@@ -64,6 +64,18 @@
       "createdAt": "2026-10-08T09:00:00Z", "updatedAt": "2026-10-09T09:00:00Z", "isDraft": false, "author": "gus",
       "labels": ["agc"], "closes": [{"repo": "example/AnyPS5", "number": 40}], "comment_count": 0, "review_count": 0, "thread_count": 0, "xref_count": 0,
       "comments": [], "reviews": [], "review_comments": [], "xrefs": []
+    },
+    {
+      "number": 52, "title": "feat(libSceSsl): implement sceSslGetCaList",
+      "body": "### What\n\n- Spy Story (PPSA01888) imports `sceSslGetCaList`. On `main` 57f96fd2 its loader stops with `undefined symbol: qOn+wm28wmA`.\n- Windows was last built and tested on the earlier base (fork run [1](https://github.com/someone/AnyPS5/actions/runs/1): Windows 511/511).\n\n### Tested\n\n- Linux (CachyOS), RTX 3080: full ctest passes.",
+      "url": "https://github.com/example/AnyPS5/pull/52", "state": "OPEN", "merged": false, "mergedAt": null, "closedAt": null,
+      "createdAt": "2026-10-08T09:00:00Z", "updatedAt": "2026-10-09T09:00:00Z", "isDraft": false, "author": "hana",
+      "labels": ["prx"], "closes": [], "comment_count": 1, "review_count": 0, "thread_count": 0, "xref_count": 0,
+      "comments": [
+        {"body": "Data from Spy Story (PPSA01888) on Linux. This measures something different from the description (PPSA01777 menu load, warm caches): it covers start-up only.",
+         "url": "https://github.com/example/AnyPS5/pull/52#issuecomment-521", "createdAt": "2026-10-09T09:00:00Z", "author": "hana"}
+      ],
+      "reviews": [], "review_comments": [], "xrefs": []
     }
   ]
 }

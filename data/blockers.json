@@ -165,8 +165,8 @@
       "signature": "FAIL: unresolved ELF import oxMp8uPqa+U (pthread_set_name_np) from libkernel",
       "area": "libkernel",
       "fix_prs": [{"number": 1872, "note": "closed without merge"}],
-      "next": "Submit pthread_set_name_np again.",
-      "sources": ["https://github.com/boykopovar/AnyPS5/pull/1872", "https://github.com/boykopovar/AnyPS5/issues/1578"]
+      "next": "Review #3031, which resubmits #1872.",
+      "sources": ["https://github.com/boykopovar/AnyPS5/pull/1872", "https://github.com/boykopovar/AnyPS5/issues/1578", "https://github.com/boykopovar/AnyPS5/pull/3031"]
     }
   ],
   "not_blockers": [
@@ -360,7 +360,14 @@
          "url": "https://github.com/boykopovar/AnyPS5/issues/1413#issuecomment-6095663977", "note": "Gets past the P10 check, then ends on its own 2 s retirement wait"}
       ]
     },
-    {"id": "PPSA11386", "name": "007 First Light", "kind": "retail", "blockers": [{"id": "pr-2471", "why": "stop-9 shader has the shared-loop-exit shape"}]},
+    {
+      "id": "PPSA11386", "name": "007 First Light", "kind": "retail",
+      "blockers": [{"id": "pr-2471", "why": "stop-9 shader has the shared-loop-exit shape"}],
+      "evidence": [
+        {"stage": "Starts", "os": "Linux", "gpu": "NVIDIA", "build": "main a883f22f", "date": "2026-10-10",
+         "url": "https://github.com/boykopovar/AnyPS5/pull/3134", "note": "Creates its swapchain, then stops after 0.6 s on VideoOut: unsupported display pixel format"}
+      ]
+    },
     {
       "id": "PPSA98001", "name": "PokeMMO", "kind": "homebrew",
       "blockers": [

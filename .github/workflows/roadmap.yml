@@ -11,7 +11,7 @@ name: Roadmap
 
 on:
   schedule:
-    - cron: '23 * * * *'
+    - cron: '41 * * * *'
   push:
     branches: [main]
     paths:
