@@ -97,6 +97,18 @@ ENGINE_RULES = [
     (re.compile(r"\bConstruct\b"), "Construct"),
     (re.compile(r"ps5-opengl"), "Mesa (OpenGL)"),
     (re.compile(r"\bDecima\b"), "Decima"),
+    (re.compile(r"\bRE Engine\b"), "RE Engine"),
+    (re.compile(r"\bFrostbite\b"), "Frostbite"),
+    (re.compile(r"\bid ?Tech(?: \d+)?\b"), "id Tech"),
+    (re.compile(r"\bCryEngine\b"), "CryEngine"),
+    (re.compile(r"\bCocos2[dD]\b"), "Cocos2d"),
+    (re.compile(r"\bMonoGame\b"), "MonoGame"),
+    (re.compile(r"\bFNA\b"), "FNA"),
+    (re.compile(r"\bRen'Py\b"), "Ren'Py"),
+    (re.compile(r"\bRPG ?Maker\b"), "RPG Maker"),
+    (re.compile(r"\bDefold\b"), "Defold"),
+    (re.compile(r"\bClickteam(?: Fusion)?\b"), "Clickteam Fusion"),
+    (re.compile(r"\bSource 2\b"), "Source 2"),
 ]
 OS_RULES = [
     (re.compile(r"\bWindows\b|MinGW|MSVC"), "Windows"),

@@ -94,6 +94,32 @@ class Extraction(unittest.TestCase):
             with self.subTest(bare=bare):
                 self.assertIsNone(r.classify(r.OS_RULES, f"my {bare} runs it"))
 
+    def test_engine_names(self):
+        cases = {
+            "RE Engine": "RE Engine",
+            "Frostbite": "Frostbite",
+            "id Tech": "id Tech",
+            "id Tech 7": "id Tech",
+            "CryEngine": "CryEngine",
+            "Cocos2d": "Cocos2d",
+            "MonoGame": "MonoGame",
+            "FNA": "FNA",
+            "Ren'Py": "Ren'Py",
+            "RPG Maker": "RPG Maker",
+            "Defold": "Defold",
+            "Clickteam Fusion": "Clickteam Fusion",
+            "Source 2": "Source 2",
+            "UE 5.3": "Unreal Engine 5",
+            "Unreal Engine 5.4": "Unreal Engine 5",
+        }
+        for engine, expected in cases.items():
+            with self.subTest(engine=engine):
+                line = f"Some Game (PPSA01234, {engine})"
+                self.assertEqual(r.classify(r.ENGINE_RULES, line), expected)
+        self.assertEqual(r.classify(r.ENGINE_RULES, "Some Game (PPSA01234, UE5)"), "Unreal Engine 5")
+        line = "Some Game (PPSA01234, Unity 2022.3 IL2CPP)"
+        self.assertEqual(r.classify(r.ENGINE_RULES, line), "Unity")
+
     def test_leading_verbs_are_not_part_of_a_name(self):
         line = "Adds LEGO Party! (PPSA29141, Unity 2022.3 IL2CPP, FMOD) to the tested compatibility list"
         self.assertEqual(r.name_before(line, line.find("PPSA")), "LEGO Party!")
