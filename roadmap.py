@@ -3,7 +3,8 @@
 
 Collects upstream issues and PRs through `gh api`, merges them with the curated
 facts in data/blockers.json, measures HLE / RDNA ISA / PM4 coverage and writes
-site/roadmap.json, site/ROADMAP.md, site/index.html, site/llms.txt,
+site/roadmap.json, site/ROADMAP.md, site/classic.html (also as site/index.html,
+where the Pages workflow puts the web app from web/), site/llms.txt,
 site/feed.json and site/AGENTS.md.
 
 Standard library only. Needs the GitHub CLI (`gh`) on PATH; in Actions it reads

@@ -223,9 +223,11 @@ def main(argv=None) -> int:
         shutil.copytree(fonts, out / "fonts", dirs_exist_ok=True)  # a build outside site/ still renders in Geist
     # against the live site, before the deploy replaces it; only a live run keeps a copy next to the API cache
     publish_feed(doc, out, None if args.offline else cache.parent, network, log)
-    (out / "index.html").write_text(
-        render_html.Page(doc, out).render(), **lf
-    )  # last: it lists the sizes of the other files
+    # last: the classic page lists the sizes of the other files. index.html gets the same page, so a build
+    # without Node still has a front page; the Pages workflow puts the web app (web/) there instead.
+    classic = render_html.Page(doc, out).render()
+    (out / "classic.html").write_text(classic, **lf)
+    (out / "index.html").write_text(classic, **lf)
     s = doc["stats"]
     log(
         f"issues {s['issues_scanned']} (open {s['issues_open']}), PRs {s['prs_scanned']}, titles {s['titles']}, "

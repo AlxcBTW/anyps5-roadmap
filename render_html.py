@@ -1,5 +1,9 @@
 #!/usr/bin/env python3
-"""Render site/index.html from site/roadmap.json.
+"""Render the classic page, site/classic.html, from site/roadmap.json.
+
+The site's front page is the web app in web/, which reads the same JSON at runtime. The
+classic page is the whole map as one static page: the fallback without JavaScript, and the
+front page of a build made without Node (roadmap.py writes it as index.html too).
 
 The page reads nothing but the published JSON, so every fact it shows is also in the
 data that tools and agents read. Standard library only. Without JavaScript the page
@@ -9,7 +13,7 @@ tooltip and the theme switch.
 "Games" are counted by name everywhere; one game can have several title IDs (regions),
 and the games table has one row per title ID.
 
-    python3 render_html.py                      # site/roadmap.json -> site/index.html
+    python3 render_html.py                      # site/roadmap.json -> site/classic.html
     python3 render_html.py in.json out.html
 """
 
@@ -1233,7 +1237,7 @@ table.asked{width:100%;max-width:960px;margin:4px 0 20px;border-collapse:collaps
 
 def main(argv: list[str]) -> int:
     src = Path(argv[1]) if len(argv) > 1 else Path(__file__).with_name("site") / "roadmap.json"
-    dst = Path(argv[2]) if len(argv) > 2 else src.with_name("index.html")
+    dst = Path(argv[2]) if len(argv) > 2 else src.with_name("classic.html")
     doc = json.loads(src.read_text(encoding="utf-8"))
     dst.write_text(Page(doc, dst.parent).render(), encoding="utf-8", newline="\n")
     return 0
