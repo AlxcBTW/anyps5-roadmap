@@ -132,9 +132,54 @@
       "title": "v_fma_mix* in FLOAT_MODE 0xcc (f16 round toward zero)",
       "signature": null,
       "area": "shader",
-      "fix_prs": [{"repo": "AlxcBTW/AnyPS5", "number": 19, "note": "matches hardware in all four f16 rounding modes"}],
-      "next": "Carry #19 upstream.",
-      "sources": ["https://github.com/boykopovar/AnyPS5/issues/2631#issuecomment-6099900950"]
+      "fix_prs": [
+        {"repo": "AlxcBTW/AnyPS5", "number": 19, "note": "matches hardware in all four f16 rounding modes"},
+        {"number": 3512}
+      ],
+      "next": "Land #3512, which carries AlxcBTW/AnyPS5#19.",
+      "sources": [
+        "https://github.com/boykopovar/AnyPS5/issues/2631#issuecomment-6099900950",
+        "https://github.com/boykopovar/AnyPS5/pull/3512#issuecomment-6109421521",
+        "https://github.com/boykopovar/AnyPS5/issues/1578#issuecomment-6108595247"
+      ]
+    },
+    {
+      "id": "3369",
+      "issue": 3369,
+      "title": "Windows: a library an unmatched import is searched in is not loaded (since #3129)",
+      "signature": "FAIL: unresolved ELF import VANhIWcqYak",
+      "area": "relinker",
+      "fix_prs": [{"number": 3365}],
+      "status": "resolved",
+      "next": "Hotline Miami (#3367) has the same shape; a run on main would confirm it.",
+      "sources": [
+        "https://github.com/boykopovar/AnyPS5/issues/3369#issuecomment-6109192382",
+        "https://github.com/boykopovar/AnyPS5/pull/3365"
+      ]
+    },
+    {
+      "id": "3501",
+      "issue": 3501,
+      "title": "libc: reallocf is absent",
+      "signature": "FAIL: unresolved ELF import YMZO9ChZb0E from libSceLibcInternal.prx",
+      "area": "libc",
+      "fix_prs": [{"number": 3522}],
+      "next": "Land #3522.",
+      "sources": ["https://github.com/boykopovar/AnyPS5/pull/3522#issuecomment-6109415852"]
+    },
+    {
+      "id": "3165",
+      "issue": 3165,
+      "title": "libkernel: pthread_attr_getinheritsched, pthread_attr_getscope and pthread_attr_setscope are absent",
+      "signature": "FAIL: unresolved ELF import e2G+cdEkOmU from libkernel.prx",
+      "area": "libkernel",
+      "fix_prs": [{"number": 3377}, {"number": 3494}],
+      "next": "Land #3494, which carries the closed #3377.",
+      "sources": [
+        "https://github.com/boykopovar/AnyPS5/issues/3165#issuecomment-6108633200",
+        "https://github.com/boykopovar/AnyPS5/pull/3494",
+        "https://github.com/boykopovar/AnyPS5/pull/3522#issuecomment-6109415852"
+      ]
     },
     {
       "id": "siglongjmp",
@@ -409,7 +454,10 @@
     },
     {
       "id": "PPSA99005", "name": "ps5-opengl showcase", "engine": "Mesa (OpenGL)", "kind": "homebrew",
-      "blockers": [{"id": "1413", "why": "flat P10 check"}],
+      "blockers": [
+        {"id": "2631", "why": "first stop on main ce4263b1, at its first draw"},
+        {"id": "1413", "why": "flat P10 check"}
+      ],
       "evidence": [
         {"stage": "First draw", "os": "Windows", "gpu": "NVIDIA", "build": "main + AlxcBTW#12", "date": "2026-10-10",
          "url": "https://github.com/boykopovar/AnyPS5/issues/1413#issuecomment-6095663977", "note": "Gets past the P10 check, then ends on its own 2 s retirement wait"}
@@ -441,14 +489,55 @@
       "id": "PPSA99000", "name": "ProsperoStore", "kind": "homebrew",
       "blockers": [
         {"id": "pr-1482", "why": "first stop on main ccf9ff90, after #2945"},
-        {"id": "pr-1841", "why": "getcontext, setcontext and makecontext are absent imports"}
+        {"id": "pr-1841", "why": "getcontext, setcontext and makecontext are absent imports"},
+        {"id": "2631", "why": "first stop on main a11c8f7f, 19 s after the store UI starts"}
+      ],
+      "evidence": [
+        {"stage": "Starts", "os": "Windows", "gpu": "NVIDIA", "build": "main a11c8f7f", "date": "2026-10-11",
+         "url": "https://github.com/boykopovar/AnyPS5/pull/3512#issuecomment-6109421521", "note": "Store UI starts, then aborts after 19 s in v_fma_mixlo/mixhi_f16"}
       ]
     },
     {
       "id": "PPSA99010", "name": "vkQuake", "kind": "homebrew",
       "blockers": [
+        {"id": "3165", "why": "first stop on main 0f863c10"},
         {"id": "pr-1482", "why": "stop on main 9c5d67fb with #2967"},
         {"id": "3249", "why": "localeconv is an absent import"}
+      ]
+    },
+    {
+      "id": "PPSA19111", "name": "XashPS5", "kind": "homebrew",
+      "blockers": [{"id": "3165", "why": "first stop on main 0f863c10"}]
+    },
+    {
+      "id": "PPSA59322", "name": "ccleste", "kind": "homebrew",
+      "blockers": [{"id": "3165", "why": "first stop on main 0f863c10"}]
+    },
+    {
+      "id": "PPSA76677", "name": "RommPS", "kind": "homebrew",
+      "blockers": [{"id": "3165", "why": "first stop on main 0f863c10"}]
+    },
+    {
+      "id": "PPSA99002", "name": "ProsperoLight", "kind": "homebrew",
+      "blockers": [{"id": "3165", "why": "first stop on main 0f863c10"}]
+    },
+    {
+      "id": "PPSA99810", "name": "PSBox Cloud Gaming", "kind": "homebrew",
+      "blockers": [{"id": "3165", "why": "first stop on main 0f863c10 and a11c8f7f"}],
+      "excluded": [{"id": "3369", "why": "its stop is the same with and without #3365 (42-executable batch in #3369)"}]
+    },
+    {
+      "id": "PPSA97510", "name": "PSXS5", "kind": "homebrew",
+      "blockers": [
+        {"id": "3501", "why": "first stop on main a11c8f7f"},
+        {"id": "3165", "why": "next stop once reallocf is in"}
+      ]
+    },
+    {
+      "id": "PPSA98510", "name": "SwanStationPS5", "kind": "homebrew",
+      "blockers": [
+        {"id": "3501", "why": "first stop on main a11c8f7f"},
+        {"id": "3165", "why": "next stop once reallocf is in"}
       ]
     },
     {

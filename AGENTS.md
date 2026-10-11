@@ -54,6 +54,7 @@ too) and copy the exact state. Never invent a PPSA ID, a title name or a stage.
 | `paths` | Optional OS/GPU paths, e.g. `["Windows/NVIDIA", "Windows/AMD"]`, when a title stops at different places. |
 | `blockers` | Ordered chain, first stop first: `{"id": "2783", "scope": ["Windows/NVIDIA"], "why": "…"}`. A step without `scope` applies to every path. Every `id` must exist in `blockers[]`. |
 | `evidence` | Best stages seen: `{"stage", "os", "gpu", "build", "date", "url", "note"}`. `url` is required: a stage without a public source is not added, however sure you are. `build` says what was running: `main`, `main + #2054`, `main + local patches`. |
+| `excluded` | Blockers the miner attaches to this title that do not hold: `{"id": "3369", "why": "…"}`. The step is dropped from the chain and from the blocker's title counts. Use it only after reading the source; a wrong match caused by a mining rule is fixed in the rule. |
 
 Stages, lowest to highest: Converts, Loads, Starts, First draw, Presents, Menus, Ingame,
 Playable. Black frames and loading screens count as Presents. A menu that runs but stays

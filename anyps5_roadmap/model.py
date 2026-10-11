@@ -767,12 +767,14 @@ class Model:
             if b["signature_key"] and b["status"] == "open" and not b["tracker"]
         ]
         curated_chains = {ct["id"]: ct.get("blockers", []) for ct in self.curated.get("titles", [])}
+        excluded = {ct["id"]: {str(x["id"]) for x in ct.get("excluded", [])} for ct in self.curated.get("titles", [])}
         for tid, t in self.titles.items():
+            skip = excluded.get(tid, set())
             steps: list[dict] = []
             seen: set[str] = set()
 
-            def add(bid, origin, why, scope=None, at=None, steps=steps, seen=seen):
-                if bid in seen or bid not in self.blockers:
+            def add(bid, origin, why, scope=None, at=None, steps=steps, seen=seen, skip=skip):
+                if bid in seen or bid in skip or bid not in self.blockers:
                     return
                 seen.add(bid)
                 step = {"blocker": bid, "origin": origin, "why": why, "scope": scope}
@@ -791,7 +793,11 @@ class Model:
             # that match nothing (an unknown crash site, a quoted placeholder) are passed over
             for stop in latest:
                 hit = next(
-                    (bid for key, bid in sig_index if sig_match(key, stop["sig"]["key"]) or key == stop["sig"]["key"]),
+                    (
+                        bid
+                        for key, bid in sig_index
+                        if bid not in skip and (sig_match(key, stop["sig"]["key"]) or key == stop["sig"]["key"])
+                    ),
                     None,
                 )
                 if hit:
