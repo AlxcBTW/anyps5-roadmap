@@ -84,12 +84,3 @@ export function ThemeIcon({ mode }: { mode: "system" | "light" | "dark" }) {
     </svg>
   );
 }
-
-export function FilesIcon() {
-  return (
-    <svg {...base} className="icon">
-      <path d="M4 1.75h5L12.5 5.25v8.5a.5.5 0 0 1-.5.5H4a.5.5 0 0 1-.5-.5v-11.5a.5.5 0 0 1 .5-.5Z" {...stroke} />
-      <path d="M8.75 1.75v3.5h3.75M6 8.5h4M6 11h4" {...stroke} />
-    </svg>
-  );
-}

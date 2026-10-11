@@ -106,6 +106,13 @@ input {
 .loading {
   color: var(--text-3);
   padding-block: 48px;
+  /* a fast load never shows the text at all; a slow one gets it after a beat */
+  animation: fade-in 200ms ease-out 250ms backwards;
+}
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
 }
 
 /* -- top bar ---------------------------------------------------------------------- */
@@ -227,9 +234,6 @@ input {
 .ghost:active,
 .icon-btn:active {
   scale: 0.96;
-}
-.bar-data {
-  display: none;
 }
 
 /* -- shared view parts -------------------------------------------------------------- */
@@ -383,8 +387,12 @@ input {
   font-size: var(--fs-xs);
   font-weight: 550;
   white-space: nowrap;
+  max-width: 100%;
 }
 .pill .mono {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
   font-weight: 400;
   color: var(--text-3);
 }
@@ -876,6 +884,7 @@ a.rung:focus-visible {
 }
 .result {
   padding-top: 16px;
+  font-variant-numeric: tabular-nums;
   font-size: var(--fs-s);
   color: var(--text-3);
 }
@@ -995,7 +1004,7 @@ th[aria-sort] .sort {
   color: var(--text-2);
 }
 .c-status {
-  width: 15em;
+  width: 21em;
 }
 .c-games {
   width: 9.5em;
@@ -1004,7 +1013,7 @@ th[aria-sort] .sort {
   display: none;
 }
 .c-num {
-  width: 5.5em;
+  width: 7em;
   text-align: end;
 }
 th.c-num .sort {
@@ -1603,9 +1612,6 @@ blockquote {
   .bar-end {
     gap: 12px;
   }
-  .bar-data {
-    display: inline-flex;
-  }
   .theme-t,
   .gh-t {
     position: absolute;
@@ -1631,18 +1637,33 @@ blockquote {
     height: 48px;
     gap: 0;
     display: grid;
-    grid-template-columns: repeat(5, minmax(0, 1fr));
-    margin-inline: -6px;
+    grid-auto-flow: column;
+    grid-auto-columns: minmax(max-content, 1fr);
+    margin-inline: -4px;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scrollbar-width: none;
+  }
+  .nav::-webkit-scrollbar {
+    display: none;
+  }
+  /* six tabs fit at 390 px; on narrower phones the rest sit behind a faded edge */
+  .nav[data-more-end] {
+    mask-image: linear-gradient(to right, #000 calc(100% - 32px), transparent);
+  }
+  .nav[data-more-start] {
+    mask-image: linear-gradient(to left, #000 calc(100% - 32px), transparent);
+  }
+  .nav[data-more-start][data-more-end] {
+    mask-image: linear-gradient(to right, transparent, #000 32px, #000 calc(100% - 32px), transparent);
   }
   .nav a {
     justify-content: center;
     padding: 0 4px;
   }
   .nav a[aria-current]::after {
-    inset-inline: 8px;
-  }
-  .nav .nav-data {
-    display: none;
+    inset-inline: 4px;
+    bottom: 0;
   }
   .main {
     padding-top: 28px;
