@@ -153,6 +153,24 @@ class Extraction(unittest.TestCase):
             with self.subTest(other=other):
                 self.assertEqual(mine.resubmitted_refs(other), [])
 
+    def test_carry_references(self):
+        text = (
+            "Carries #2738 by @pushkarreddyy, which the intake check closed. Carried from #2909 by @queeeef. "
+            "A carry of PR #2684. CARRIES [AlxcBTW/AnyPS5#26](https://github.com/AlxcBTW/AnyPS5/pull/26)."
+        )
+        self.assertEqual(
+            mine.carried_refs(text, "example/AnyPS5"),
+            [("example/AnyPS5", 2738), ("example/AnyPS5", 2909), ("example/AnyPS5", 2684), ("AlxcBTW/AnyPS5", 26)],
+        )
+        for other in (
+            "carries the fix for #2701",
+            "Carrying @AlxcBTW's fix for #2540 while PR intake is paused",
+            "Carry the disclosed fix for #2682 from [AlxcBTW/AnyPS5#18](https://github.com/AlxcBTW/AnyPS5/pull/18)",
+            "The test branch also carried #1733",
+        ):
+            with self.subTest(other=other):
+                self.assertEqual(mine.carried_refs(other, "example/AnyPS5"), [])
+
     def test_pm4_unsupported_reason_parser(self):
         src = """
 std::string_view UnsupportedReason(std::uint32_t header) {
@@ -247,6 +265,65 @@ class Ranking(unittest.TestCase):
         pr34.update({"state": "OPEN", "merged": False, "mergedAt": None, "body": "Follow-up to #33."})
         model = r.Model(raw, r.load_curated(FIX / "curated.json"), "example/AnyPS5", NOW)
         self.assertEqual([p["ref"] for p in model.blockers["pr-33"]["prs"]], ["#33"])
+
+    def carry(self, *bodies: str, fork_state: str = "OPEN") -> dict:
+        """The fixture model plus upstream PRs #35, #36, ... with these bodies, and a PR-only blocker
+        fork-7 whose fix PR is fork/AnyPS5#7."""
+        raw = json.loads((FIX / "raw.json").read_text(encoding="utf-8"))
+        base = next(p for p in raw["prs"] if p["number"] == 34)
+        for n, body in enumerate(bodies, start=35):
+            raw["prs"].append(dict(base, number=n, url=f"https://github.com/example/AnyPS5/pull/{n}", body=body))
+        raw["external_prs"]["fork/AnyPS5#7"] = {
+            "repo": "fork/AnyPS5",
+            "number": 7,
+            "title": "fix(libkernel): export sceKernelUsleep",
+            "url": "https://github.com/fork/AnyPS5/pull/7",
+            "state": fork_state,
+            "merged": fork_state == "MERGED",
+            "draft": False,
+            "updatedAt": "2026-10-08T09:00:00Z",
+        }
+        curated = r.load_curated(FIX / "curated.json")
+        curated["blockers"].append(
+            {
+                "id": "fork-7",
+                "issue": None,
+                "area": "libkernel",
+                "fix_prs": [{"repo": "fork/AnyPS5", "number": 7}],
+                "related_prs": [{"number": 30}],
+            }
+        )
+        return r.Model(raw, curated, "example/AnyPS5", NOW).blockers
+
+    def test_a_carry_of_a_closed_fix_pr_or_a_fork_fix_pr_is_a_fix(self):
+        b = self.carry(
+            "Carries #33 by @kim, which the intake check closed; the commit keeps its author.",
+            "Carries [fork/AnyPS5#7](https://github.com/fork/AnyPS5/pull/7) by @kim.",
+        )
+        prs = {p["ref"]: p for p in b["pr-33"]["prs"]}
+        self.assertEqual(
+            (prs["#35"]["link"], prs["#35"]["state"], prs["#35"]["via"], prs["#35"]["resubmits"]),
+            ("fixes", "open", ["resubmission"], "#33"),
+        )
+        prs = {p["ref"]: p for p in b["fork-7"]["prs"]}
+        self.assertEqual((prs["#36"]["link"], prs["#36"]["resubmits"]), ("fixes", "fork#7"))
+        # a fork PR is followed in any state, and its stand-in is listed right after it
+        b = self.carry("Carried from fork/AnyPS5#7.", fork_state="MERGED")
+        self.assertEqual([p["ref"] for p in b["fork-7"]["prs"]], ["fork#7", "#35", "#30"])
+
+    def test_a_carry_needs_a_closed_pr_or_a_fork_pr_on_a_blocker(self):
+        b = self.carry(
+            "This branch carries #20 so the fix is reviewable with its demo; merge it first.",  # #20 is open
+            "Carries #10, the packed pixel ancillary word.",  # #10 is an issue, not a PR
+            "This carries the fix for #10 from the reporter.",
+            "Carries #31 by @kim.",  # #31 is merged and on no blocker
+        )
+        refs = {p["ref"]: p["link"] for p in b["10"]["prs"]}
+        self.assertEqual(refs["#20"], "fixes")
+        self.assertEqual({refs[k] for k in ("#36", "#37")}, {"mentions"})
+        self.assertNotIn("#35", refs)
+        # only the fixture's own "This is #33 again" stands in for anything
+        self.assertEqual([p["ref"] for bl in b.values() for p in bl["prs"] if p.get("resubmits")], ["#34"])
 
     def test_curated_stage_wins(self):
         best = self.model.best_stage(self.t["PPSA30279"])

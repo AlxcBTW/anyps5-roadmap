@@ -188,8 +188,8 @@ def render_llms(doc: dict) -> str:
         "`claim.reports_on_branches` do the same for the unverified claim on main and on PR branches or patched builds.",
         "- Each mined evidence item has an `author`, a `part` (body, comment or review) and a `build` (`main`, `main + patches` "
         "or `PR #N`). A PR link on a blocker has `via`: `closing` (GitHub's closing references), `xref` (a timeline "
-        "cross-reference), `text` (read from PR text) or `resubmission` (the PR resubmits a fix PR closed without "
-        "merge, named in `resubmits`).",
+        "cross-reference), `text` (read from PR text) or `resubmission` (the PR resubmits or carries a fix PR closed "
+        "without merge, or carries a fork fix PR, named in `resubmits`).",
         "- `origin` is `curated` (data/blockers.json, reviewed by a person), `mined` (regex rules over issue and PR text), "
         "`upstream` (docs/user/COMPATIBILITY.md) or `github` (native blocked-by links). Prefer curated facts when they conflict.",
         "- Blocker ids are upstream issue numbers, `pr-N` for blockers known only through a PR, `N~symbol` for a crash site that only "

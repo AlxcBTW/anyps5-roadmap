@@ -22,6 +22,7 @@ from .mine import (
     blank,
     block_stop,
     build_of,
+    carried_refs,
     classify,
     clean_name,
     clip,
@@ -217,24 +218,35 @@ class Model:
                     self._add_link(n, pk, "mentions", "text")
 
     def _index_resubmissions(self):
-        """PRs that say they resubmit or replace a PR closed without merge ("This is #1872 again",
-        "Resubmission of #2174", "Replaces #2481"): closed PR key -> keys of the PRs that stand in for it."""
+        """PRs that say they resubmit, replace or carry a PR closed without merge ("This is #1872 again",
+        "Resubmission of #2174", "Replaces #2481", "Carries #2738") or carry a fork PR ("Carries
+        AlxcBTW/AnyPS5#26"): earlier PR key, lower case -> keys of the PRs that stand in for it."""
         self.stand_ins: dict[str, list[str]] = defaultdict(list)
         for p in self.raw["prs"]:
             new = key_of(self.repo, p["number"])
-            for n in resubmitted_refs(f"{p['title']}\n{p.get('body') or ''}"):
-                old = key_of(self.repo, n)
-                if old != new and self.prs.get(old, {}).get("state") == "closed" and new not in self.stand_ins[old]:
-                    self.stand_ins[old].append(new)
+            text = f"{p['title']}\n{p.get('body') or ''}"
+            olds = [key_of(self.repo, n) for n in resubmitted_refs(text)]
+            olds += [key_of(repo, n) for repo, n in carried_refs(text, self.repo)]
+            for old in olds:
+                if old.lower() != new.lower() and self._replaceable(old) and new not in self.stand_ins[old.lower()]:
+                    self.stand_ins[old.lower()].append(new)
+
+    def _replaceable(self, key: str) -> bool:
+        """Another PR can stand in for an upstream PR closed without merge, and for a fork PR in any state."""
+        repo, num = key.split("#")
+        if repo.lower() != self.repo.lower():
+            return True
+        return self.prs.get(key_of(self.repo, int(num)), {}).get("state") == "closed"
 
     def _with_stand_ins(self, prs: list[dict]) -> list[dict]:
-        """A fix PR closed without merge lives on in the PR that resubmits it, which becomes a fix PR too.
-        A partial fix (a note starting with "partial") stays partial in its resubmission."""
+        """A fix PR closed without merge, or a fork fix PR, lives on in the PR that resubmits or carries it,
+        which becomes a fix PR too. A partial fix (a note starting with "partial") stays partial in its
+        resubmission."""
         out, seen = list(prs), {p["key"] for p in prs}
-        queue = [p for p in prs if p["link"] == "fixes" and p["state"] == "closed"]
+        queue = [p for p in prs if p["link"] == "fixes" and self._replaceable(p["key"])]
         while queue:
             old = queue.pop(0)
-            for key in self.stand_ins.get(old["key"], []):
+            for key in self.stand_ins.get(old["key"].lower(), []):
                 if key in seen:
                     continue
                 seen.add(key)
@@ -253,7 +265,10 @@ class Model:
                     "via": ["resubmission"],
                     "resubmits": old["ref"],
                 }
-                out.append(rec)
+                at = out.index(old) + 1  # next to the PR it stands in for, so a short list still shows it
+                while at < len(out) and out[at].get("resubmits") == old["ref"]:
+                    at += 1
+                out.insert(at, rec)
                 if pr["state"] == "closed":
                     queue.append(rec)
         return out

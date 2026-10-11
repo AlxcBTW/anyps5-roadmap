@@ -167,6 +167,14 @@
       "sources": ["https://github.com/boykopovar/AnyPS5/pull/1872", "https://github.com/boykopovar/AnyPS5/issues/1578", "https://github.com/boykopovar/AnyPS5/pull/3031"]
     },
     {
+      "id": "2701",
+      "issue": 2701,
+      "area": "libkernel",
+      "fix_prs": [{"number": 2697}, {"number": 2738}],
+      "next": "Review #2902, which carries #2738.",
+      "sources": ["https://github.com/boykopovar/AnyPS5/issues/2701", "https://github.com/boykopovar/AnyPS5/pull/2738", "https://github.com/boykopovar/AnyPS5/pull/2902"]
+    },
+    {
       "id": "pr-1922",
       "issue": null,
       "title": "pthread_getaffinity_np is not exported (libkernel)",

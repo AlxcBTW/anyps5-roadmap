@@ -248,6 +248,11 @@ RESUBMITS_RE = re.compile(
     r"(?i)\bis\s+(?:PR\s+)?#(\d+)\s+again\b|\bresubmi(?:ssion|ts|tted)\s+(?:of\s+)?(?:PR\s+)?#(\d+)|"
     r"\breopened as (?:a )?new PR (?:of|for)\s+#(\d+)|\b(?:replaces|supersedes)\s+(?:PR\s+)?#(\d+)"
 )
+# A PR that carries an earlier one, also from a fork: "Carries #2738", "Carried from #2909", "carry of #N",
+# "Carries AlxcBTW/AnyPS5#26". Only these forms: "carries the fix for #2701" names what is fixed, not a PR.
+CARRIES_RE = re.compile(
+    r"(?i)\b(?:carries|carried\s+from|carry\s+of)\s+\[?(?:PR\s+)?(?:(?P<repo>[\w.\-]+/[\w.\-]+))?#(?P<num>\d+)\b"
+)
 REGISTER_RE = re.compile(r"\b(?:SPI|PA|CB|DB|VGT|SQ|GE|COMPUTE|SX|TA|IA|GRBM|RLC)_[A-Z0-9_]{3,}\b")
 
 TRACKER_TITLES = 7  # an issue naming this many titles is treated as a tracker
@@ -502,6 +507,11 @@ def closing_refs(text: str, default_repo: str) -> list[tuple[str, int]]:
 def resubmitted_refs(text: str) -> list[int]:
     """Numbers of the PRs (same repository) that a PR's text says it resubmits or replaces."""
     return [int(next(g for g in m.groups() if g)) for m in RESUBMITS_RE.finditer(text or "")]
+
+
+def carried_refs(text: str, default_repo: str) -> list[tuple[str, int]]:
+    """The PRs (repository, number) that a PR's text says it carries; a fork PR keeps its repository."""
+    return [(m.group("repo") or default_repo, int(m.group("num"))) for m in CARRIES_RE.finditer(text or "")]
 
 
 def stage_in(line: str, title_pos: int) -> tuple[str, str] | None:

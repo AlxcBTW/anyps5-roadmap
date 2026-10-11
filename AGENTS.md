@@ -37,7 +37,7 @@ too) and copy the exact state. Never invent a PPSA ID, a title name or a stage.
 | `title` | One short line, sentence case. |
 | `signature` | The error line as logged, e.g. `AGC graphics: color views of several array slices are unsupported` or `FAIL: unresolved ELF import JZKw5+Wrnaw (pthread_sigmask) from libkernel`. Used to match title stops to this blocker; hex addresses and long numbers are masked automatically. |
 | `area` | `shader`, `agc`, `libkernel`, `libc`, `relinker` or `prx`. |
-| `fix_prs` | PRs that fix it: `{"number": 454}` upstream, `{"repo": "Owner/AnyPS5", "number": 25, "note": "partial: …"}` for forks. A `note` keeps a merged PR from marking the blocker resolved. A fix PR closed without merge is followed by the PR that resubmits it ("This is #1872 again", "Resubmission of #2174", "Replaces #2481", "Supersedes #1855"); that PR joins as a mined fix PR, so it needs no entry here. |
+| `fix_prs` | PRs that fix it: `{"number": 454}` upstream, `{"repo": "Owner/AnyPS5", "number": 25, "note": "partial: …"}` for forks. A `note` keeps a merged PR from marking the blocker resolved. A fix PR closed without merge is followed by the PR that resubmits or carries it ("This is #1872 again", "Resubmission of #2174", "Replaces #2481", "Supersedes #1855", "Carries #2738", "Carried from #2909"), and a fork fix PR by the PR that carries it ("Carries AlxcBTW/AnyPS5#26"); that PR joins as a mined fix PR, so it needs no entry here. |
 | `related_prs` | PRs worth knowing about that do not fix it. |
 | `status` | Optional override: `open` or `resolved`. Without it, the issue state decides; a PR-only blocker is resolved when a fix PR without a note is merged. |
 | `next` | The next concrete step, one sentence. |
