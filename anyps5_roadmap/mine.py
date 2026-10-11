@@ -196,6 +196,16 @@ MAIN_BUILD = re.compile(
     r"(?<![\w-])`?main`?\s+(?:at|@)\s+`?[0-9a-f]{7,40}\b|(?<![\w-])main\s+\(`?[0-9a-f]{7,40}`?\)",
     re.I,
 )
+# A line that links a CI run reports a build on the runner, not a title run: "Windows was last built
+# and tested on the earlier base (fork run [37987888113](…/actions/runs/37987888113): Windows 511/511)".
+CI_RUN = re.compile(r"github\.com/[\w.\-]+/[\w.\-]+/actions/runs/\d+")
+# "different from the description (PPSA01317 menu load, warm caches)": a parenthesis right after a
+# reference to the thread's description restates that text; it is not a report of its own.
+DESCRIPTION_REF = re.compile(
+    r"\b(?:the|this|that|its|your|their|[\w-]+'s)\s+(?:(?:PR|pull request|issue|original)\s+)?(?:description|body)\s*$",
+    re.I,
+)
+PAREN = re.compile(r"\([^()]*\)")
 
 SIG_START = re.compile(
     r"FAIL: unresolved ELF import|Failed to load module:|undefined symbol:|what\(\):|presentation failed:|AGC graphics:|ShaderRecompiler::Recompile:"
@@ -507,6 +517,23 @@ def clip(text: str, n: int) -> str:
         return text
     cut = text[:n].rsplit(" ", 1)[0].rstrip(",;:-–—(")
     return cut + "…"
+
+
+def run_text(text: str) -> str:
+    """The text without the lines that link a CI run: what the OS and GPU of its title runs are read from."""
+    return "\n".join(line for line in text.splitlines() if not CI_RUN.search(line))
+
+
+def restated_spans(line: str) -> list[tuple[int, int]]:
+    """The parentheses in a line that restate the thread's description, as (start, end) offsets."""
+    return [m.span() for m in PAREN.finditer(line) if DESCRIPTION_REF.search(strip_md(line[: m.start()]))]
+
+
+def blank(line: str, spans: list[tuple[int, int]]) -> str:
+    """The line with each span replaced by spaces, so the offsets of everything else stay put."""
+    for a, b in spans:
+        line = line[:a] + " " * (b - a) + line[b:]
+    return line
 
 
 def build_of(text: str, kind: str, number: int) -> str:
