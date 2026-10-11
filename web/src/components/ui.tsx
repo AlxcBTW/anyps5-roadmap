@@ -1,0 +1,219 @@
+// Small pieces every view uses. Real links and buttons throughout, so keyboard, middle-click and
+// screen readers work without extra code.
+
+import { useEffect, useId, useRef, type AnchorHTMLAttributes, type MouseEvent, type ReactNode } from "react";
+import { statusRef, type BlockerRow } from "../data/model";
+import { itemHref, navigate, openItem, setFocusOnOpen, setOpener, type Item, type Location } from "../lib/router";
+import type { Dir, Sort } from "../lib/sort";
+import { SearchIcon, SortIcon } from "./Icons";
+
+function plainClick(e: MouseEvent) {
+  return e.button === 0 && !e.metaKey && !e.ctrlKey && !e.shiftKey && !e.altKey;
+}
+
+/** A link to a view; a plain click navigates without a reload. */
+export function ViewLink({ to, className, children, ...rest }: { to: string; className?: string; children: ReactNode } & Omit<AnchorHTMLAttributes<HTMLAnchorElement>, "href">) {
+  return (
+    <a
+      {...rest}
+      href={to}
+      className={className}
+      onClick={(e) => {
+        rest.onClick?.(e);
+        if (e.defaultPrevented || !plainClick(e)) return;
+        e.preventDefault();
+        navigate(to);
+        scrollTo({ top: 0 });
+      }}
+    >
+      {children}
+    </a>
+  );
+}
+
+/** A link that opens a blocker or game in the drawer over the current view. */
+export function ItemLink({ item, loc, className, children, ...rest }: { item: Item; loc: Location; className?: string; children: ReactNode } & Omit<AnchorHTMLAttributes<HTMLAnchorElement>, "href">) {
+  return (
+    <a
+      {...rest}
+      href={itemHref(item)}
+      className={className}
+      onClick={(e) => {
+        rest.onClick?.(e);
+        if (e.defaultPrevented || !plainClick(e)) return;
+        e.preventDefault();
+        setFocusOnOpen(e.detail === 0 && e.nativeEvent.isTrusted); // Enter, not a mouse click or the arrow keys
+        setOpener(e.currentTarget);
+        openItem(item, loc, !!loc.route.item); // moving inside the drawer replaces, opening it pushes
+      }}
+    >
+      {children}
+    </a>
+  );
+}
+
+/** One pip per stage, filled up to this one. */
+export function Pips({ rank, total }: { rank: number; total: number }) {
+  return (
+    <span className="pips" aria-hidden="true">
+      {Array.from({ length: total }, (_, i) => (
+        <i key={i} className={i <= rank ? "on" : undefined} />
+      ))}
+    </span>
+  );
+}
+
+export function StatusPill({ row, withRef = true }: { row: BlockerRow; withRef?: boolean }) {
+  const r = withRef ? statusRef(row) : null;
+  return (
+    <span className={`pill pill-${row.fix.kind}`}>
+      <i aria-hidden="true" />
+      {row.fix.label}
+      {r && <span className="mono">{r}</span>}
+    </span>
+  );
+}
+
+/** A dot per game: filled when this blocker is the game's first stop, hollow when it comes later. */
+export function Dots({ dots, max = 10 }: { dots: boolean[]; max?: number }) {
+  return (
+    <span className="dots" aria-hidden="true">
+      {dots.slice(0, max).map((on, i) => (
+        <i key={i} className={on ? "on" : undefined} />
+      ))}
+      {dots.length > max && <span className="more">+{dots.length - max}</span>}
+    </span>
+  );
+}
+
+export interface Chip {
+  value: string;
+  label: string;
+  count?: number;
+}
+
+/** Single-choice filter chips (radio buttons underneath). */
+export function Chips({ legend, chips, value, onChange }: { legend: string; chips: Chip[]; value: string; onChange: (v: string) => void }) {
+  const name = useId();
+  return (
+    <fieldset className="chips">
+      <legend className="sr-only">{legend}</legend>
+      {chips.map((c) => (
+        <label key={c.value} className="chip">
+          <input type="radio" name={name} value={c.value} checked={value === c.value} onChange={() => onChange(c.value)} />
+          {c.label}
+          {c.count != null && <span className="chip-n">{c.count.toLocaleString("en")}</span>}
+        </label>
+      ))}
+    </fieldset>
+  );
+}
+
+/** The search field of a list. "/" focuses it from anywhere; Escape clears it. */
+export function SearchField({ label, placeholder, value, onChange }: { label: string; placeholder: string; value: string; onChange: (v: string) => void }) {
+  const ref = useRef<HTMLInputElement>(null);
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      const tag = (document.activeElement as HTMLElement | null)?.tagName ?? "";
+      if (e.key === "/" && !e.ctrlKey && !e.metaKey && !e.altKey && !/INPUT|TEXTAREA|SELECT/.test(tag)) {
+        e.preventDefault();
+        ref.current?.focus();
+      }
+    };
+    addEventListener("keydown", onKey);
+    return () => removeEventListener("keydown", onKey);
+  }, []);
+  return (
+    <label className="search">
+      <SearchIcon />
+      <span className="sr-only">{label}</span>
+      <input
+        ref={ref}
+        type="search"
+        value={value}
+        placeholder={placeholder}
+        autoComplete="off"
+        spellCheck={false}
+        onChange={(e) => onChange(e.target.value)}
+        onKeyDown={(e) => {
+          if (e.key === "Escape" && value) {
+            e.preventDefault(); // keeps an open drawer open
+            onChange("");
+          }
+        }}
+      />
+      <kbd aria-hidden="true">/</kbd>
+    </label>
+  );
+}
+
+/** A sortable column header: a button inside the th, with aria-sort on the th. */
+export function SortHeader<K extends string>({ label, k, sort, natural, onSort, className }: { label: ReactNode; k: K; sort: Sort<K>; natural: Dir; onSort: (k: K, natural: Dir) => void; className?: string }) {
+  const active = sort.key === k;
+  return (
+    <th scope="col" className={className} aria-sort={active ? (sort.dir === "asc" ? "ascending" : "descending") : undefined}>
+      <button type="button" className="sort" onClick={() => onSort(k, natural)}>
+        {label}
+        <SortIcon dir={active ? sort.dir : null} />
+      </button>
+    </th>
+  );
+}
+
+/** A sort control for the card layout, where there are no column headers. */
+export function SortSelect<K extends string>({ options, sort, onChange }: { options: { key: K; label: string; dir: Dir }[]; sort: Sort<K>; onChange: (s: Sort<K>) => void }) {
+  const current = options.find((o) => o.key === sort.key && o.dir === sort.dir) ?? options.find((o) => o.key === sort.key);
+  return (
+    <label className="select sort-select">
+      <span>Sort</span>
+      <select
+        value={current ? `${current.key}:${current.dir}` : ""}
+        onChange={(e) => {
+          const [key, dir] = e.target.value.split(":") as [K, Dir];
+          onChange({ key, dir });
+        }}
+      >
+        {options.map((o) => (
+          <option key={`${o.key}:${o.dir}`} value={`${o.key}:${o.dir}`}>
+            {o.label}
+          </option>
+        ))}
+      </select>
+    </label>
+  );
+}
+
+export function ViewHead({ title, count, children }: { title: string; count?: string; children?: ReactNode }) {
+  return (
+    <header className="view-head">
+      <h1>
+        {title}
+        {count && <span className="view-count">{count}</span>}
+      </h1>
+      {children && <p className="view-sub">{children}</p>}
+    </header>
+  );
+}
+
+/** An empty filter result: says what matched nothing and offers the way out. */
+export function Empty({ title, hint, onClear }: { title: string; hint: string; onClear?: () => void }) {
+  return (
+    <div className="empty" role="status">
+      <p className="empty-title">{title}</p>
+      <p className="muted">{hint}</p>
+      {onClear && (
+        <button type="button" className="btn" onClick={onClear}>
+          Clear filters
+        </button>
+      )}
+    </div>
+  );
+}
+
+export function External({ href, children, className }: { href: string; children: ReactNode; className?: string }) {
+  return (
+    <a href={href} className={className} rel="noreferrer">
+      {children}
+    </a>
+  );
+}

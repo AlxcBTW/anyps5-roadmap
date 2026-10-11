@@ -1,0 +1,1415 @@
+{
+ "schema_version": 1,
+ "generated_at": "2026-10-11T04:56:51Z",
+ "fetched_at": "2026-10-10T12:00:00Z",
+ "upstream": {
+  "repo": "boykopovar/AnyPS5",
+  "ref": "origin/main",
+  "commit": null
+ },
+ "project": {
+  "repo": "AlxcBTW/anyps5-roadmap",
+  "corrections": "https://github.com/AlxcBTW/anyps5-roadmap/issues/new/choose",
+  "issue_forms": [
+   "wrong-stage.yml",
+   "blocker.yml",
+   "mining-bug.yml"
+  ]
+ },
+ "window": {
+  "days": 60,
+  "since": "2026-08-11T12:00:00Z"
+ },
+ "stages": [
+  {
+   "name": "Converts",
+   "rank": 0,
+   "meaning": "The package unpacks and the relinker converts the executable."
+  },
+  {
+   "name": "Loads",
+   "rank": 1,
+   "meaning": "All imports resolve and the ELF loads."
+  },
+  {
+   "name": "Starts",
+   "rank": 2,
+   "meaning": "Guest code runs past startup."
+  },
+  {
+   "name": "First draw",
+   "rank": 3,
+   "meaning": "The first GPU draw or dispatch executes."
+  },
+  {
+   "name": "Presents",
+   "rank": 4,
+   "meaning": "Frames reach the screen (loading screens and black frames count)."
+  },
+  {
+   "name": "Menus",
+   "rank": 5,
+   "meaning": "A menu or title screen renders and responds."
+  },
+  {
+   "name": "Ingame",
+   "rank": 6,
+   "meaning": "Gameplay is reached."
+  },
+  {
+   "name": "Playable",
+   "rank": 7,
+   "meaning": "Playable from start to finish with minor issues."
+  }
+ ],
+ "scoring": {
+  "formula": "3*one_fix_away + 2*frontier + total",
+  "frontier": "titles for which this is the earliest open blocker on at least one OS/GPU path",
+  "one_fix_away": "titles for which this is the only open blocker on at least one path",
+  "total": "titles that list this blocker anywhere in their open chain",
+  "excluded": "titles whose best stage is Playable count only towards total"
+ },
+ "stats": {
+  "issues_scanned": 4,
+  "issues_open": 3,
+  "prs_scanned": 7,
+  "titles": 14,
+  "titles_with_open_blockers": 11,
+  "titles_with_stage": 11,
+  "titles_with_unverified_claim": 1,
+  "stage_reviews": 1,
+  "blockers_open": 7,
+  "blockers_ranked": 5,
+  "blockers_curated": 3,
+  "rate_limit": {},
+  "api": null,
+  "evidence_items": 13,
+  "evidence_by_part": {
+   "body": 10,
+   "comment": 1,
+   "curated": 2
+  },
+  "stops_from_log_blocks": 1,
+  "titles_with_two_or_more_reports": 0,
+  "links": {
+   "total": 2,
+   "closing": 0,
+   "xref": 0,
+   "text": 2,
+   "text_only": 2
+  }
+ },
+ "ranking": [
+  "13~pthread_sigmask",
+  "13~uEtgPWgPxOk",
+  "10",
+  "pr-30",
+  "11",
+  "pr-33",
+  "13"
+ ],
+ "blockers": [
+  {
+   "id": "13~pthread_sigmask",
+   "issue": null,
+   "parent": 13,
+   "url": "https://github.com/example/AnyPS5/issues/13",
+   "title": "pthread_sigmask (JZKw5+Wrnaw) is not exported by libkernel",
+   "signature": "unresolved ELF import JZKw5+Wrnaw (pthread_sigmask) from libkernel",
+   "area": "libkernel",
+   "status": "open",
+   "prs": [
+    {
+     "key": "boykopovar/AnyPS5#21",
+     "ref": "#21",
+     "url": "https://github.com/example/AnyPS5/pull/21",
+     "title": "feat(libkernel): implement pthread_sigmask",
+     "state": "open",
+     "link": "related",
+     "updated": "2026-10-07T11:00:00Z",
+     "origin": "mined"
+    }
+   ],
+   "next": null,
+   "help_wanted": null,
+   "notes": "Tracked as a row in #13: Homebrew catalog: where each title stops",
+   "owner": null,
+   "origin": "mined",
+   "tracker": false,
+   "created": "2026-10-04T10:00:00Z",
+   "last_activity": "2026-10-07T11:00:00Z",
+   "labels": [],
+   "frontier": 5,
+   "one_fix_away": 5,
+   "total": 5,
+   "titles": [
+    "PPSA99001",
+    "PPSA99002",
+    "PPSA99003",
+    "PPSA99004",
+    "PPSA99007"
+   ],
+   "frontier_titles": [
+    "PPSA99001",
+    "PPSA99002",
+    "PPSA99003",
+    "PPSA99004",
+    "PPSA99007"
+   ],
+   "one_fix_titles": [
+    "PPSA99001",
+    "PPSA99002",
+    "PPSA99003",
+    "PPSA99004",
+    "PPSA99007"
+   ],
+   "score": 30
+  },
+  {
+   "id": "13~uEtgPWgPxOk",
+   "issue": null,
+   "parent": 13,
+   "url": "https://github.com/example/AnyPS5/issues/13",
+   "title": "NID uEtgPWgPxOk is not exported by libScePosixForWebKit",
+   "signature": "unresolved ELF import uEtgPWgPxOk from libScePosixForWebKit",
+   "area": "libc",
+   "status": "open",
+   "prs": [],
+   "next": null,
+   "help_wanted": null,
+   "notes": "Tracked as a row in #13: Homebrew catalog: where each title stops",
+   "owner": null,
+   "origin": "mined",
+   "tracker": false,
+   "created": "2026-10-04T10:00:00Z",
+   "last_activity": "2026-10-04T10:00:00Z",
+   "labels": [],
+   "frontier": 3,
+   "one_fix_away": 3,
+   "total": 3,
+   "titles": [
+    "PPSA99005",
+    "PPSA99006",
+    "PPSA99008"
+   ],
+   "frontier_titles": [
+    "PPSA99005",
+    "PPSA99006",
+    "PPSA99008"
+   ],
+   "one_fix_titles": [
+    "PPSA99005",
+    "PPSA99006",
+    "PPSA99008"
+   ],
+   "score": 18
+  },
+  {
+   "id": "10",
+   "issue": 10,
+   "url": "https://github.com/example/AnyPS5/issues/10",
+   "title": "Packed pixel ancillary word",
+   "signature": "ShaderRecompiler::Recompile: shader info collection failed: packed pixel ancillary input has an unsupported live use",
+   "area": "shader",
+   "status": "open",
+   "prs": [
+    {
+     "key": "boykopovar/AnyPS5#20",
+     "ref": "#20",
+     "url": "https://github.com/example/AnyPS5/pull/20",
+     "title": "fix(shader): prove helper-only reads of the ancillary word unused",
+     "state": "open",
+     "link": "fixes",
+     "updated": "2026-10-09T11:00:00Z",
+     "note": null,
+     "origin": "curated"
+    }
+   ],
+   "next": "Land #20.",
+   "help_wanted": null,
+   "notes": null,
+   "owner": null,
+   "origin": "curated",
+   "tracker": false,
+   "created": "2026-10-01T10:00:00Z",
+   "last_activity": "2026-10-09T11:00:00Z",
+   "labels": [],
+   "frontier": 2,
+   "one_fix_away": 1,
+   "total": 3,
+   "titles": [
+    "PPSA02100",
+    "PPSA01746",
+    "PPSA30279"
+   ],
+   "frontier_titles": [
+    "PPSA02100",
+    "PPSA01746"
+   ],
+   "one_fix_titles": [
+    "PPSA02100"
+   ],
+   "score": 10
+  },
+  {
+   "id": "pr-30",
+   "issue": null,
+   "url": "https://github.com/example/AnyPS5/pull/30",
+   "title": "Direct memory stall on Windows",
+   "signature": null,
+   "area": "libkernel",
+   "status": "open",
+   "prs": [
+    {
+     "key": "boykopovar/AnyPS5#30",
+     "ref": "#30",
+     "url": "https://github.com/example/AnyPS5/pull/30",
+     "title": "fix(libkernel): map direct memory as private pages",
+     "state": "open",
+     "link": "fixes",
+     "updated": "2026-10-06T11:00:00Z",
+     "note": null,
+     "origin": "curated"
+    }
+   ],
+   "next": null,
+   "help_wanted": null,
+   "notes": null,
+   "owner": null,
+   "origin": "curated",
+   "tracker": false,
+   "created": null,
+   "last_activity": "2026-10-06T11:00:00Z",
+   "labels": [],
+   "frontier": 1,
+   "one_fix_away": 1,
+   "total": 1,
+   "titles": [
+    "PPSA30279"
+   ],
+   "frontier_titles": [
+    "PPSA30279"
+   ],
+   "one_fix_titles": [
+    "PPSA30279"
+   ],
+   "score": 6
+  },
+  {
+   "id": "11",
+   "issue": 11,
+   "url": "https://github.com/example/AnyPS5/issues/11",
+   "title": "Kena: Bridge of Spirits (PPSA01746): layered draw aborts",
+   "signature": "AGC graphics: color views of several array slices are unsupported",
+   "area": "agc",
+   "status": "open",
+   "prs": [],
+   "next": null,
+   "help_wanted": null,
+   "notes": null,
+   "owner": "erin",
+   "origin": "mined",
+   "tracker": false,
+   "created": "2026-10-05T10:00:00Z",
+   "last_activity": "2026-10-06T10:00:00Z",
+   "labels": [
+    "help wanted"
+   ],
+   "frontier": 0,
+   "one_fix_away": 0,
+   "total": 1,
+   "titles": [
+    "PPSA01746"
+   ],
+   "frontier_titles": [],
+   "one_fix_titles": [],
+   "score": 1
+  },
+  {
+   "id": "13",
+   "issue": 13,
+   "url": "https://github.com/example/AnyPS5/issues/13",
+   "title": "Homebrew catalog: where each title stops",
+   "signature": "unresolved ELF import JZKw5+Wrnaw (pthread_sigmask) from libkernel",
+   "area": "libkernel",
+   "status": "open",
+   "prs": [
+    {
+     "key": "boykopovar/AnyPS5#21",
+     "ref": "#21",
+     "url": "https://github.com/example/AnyPS5/pull/21",
+     "title": "feat(libkernel): implement pthread_sigmask",
+     "state": "open",
+     "link": "mentions",
+     "updated": "2026-10-07T11:00:00Z",
+     "origin": "mined",
+     "via": [
+      "text"
+     ]
+    }
+   ],
+   "next": null,
+   "help_wanted": null,
+   "notes": null,
+   "owner": null,
+   "origin": "mined",
+   "tracker": true,
+   "created": "2026-10-04T10:00:00Z",
+   "last_activity": "2026-10-08T10:00:00Z",
+   "labels": [],
+   "frontier": 0,
+   "one_fix_away": 0,
+   "total": 0,
+   "titles": [],
+   "frontier_titles": [],
+   "one_fix_titles": [],
+   "score": 0
+  },
+  {
+   "id": "pr-33",
+   "issue": null,
+   "url": "https://github.com/example/AnyPS5/pull/33",
+   "title": "pthread_set_name_np is not exported",
+   "signature": null,
+   "area": "libkernel",
+   "status": "open",
+   "prs": [
+    {
+     "key": "boykopovar/AnyPS5#33",
+     "ref": "#33",
+     "url": "https://github.com/example/AnyPS5/pull/33",
+     "title": "feat(libkernel): implement pthread_set_name_np",
+     "state": "closed",
+     "link": "fixes",
+     "updated": "2026-10-07T09:00:00Z",
+     "note": "closed without merge",
+     "origin": "curated"
+    },
+    {
+     "key": "boykopovar/AnyPS5#34",
+     "ref": "#34",
+     "url": "https://github.com/example/AnyPS5/pull/34",
+     "title": "feat(libkernel): implement pthread_set_name_np",
+     "state": "open",
+     "link": "fixes",
+     "updated": "2026-10-08T11:00:00Z",
+     "note": null,
+     "origin": "mined",
+     "via": [
+      "resubmission"
+     ],
+     "resubmits": "#33"
+    }
+   ],
+   "next": null,
+   "help_wanted": null,
+   "notes": null,
+   "owner": null,
+   "origin": "curated",
+   "tracker": false,
+   "created": null,
+   "last_activity": "2026-10-08T11:00:00Z",
+   "labels": [],
+   "frontier": 0,
+   "one_fix_away": 0,
+   "total": 0,
+   "titles": [],
+   "frontier_titles": [],
+   "one_fix_titles": [],
+   "score": 0
+  },
+  {
+   "id": "12",
+   "issue": 12,
+   "url": "https://github.com/example/AnyPS5/issues/12",
+   "title": "Stray (PPSA02100): old start-up crash",
+   "signature": null,
+   "area": null,
+   "status": "resolved",
+   "prs": [],
+   "next": null,
+   "help_wanted": null,
+   "notes": null,
+   "owner": null,
+   "origin": "mined",
+   "tracker": false,
+   "created": "2026-09-20T10:00:00Z",
+   "last_activity": "2026-09-25T10:00:00Z",
+   "labels": [],
+   "frontier": 0,
+   "one_fix_away": 0,
+   "total": 0,
+   "titles": [],
+   "frontier_titles": [],
+   "one_fix_titles": [],
+   "score": 0
+  }
+ ],
+ "titles": [
+  {
+   "id": "PPSA01746",
+   "name": "Kena: Bridge of Spirits",
+   "engine": "Unreal Engine 4",
+   "kind": "retail",
+   "curated": false,
+   "best_stage": null,
+   "unverified_claim": {
+    "stage": "Ingame",
+    "url": "https://github.com/example/AnyPS5/pull/32",
+    "quote": "Kena: Bridge of Spirits (PPSA01746) reaches gameplay on my integration branch."
+   },
+   "stage_reviews": [],
+   "evidence": [
+    {
+     "stage": "Ingame",
+     "os": null,
+     "gpu": null,
+     "build": "PR #32",
+     "url": "https://github.com/example/AnyPS5/pull/32",
+     "date": "2026-10-09T08:00:00Z",
+     "note": "“gameplay”",
+     "quote": "Kena: Bridge of Spirits (PPSA01746) reaches gameplay on my integration branch.",
+     "origin": "mined",
+     "verified": false,
+     "author": "lee",
+     "part": "body"
+    }
+   ],
+   "open_blockers": [
+    {
+     "id": "10",
+     "origin": "mined",
+     "why": "a comment names it at this stop",
+     "scope": null
+    },
+    {
+     "id": "11",
+     "origin": "mined",
+     "why": "reported on this issue",
+     "scope": null
+    }
+   ],
+   "resolved_blockers": [],
+   "issues": [
+    10,
+    11
+   ],
+   "prs": [
+    32
+   ],
+   "last_evidence": {
+    "kind": "pr",
+    "number": 32,
+    "url": "https://github.com/example/AnyPS5/pull/32",
+    "date": "2026-10-09T08:00:00Z"
+   },
+   "confidence": {
+    "stage": null,
+    "reports_on_main": 0,
+    "authors": [],
+    "claim": {
+     "stage": "Ingame",
+     "reports_on_main": 0,
+     "reports_on_branches": 1
+    },
+    "label": null
+   }
+  },
+  {
+   "id": "PPSA02100",
+   "name": "Stray",
+   "engine": "Unreal Engine 4",
+   "kind": null,
+   "curated": false,
+   "best_stage": {
+    "stage": "Presents",
+    "os": null,
+    "gpu": null,
+    "build": "PR #20",
+    "url": "https://github.com/example/AnyPS5/pull/20",
+    "date": "2026-10-09T09:00:00Z",
+    "note": "“loading screen”",
+    "quote": "Fixes #10. Tested with Stray (PPSA02100): the loading screen renders.",
+    "origin": "mined",
+    "verified": false,
+    "author": "hank",
+    "part": "body"
+   },
+   "unverified_claim": null,
+   "stage_reviews": [],
+   "evidence": [
+    {
+     "stage": "Presents",
+     "os": null,
+     "gpu": null,
+     "build": "PR #20",
+     "url": "https://github.com/example/AnyPS5/pull/20",
+     "date": "2026-10-09T09:00:00Z",
+     "note": "“loading screen”",
+     "quote": "Fixes #10. Tested with Stray (PPSA02100): the loading screen renders.",
+     "origin": "mined",
+     "verified": false,
+     "author": "hank",
+     "part": "body"
+    },
+    {
+     "stage": "Starts",
+     "os": null,
+     "gpu": null,
+     "build": "main",
+     "url": "https://github.com/example/AnyPS5/issues/10",
+     "date": "2026-10-01T10:00:00Z",
+     "note": "stops at: ShaderRecompiler::Recompile: packed pixel ancillary input has an unsupported live use (used by SelectU32 ? ?) (log block)",
+     "quote": "ShaderRecompiler::Recompile: packed pixel ancillary input has an unsupported live use (used by SelectU32 ? ?)",
+     "origin": "mined",
+     "verified": false,
+     "author": "alice",
+     "part": "body"
+    }
+   ],
+   "open_blockers": [
+    {
+     "id": "10",
+     "origin": "mined",
+     "why": "latest recorded stop matches its signature",
+     "scope": null
+    }
+   ],
+   "resolved_blockers": [
+    "12"
+   ],
+   "issues": [
+    10,
+    12
+   ],
+   "prs": [
+    20
+   ],
+   "last_evidence": {
+    "kind": "pr",
+    "number": 20,
+    "url": "https://github.com/example/AnyPS5/pull/20",
+    "date": "2026-10-09T09:00:00Z"
+   },
+   "confidence": {
+    "stage": "Presents",
+    "reports_on_main": 0,
+    "authors": [],
+    "label": null
+   }
+  },
+  {
+   "id": "PPSA02929",
+   "name": "Dreaming Sarah",
+   "engine": null,
+   "kind": null,
+   "curated": false,
+   "best_stage": {
+    "stage": "Menus",
+    "os": "Windows",
+    "gpu": null,
+    "build": "main",
+    "url": "https://github.com/example/AnyPS5/pull/31",
+    "date": "2026-10-08",
+    "note": "Dreaming Sarah (PPSA02929) reaches its main menu on main with this change.",
+    "quote": "Dreaming Sarah (PPSA02929) reaches its main menu on main with this change.",
+    "origin": "curated",
+    "verified": true,
+    "review": "confirmed"
+   },
+   "unverified_claim": null,
+   "stage_reviews": [
+    {
+     "claim": "Menus",
+     "claim_url": "https://github.com/example/AnyPS5/pull/31",
+     "verdict": "confirmed",
+     "stage": "Menus",
+     "url": "https://github.com/example/AnyPS5/pull/31",
+     "quote": "Dreaming Sarah (PPSA02929) reaches its main menu on main with this change.",
+     "reason": "fixture"
+    }
+   ],
+   "evidence": [
+    {
+     "stage": "Menus",
+     "os": "Windows",
+     "gpu": null,
+     "build": "main",
+     "url": "https://github.com/example/AnyPS5/pull/31",
+     "date": "2026-10-08",
+     "note": "Dreaming Sarah (PPSA02929) reaches its main menu on main with this change.",
+     "quote": "Dreaming Sarah (PPSA02929) reaches its main menu on main with this change.",
+     "origin": "curated",
+     "verified": true,
+     "review": "confirmed"
+    }
+   ],
+   "open_blockers": [],
+   "resolved_blockers": [],
+   "issues": [
+    10
+   ],
+   "prs": [
+    31
+   ],
+   "last_evidence": {
+    "kind": "pr",
+    "number": 31,
+    "url": "https://github.com/example/AnyPS5/pull/31",
+    "date": "2026-10-08T08:00:00Z"
+   },
+   "confidence": {
+    "stage": "Menus",
+    "reports_on_main": 0,
+    "authors": [],
+    "label": null
+   }
+  },
+  {
+   "id": "PPSA21564",
+   "name": "Astro Bot",
+   "engine": null,
+   "kind": null,
+   "curated": false,
+   "best_stage": null,
+   "unverified_claim": null,
+   "stage_reviews": [],
+   "evidence": [],
+   "open_blockers": [],
+   "resolved_blockers": [],
+   "issues": [
+    10
+   ],
+   "prs": [],
+   "last_evidence": {
+    "kind": "issue",
+    "number": 10,
+    "url": "https://github.com/example/AnyPS5/issues/10#issuecomment-2",
+    "date": "2026-10-03T10:00:00Z"
+   },
+   "confidence": {
+    "stage": null,
+    "reports_on_main": 0,
+    "authors": [],
+    "label": null
+   }
+  },
+  {
+   "id": "PPSA30279",
+   "name": "Taxi Chaos 2",
+   "engine": null,
+   "kind": "retail",
+   "curated": true,
+   "best_stage": {
+    "os": "Windows",
+    "gpu": "NVIDIA",
+    "build": "main",
+    "note": "black frames",
+    "quote": null,
+    "stage": "Presents",
+    "date": "2026-10-09",
+    "url": "https://github.com/example/AnyPS5/pull/30",
+    "origin": "curated",
+    "verified": true
+   },
+   "unverified_claim": null,
+   "stage_reviews": [],
+   "evidence": [
+    {
+     "os": "Windows",
+     "gpu": "NVIDIA",
+     "build": "main",
+     "note": "black frames",
+     "quote": null,
+     "stage": "Presents",
+     "date": "2026-10-09",
+     "url": "https://github.com/example/AnyPS5/pull/30",
+     "origin": "curated",
+     "verified": true
+    }
+   ],
+   "open_blockers": [
+    {
+     "id": "pr-30",
+     "origin": "curated",
+     "why": "curated",
+     "scope": null
+    },
+    {
+     "id": "10",
+     "origin": "curated",
+     "why": "curated",
+     "scope": [
+      "Windows/AMD"
+     ]
+    }
+   ],
+   "resolved_blockers": [],
+   "issues": [],
+   "prs": [
+    30
+   ],
+   "last_evidence": {
+    "url": "https://github.com/example/AnyPS5/pull/30",
+    "date": "2026-10-09"
+   },
+   "confidence": {
+    "stage": "Presents",
+    "reports_on_main": 0,
+    "authors": [],
+    "label": null
+   }
+  },
+  {
+   "id": "PPSA99001",
+   "name": null,
+   "engine": null,
+   "kind": "homebrew",
+   "curated": false,
+   "best_stage": {
+    "stage": "Converts",
+    "os": null,
+    "gpu": null,
+    "build": "main",
+    "url": "https://github.com/example/AnyPS5/issues/13",
+    "date": "2026-10-04T10:00:00Z",
+    "note": "stops at: unresolved ELF import JZKw5+Wrnaw (pthread_sigmask) from libkernel",
+    "quote": "| PPSA99001 | FAIL: unresolved ELF import JZKw5+Wrnaw from libkernel.prx |",
+    "origin": "mined",
+    "verified": false,
+    "author": "frank",
+    "part": "body"
+   },
+   "unverified_claim": null,
+   "stage_reviews": [],
+   "evidence": [
+    {
+     "stage": "Converts",
+     "os": null,
+     "gpu": null,
+     "build": "main",
+     "url": "https://github.com/example/AnyPS5/issues/13",
+     "date": "2026-10-04T10:00:00Z",
+     "note": "stops at: unresolved ELF import JZKw5+Wrnaw (pthread_sigmask) from libkernel",
+     "quote": "| PPSA99001 | FAIL: unresolved ELF import JZKw5+Wrnaw from libkernel.prx |",
+     "origin": "mined",
+     "verified": false,
+     "author": "frank",
+     "part": "body"
+    }
+   ],
+   "open_blockers": [
+    {
+     "id": "13~pthread_sigmask",
+     "origin": "mined",
+     "why": "latest recorded stop, listed in tracker #13",
+     "scope": null
+    }
+   ],
+   "resolved_blockers": [],
+   "issues": [
+    13
+   ],
+   "prs": [],
+   "last_evidence": {
+    "kind": "issue",
+    "number": 13,
+    "url": "https://github.com/example/AnyPS5/issues/13",
+    "date": "2026-10-04T10:00:00Z"
+   },
+   "confidence": {
+    "stage": "Converts",
+    "reports_on_main": 1,
+    "authors": [
+     "frank"
+    ],
+    "label": "1 report on main"
+   }
+  },
+  {
+   "id": "PPSA99002",
+   "name": null,
+   "engine": null,
+   "kind": "homebrew",
+   "curated": false,
+   "best_stage": {
+    "stage": "Converts",
+    "os": null,
+    "gpu": null,
+    "build": "main",
+    "url": "https://github.com/example/AnyPS5/issues/13",
+    "date": "2026-10-04T10:00:00Z",
+    "note": "stops at: unresolved ELF import JZKw5+Wrnaw (pthread_sigmask) from libkernel",
+    "quote": "| PPSA99002 | FAIL: unresolved ELF import JZKw5+Wrnaw from libkernel.prx |",
+    "origin": "mined",
+    "verified": false,
+    "author": "frank",
+    "part": "body"
+   },
+   "unverified_claim": null,
+   "stage_reviews": [],
+   "evidence": [
+    {
+     "stage": "Converts",
+     "os": null,
+     "gpu": null,
+     "build": "main",
+     "url": "https://github.com/example/AnyPS5/issues/13",
+     "date": "2026-10-04T10:00:00Z",
+     "note": "stops at: unresolved ELF import JZKw5+Wrnaw (pthread_sigmask) from libkernel",
+     "quote": "| PPSA99002 | FAIL: unresolved ELF import JZKw5+Wrnaw from libkernel.prx |",
+     "origin": "mined",
+     "verified": false,
+     "author": "frank",
+     "part": "body"
+    }
+   ],
+   "open_blockers": [
+    {
+     "id": "13~pthread_sigmask",
+     "origin": "mined",
+     "why": "latest recorded stop matches its signature",
+     "scope": null
+    }
+   ],
+   "resolved_blockers": [],
+   "issues": [
+    13
+   ],
+   "prs": [],
+   "last_evidence": {
+    "kind": "issue",
+    "number": 13,
+    "url": "https://github.com/example/AnyPS5/issues/13",
+    "date": "2026-10-04T10:00:00Z"
+   },
+   "confidence": {
+    "stage": "Converts",
+    "reports_on_main": 1,
+    "authors": [
+     "frank"
+    ],
+    "label": "1 report on main"
+   }
+  },
+  {
+   "id": "PPSA99003",
+   "name": null,
+   "engine": null,
+   "kind": "homebrew",
+   "curated": false,
+   "best_stage": {
+    "stage": "Converts",
+    "os": null,
+    "gpu": null,
+    "build": "main",
+    "url": "https://github.com/example/AnyPS5/issues/13",
+    "date": "2026-10-04T10:00:00Z",
+    "note": "stops at: unresolved ELF import JZKw5+Wrnaw (pthread_sigmask) from libkernel",
+    "quote": "| PPSA99003 | FAIL: unresolved ELF import JZKw5+Wrnaw from libkernel.prx |",
+    "origin": "mined",
+    "verified": false,
+    "author": "frank",
+    "part": "body"
+   },
+   "unverified_claim": null,
+   "stage_reviews": [],
+   "evidence": [
+    {
+     "stage": "Converts",
+     "os": null,
+     "gpu": null,
+     "build": "main",
+     "url": "https://github.com/example/AnyPS5/issues/13",
+     "date": "2026-10-04T10:00:00Z",
+     "note": "stops at: unresolved ELF import JZKw5+Wrnaw (pthread_sigmask) from libkernel",
+     "quote": "| PPSA99003 | FAIL: unresolved ELF import JZKw5+Wrnaw from libkernel.prx |",
+     "origin": "mined",
+     "verified": false,
+     "author": "frank",
+     "part": "body"
+    }
+   ],
+   "open_blockers": [
+    {
+     "id": "13~pthread_sigmask",
+     "origin": "mined",
+     "why": "latest recorded stop matches its signature",
+     "scope": null
+    }
+   ],
+   "resolved_blockers": [],
+   "issues": [
+    13
+   ],
+   "prs": [],
+   "last_evidence": {
+    "kind": "issue",
+    "number": 13,
+    "url": "https://github.com/example/AnyPS5/issues/13",
+    "date": "2026-10-04T10:00:00Z"
+   },
+   "confidence": {
+    "stage": "Converts",
+    "reports_on_main": 1,
+    "authors": [
+     "frank"
+    ],
+    "label": "1 report on main"
+   }
+  },
+  {
+   "id": "PPSA99004",
+   "name": null,
+   "engine": null,
+   "kind": "homebrew",
+   "curated": false,
+   "best_stage": {
+    "stage": "Converts",
+    "os": null,
+    "gpu": null,
+    "build": "main",
+    "url": "https://github.com/example/AnyPS5/issues/13",
+    "date": "2026-10-04T10:00:00Z",
+    "note": "stops at: unresolved ELF import JZKw5+Wrnaw (pthread_sigmask) from libkernel",
+    "quote": "| PPSA99004 | FAIL: unresolved ELF import JZKw5+Wrnaw from libkernel.prx |",
+    "origin": "mined",
+    "verified": false,
+    "author": "frank",
+    "part": "body"
+   },
+   "unverified_claim": null,
+   "stage_reviews": [],
+   "evidence": [
+    {
+     "stage": "Converts",
+     "os": null,
+     "gpu": null,
+     "build": "main",
+     "url": "https://github.com/example/AnyPS5/issues/13",
+     "date": "2026-10-04T10:00:00Z",
+     "note": "stops at: unresolved ELF import JZKw5+Wrnaw (pthread_sigmask) from libkernel",
+     "quote": "| PPSA99004 | FAIL: unresolved ELF import JZKw5+Wrnaw from libkernel.prx |",
+     "origin": "mined",
+     "verified": false,
+     "author": "frank",
+     "part": "body"
+    }
+   ],
+   "open_blockers": [
+    {
+     "id": "13~pthread_sigmask",
+     "origin": "mined",
+     "why": "latest recorded stop matches its signature",
+     "scope": null
+    }
+   ],
+   "resolved_blockers": [],
+   "issues": [
+    13
+   ],
+   "prs": [],
+   "last_evidence": {
+    "kind": "issue",
+    "number": 13,
+    "url": "https://github.com/example/AnyPS5/issues/13",
+    "date": "2026-10-04T10:00:00Z"
+   },
+   "confidence": {
+    "stage": "Converts",
+    "reports_on_main": 1,
+    "authors": [
+     "frank"
+    ],
+    "label": "1 report on main"
+   }
+  },
+  {
+   "id": "PPSA99005",
+   "name": null,
+   "engine": null,
+   "kind": "homebrew",
+   "curated": false,
+   "best_stage": {
+    "stage": "Converts",
+    "os": null,
+    "gpu": null,
+    "build": "main",
+    "url": "https://github.com/example/AnyPS5/issues/13",
+    "date": "2026-10-04T10:00:00Z",
+    "note": "stops at: unresolved ELF import uEtgPWgPxOk from libScePosixForWebKit",
+    "quote": "| PPSA99005 | FAIL: unresolved ELF import uEtgPWgPxOk from libScePosixForWebKit.prx |",
+    "origin": "mined",
+    "verified": false,
+    "author": "frank",
+    "part": "body"
+   },
+   "unverified_claim": null,
+   "stage_reviews": [],
+   "evidence": [
+    {
+     "stage": "Converts",
+     "os": null,
+     "gpu": null,
+     "build": "main",
+     "url": "https://github.com/example/AnyPS5/issues/13",
+     "date": "2026-10-04T10:00:00Z",
+     "note": "stops at: unresolved ELF import uEtgPWgPxOk from libScePosixForWebKit",
+     "quote": "| PPSA99005 | FAIL: unresolved ELF import uEtgPWgPxOk from libScePosixForWebKit.prx |",
+     "origin": "mined",
+     "verified": false,
+     "author": "frank",
+     "part": "body"
+    }
+   ],
+   "open_blockers": [
+    {
+     "id": "13~uEtgPWgPxOk",
+     "origin": "mined",
+     "why": "latest recorded stop, listed in tracker #13",
+     "scope": null
+    }
+   ],
+   "resolved_blockers": [],
+   "issues": [
+    13
+   ],
+   "prs": [],
+   "last_evidence": {
+    "kind": "issue",
+    "number": 13,
+    "url": "https://github.com/example/AnyPS5/issues/13",
+    "date": "2026-10-04T10:00:00Z"
+   },
+   "confidence": {
+    "stage": "Converts",
+    "reports_on_main": 1,
+    "authors": [
+     "frank"
+    ],
+    "label": "1 report on main"
+   }
+  },
+  {
+   "id": "PPSA99006",
+   "name": null,
+   "engine": null,
+   "kind": "homebrew",
+   "curated": false,
+   "best_stage": {
+    "stage": "Converts",
+    "os": null,
+    "gpu": null,
+    "build": "main",
+    "url": "https://github.com/example/AnyPS5/issues/13",
+    "date": "2026-10-04T10:00:00Z",
+    "note": "stops at: unresolved ELF import uEtgPWgPxOk from libScePosixForWebKit",
+    "quote": "| PPSA99006 | FAIL: unresolved ELF import uEtgPWgPxOk from libScePosixForWebKit.prx |",
+    "origin": "mined",
+    "verified": false,
+    "author": "frank",
+    "part": "body"
+   },
+   "unverified_claim": null,
+   "stage_reviews": [],
+   "evidence": [
+    {
+     "stage": "Converts",
+     "os": null,
+     "gpu": null,
+     "build": "main",
+     "url": "https://github.com/example/AnyPS5/issues/13",
+     "date": "2026-10-04T10:00:00Z",
+     "note": "stops at: unresolved ELF import uEtgPWgPxOk from libScePosixForWebKit",
+     "quote": "| PPSA99006 | FAIL: unresolved ELF import uEtgPWgPxOk from libScePosixForWebKit.prx |",
+     "origin": "mined",
+     "verified": false,
+     "author": "frank",
+     "part": "body"
+    }
+   ],
+   "open_blockers": [
+    {
+     "id": "13~uEtgPWgPxOk",
+     "origin": "mined",
+     "why": "latest recorded stop matches its signature",
+     "scope": null
+    }
+   ],
+   "resolved_blockers": [],
+   "issues": [
+    13
+   ],
+   "prs": [],
+   "last_evidence": {
+    "kind": "issue",
+    "number": 13,
+    "url": "https://github.com/example/AnyPS5/issues/13",
+    "date": "2026-10-04T10:00:00Z"
+   },
+   "confidence": {
+    "stage": "Converts",
+    "reports_on_main": 1,
+    "authors": [
+     "frank"
+    ],
+    "label": "1 report on main"
+   }
+  },
+  {
+   "id": "PPSA99007",
+   "name": null,
+   "engine": null,
+   "kind": "homebrew",
+   "curated": false,
+   "best_stage": {
+    "stage": "Converts",
+    "os": "Linux",
+    "gpu": null,
+    "build": "main",
+    "url": "https://github.com/example/AnyPS5/issues/13#issuecomment-3",
+    "date": "2026-10-08T10:00:00Z",
+    "note": "stops at: unresolved ELF import JZKw5+Wrnaw (pthread_sigmask)",
+    "quote": "On Linux PPSA99007 stops at undefined symbol: JZKw5+Wrnaw.",
+    "origin": "mined",
+    "verified": false,
+    "author": "gina",
+    "part": "comment"
+   },
+   "unverified_claim": null,
+   "stage_reviews": [],
+   "evidence": [
+    {
+     "stage": "Converts",
+     "os": "Linux",
+     "gpu": null,
+     "build": "main",
+     "url": "https://github.com/example/AnyPS5/issues/13#issuecomment-3",
+     "date": "2026-10-08T10:00:00Z",
+     "note": "stops at: unresolved ELF import JZKw5+Wrnaw (pthread_sigmask)",
+     "quote": "On Linux PPSA99007 stops at undefined symbol: JZKw5+Wrnaw.",
+     "origin": "mined",
+     "verified": false,
+     "author": "gina",
+     "part": "comment"
+    }
+   ],
+   "open_blockers": [
+    {
+     "id": "13~pthread_sigmask",
+     "origin": "mined",
+     "why": "latest recorded stop matches its signature",
+     "scope": null
+    }
+   ],
+   "resolved_blockers": [],
+   "issues": [
+    13
+   ],
+   "prs": [],
+   "last_evidence": {
+    "kind": "issue",
+    "number": 13,
+    "url": "https://github.com/example/AnyPS5/issues/13#issuecomment-3",
+    "date": "2026-10-08T10:00:00Z"
+   },
+   "confidence": {
+    "stage": "Converts",
+    "reports_on_main": 1,
+    "authors": [
+     "gina"
+    ],
+    "label": "1 report on main"
+   }
+  },
+  {
+   "id": "PPSA99008",
+   "name": null,
+   "engine": null,
+   "kind": "homebrew",
+   "curated": false,
+   "best_stage": {
+    "stage": "Converts",
+    "os": null,
+    "gpu": null,
+    "build": "main",
+    "url": "https://github.com/example/AnyPS5/issues/13",
+    "date": "2026-10-04T10:00:00Z",
+    "note": "stops at: unresolved ELF import uEtgPWgPxOk from libScePosixForWebKit",
+    "quote": "| PPSA99008 | FAIL: unresolved ELF import uEtgPWgPxOk from libScePosixForWebKit.prx |",
+    "origin": "mined",
+    "verified": false,
+    "author": "frank",
+    "part": "body"
+   },
+   "unverified_claim": null,
+   "stage_reviews": [],
+   "evidence": [
+    {
+     "stage": "Converts",
+     "os": null,
+     "gpu": null,
+     "build": "main",
+     "url": "https://github.com/example/AnyPS5/issues/13",
+     "date": "2026-10-04T10:00:00Z",
+     "note": "stops at: unresolved ELF import uEtgPWgPxOk from libScePosixForWebKit",
+     "quote": "| PPSA99008 | FAIL: unresolved ELF import uEtgPWgPxOk from libScePosixForWebKit.prx |",
+     "origin": "mined",
+     "verified": false,
+     "author": "frank",
+     "part": "body"
+    }
+   ],
+   "open_blockers": [
+    {
+     "id": "13~uEtgPWgPxOk",
+     "origin": "mined",
+     "why": "latest recorded stop matches its signature",
+     "scope": null
+    }
+   ],
+   "resolved_blockers": [],
+   "issues": [
+    13
+   ],
+   "prs": [],
+   "last_evidence": {
+    "kind": "issue",
+    "number": 13,
+    "url": "https://github.com/example/AnyPS5/issues/13",
+    "date": "2026-10-04T10:00:00Z"
+   },
+   "confidence": {
+    "stage": "Converts",
+    "reports_on_main": 1,
+    "authors": [
+     "frank"
+    ],
+    "label": "1 report on main"
+   }
+  },
+  {
+   "id": "PPSA99666",
+   "name": "DOOM",
+   "engine": null,
+   "kind": null,
+   "curated": false,
+   "best_stage": null,
+   "unverified_claim": null,
+   "stage_reviews": [],
+   "evidence": [],
+   "open_blockers": [],
+   "resolved_blockers": [],
+   "issues": [
+    10
+   ],
+   "prs": [],
+   "last_evidence": {
+    "kind": "issue",
+    "number": 10,
+    "url": "https://github.com/example/AnyPS5/issues/10#issuecomment-2",
+    "date": "2026-10-03T10:00:00Z"
+   },
+   "confidence": {
+    "stage": null,
+    "reports_on_main": 0,
+    "authors": [],
+    "label": null
+   }
+  }
+ ],
+ "coverage": {
+  "isa": null,
+  "hle": null,
+  "pm4": null,
+  "registers": []
+ },
+ "focus": {
+  "areas": [
+   {
+    "area": "libkernel",
+    "name": "libkernel",
+    "score": 36,
+    "blockers": [
+     "13~pthread_sigmask",
+     "pr-30"
+    ],
+    "blocker_count": 2,
+    "titles": 6,
+    "frontier_titles": 6,
+    "open_fix_prs": 2
+   },
+   {
+    "area": "libc",
+    "name": "libc",
+    "score": 18,
+    "blockers": [
+     "13~uEtgPWgPxOk"
+    ],
+    "blocker_count": 1,
+    "titles": 3,
+    "frontier_titles": 3,
+    "open_fix_prs": 0
+   },
+   {
+    "area": "shader",
+    "name": "Shader recompiler",
+    "score": 10,
+    "blockers": [
+     "10"
+    ],
+    "blocker_count": 1,
+    "titles": 3,
+    "frontier_titles": 2,
+    "open_fix_prs": 1
+   },
+   {
+    "area": "agc",
+    "name": "AGC driver",
+    "score": 1,
+    "blockers": [
+     "11"
+    ],
+    "blocker_count": 1,
+    "titles": 1,
+    "frontier_titles": 0,
+    "open_fix_prs": 0
+   }
+  ],
+  "help_wanted": [
+   {
+    "blocker": "13~uEtgPWgPxOk",
+    "reason": "First open blocker for 3 titles; no open fix PR"
+   },
+   {
+    "blocker": "11",
+    "reason": "Labelled help wanted"
+   }
+  ]
+ },
+ "not_blockers": [],
+ "gaps": [
+  "Title names, engines and stages are mined with keyword rules per line; negation and context are handled only roughly.",
+  "Mined chain order is a heuristic: the latest recorded stop first, then issues by creation date.",
+  "Read: issue and PR bodies, their comments, PR reviews and review-thread comments (up to 100 threads and 50 comments per thread), and timeline cross-references. Not read: commit messages, diffs, attached logs and screenshots (images, gists, uploaded files), edit history, and bot comments.",
+  "Issues and PRs closed more than 60 days ago are not read, even when they hold the last report on a title.",
+  "Stops are read from a fenced log only when the comment names exactly one title ID; the last error line in the block counts as the stop.",
+  "“N reports on main” counts distinct GitHub accounts whose text puts the title at that stage on main. It cannot tell whether two accounts tested the same build, and text without a stated build counts as main in issues and as the PR branch in PRs.",
+  "Titles without a PPSA ID (some homebrew) appear only when curated.",
+  "Discord reports are invisible unless someone copies them into GitHub or the curated file.",
+  "Signatures are matched by prefix after hex addresses and long numbers are masked; reworded messages split into separate keys.",
+  "PM4 status reads Pm4::UnsupportedReason(); a packet can pass that check and still be handled only partly.",
+  "Stages mined from PR text describe the PR branch (build “PR #N”), not main, unless the sentence says main and names no patches.",
+  "An issue that names seven or more titles is treated as a tracker: only its per-title stop rows count, as separate blockers.",
+  "HLE “named in issues” counts any mention of a missing function, including lists of imports that were never reached.",
+  "A mined stage of Menus or higher is only a claim until a person reviews it; most such claims in PR text were made on branches with open PRs."
+ ],
+ "sources": {
+  "issues_and_prs": "https://github.com/boykopovar/AnyPS5 via gh api graphql (open + closed in the last 60 days)",
+  "dependencies": "/repos/boykopovar/AnyPS5/issues/{n}/dependencies/blocked_by",
+  "curated": "data/blockers.json",
+  "progress": "https://boykopovar.github.io/AnyPS5/progress.json",
+  "pm4": "core/libs/prx/libSceAgcDriver/Execution/include/Pm4Opcodes.hpp (raw, main) + core/libs/prx/libSceAgcDriver/Execution/src/Pm4.cpp at origin/main",
+  "compatibility": "https://github.com/boykopovar/AnyPS5/blob/main/docs/user/COMPATIBILITY.md"
+ }
+}

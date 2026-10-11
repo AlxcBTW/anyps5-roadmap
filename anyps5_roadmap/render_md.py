@@ -208,7 +208,9 @@ def render_llms(doc: dict) -> str:
         "`date_published` are the snapshot's `generated_at`; `_anyps5.changes` holds the same as records "
         "(`type`: resolved, entered, left, moved, stage or stop) and `_anyps5.since` the snapshot it compares with.",
         "- [ROADMAP.md](ROADMAP.md): ranking, titles, coverage and help wanted as Markdown tables.",
-        "- [index.html](index.html): the same for people.",
+        "- [index.html](index.html): the same for people, as an app that reads roadmap.json and feed.json; every blocker "
+        "has a link of its own (`#/blockers/<id>`), and so does every title (`#/games/<PPSA ID>`).",
+        "- [classic.html](classic.html): the same as one static page that works without JavaScript.",
         "",
         "## Curation",
         "",

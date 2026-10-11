@@ -1,0 +1,111 @@
+/* The blocker map's design system, carried over from the classic page (render_html.py):
+   monochrome oklch neutrals, ink for emphasis, green only for "implemented" and "fixed",
+   Geist for text, Geist Mono for IDs and numbers in tables, Geist Pixel for headline numbers. */
+
+@font-face {
+  font-family: Geist;
+  src: url("../../../site/fonts/Geist-Variable.woff2") format("woff2");
+  font-weight: 100 900;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Geist Mono";
+  src: url("../../../site/fonts/GeistMono-Variable.woff2") format("woff2");
+  font-weight: 100 900;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Geist Pixel";
+  src: url("../../../site/fonts/GeistPixel-Square.woff2") format("woff2");
+  font-display: swap;
+}
+
+:root {
+  color-scheme: light;
+  --bg: oklch(0.985 0 0);
+  --surface: oklch(0.998 0 0);
+  --lane: oklch(0.962 0 0);
+  --card: oklch(0.998 0 0);
+  --hover: oklch(0.955 0 0);
+  --selected: oklch(0.95 0 0);
+  --code: oklch(0.955 0 0);
+  --line: oklch(0.915 0 0);
+  --line-strong: oklch(0.62 0 0);
+  --track: oklch(0.925 0 0);
+  --text: oklch(0.21 0 0);
+  --text-2: oklch(0.45 0 0);
+  --text-3: oklch(0.53 0 0);
+  --ok: oklch(0.56 0.15 149);
+  --ok-part: oklch(0.82 0.09 149);
+  --miss: oklch(0.9 0 0);
+  --grid: oklch(0.998 0 0 / 0.7);
+  --scrim: oklch(0.2 0 0 / 0.32);
+  --shadow-card: 0 0 0 1px var(--line), 0 1px 2px oklch(0 0 0 / 0.04);
+  --shadow-card-hover: 0 0 0 1px var(--line-strong), 0 2px 6px oklch(0 0 0 / 0.06);
+  --shadow-drawer: 0 0 0 1px var(--line), 0 24px 64px oklch(0 0 0 / 0.14), 0 4px 12px oklch(0 0 0 / 0.06);
+
+  --sans: Geist, ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono: "Geist Mono", ui-monospace, "Cascadia Mono", Consolas, monospace;
+  --pixel: "Geist Pixel", "Geist Mono", ui-monospace, monospace;
+  --fs-xs: 12px;
+  --fs-s: 13px;
+  --fs-m: 15px;
+  --fs-l: 17px;
+  --fs-xl: 22px;
+
+  --ease: cubic-bezier(0.2, 0, 0, 1);
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --bar-h: 56px;
+  --gutter: clamp(16px, 3.2vw, 48px);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --bg: oklch(0.16 0 0);
+    --surface: oklch(0.195 0 0);
+    --lane: oklch(0.185 0 0);
+    --card: oklch(0.22 0 0);
+    --hover: oklch(0.235 0 0);
+    --selected: oklch(0.255 0 0);
+    --code: oklch(0.235 0 0);
+    --line: oklch(0.29 0 0);
+    --line-strong: oklch(0.55 0 0);
+    --track: oklch(0.27 0 0);
+    --text: oklch(0.95 0 0);
+    --text-2: oklch(0.76 0 0);
+    --text-3: oklch(0.67 0 0);
+    --ok: oklch(0.66 0.16 149);
+    --ok-part: oklch(0.45 0.09 149);
+    --miss: oklch(0.36 0 0);
+    --grid: oklch(0.195 0 0 / 0.75);
+    --scrim: oklch(0 0 0 / 0.55);
+    --shadow-card: 0 0 0 1px var(--line);
+    --shadow-card-hover: 0 0 0 1px var(--line-strong);
+    --shadow-drawer: 0 0 0 1px var(--line), 0 24px 64px oklch(0 0 0 / 0.5);
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: oklch(0.16 0 0);
+  --surface: oklch(0.195 0 0);
+  --lane: oklch(0.185 0 0);
+  --card: oklch(0.22 0 0);
+  --hover: oklch(0.235 0 0);
+  --selected: oklch(0.255 0 0);
+  --code: oklch(0.235 0 0);
+  --line: oklch(0.29 0 0);
+  --line-strong: oklch(0.55 0 0);
+  --track: oklch(0.27 0 0);
+  --text: oklch(0.95 0 0);
+  --text-2: oklch(0.76 0 0);
+  --text-3: oklch(0.67 0 0);
+  --ok: oklch(0.66 0.16 149);
+  --ok-part: oklch(0.45 0.09 149);
+  --miss: oklch(0.36 0 0);
+  --grid: oklch(0.195 0 0 / 0.75);
+  --scrim: oklch(0 0 0 / 0.55);
+  --shadow-card: 0 0 0 1px var(--line);
+  --shadow-card-hover: 0 0 0 1px var(--line-strong);
+  --shadow-drawer: 0 0 0 1px var(--line), 0 24px 64px oklch(0 0 0 / 0.5);
+}

@@ -5,7 +5,7 @@ AnyPS5 issues closely. There are three ways to help, smallest first:
 
 1. **Data corrections** in `data/blockers.json`: a wrong stage, a missing blocker, a fix that landed.
 2. **Mining rules** in `anyps5_roadmap/`: teach the miner to read a kind of sentence it gets wrong.
-3. **Rendering** in `render_html.py`: the page itself.
+3. **Rendering** in `web/`, the app people see, and `render_html.py`, the same map as one static page.
 
 Not sure where something belongs? Open an issue with one of the forms, or ask in
 [Discussions](https://github.com/AlxcBTW/anyps5-roadmap/discussions). Look for issues labelled
@@ -42,7 +42,8 @@ such a claim gets settled.
    showed one more stage review and PPSA14632's claim going from Ingame to Menus: the Ingame claim from
    PR #2791 is gone, and the next one, from a comment on AnyPS5 issue #476, waits for its own review.
    The built site is attached to the run as the `site-preview` artifact if you want to click through
-   it. A labeler adds `data-correction`. A later fix of the same kind,
+   it; unzip it and serve the folder (`python3 -m http.server -d site-preview`), since the app reads
+   `roadmap.json` over HTTP, or open `classic.html` directly. A labeler adds `data-correction`. A later fix of the same kind,
    [PR #8](https://github.com/AlxcBTW/anyps5-roadmap/pull/8), shows the whole round trip: its
    [CI run](https://github.com/AlxcBTW/anyps5-roadmap/actions/runs/38090418475) lists one unverified
    claim fewer and the two titles that change, and the labeler added `data-correction` and `mining`.
@@ -89,13 +90,58 @@ with `--out build/after` on your branch, then
 
 ## Rendering
 
-`render_html.py` renders `site/index.html` from `site/roadmap.json` and nothing else. To rebuild only
-the page: `python3 render_html.py build/site/roadmap.json build/site/index.html`.
+The front page is a React app in `web/` (TypeScript, Vite). It fetches `roadmap.json` and `feed.json`
+in the browser and shows nothing else, so a data fix never needs a change there. Each blocker and each
+game has a link of its own (`#/blockers/2548`, `#/games/PPSA01746`), filters and sorting live in the
+address too, and the classic page's anchors (`#b-2548`, `#g-PPSA01746`) still lead to the same place.
 
-The page has a settled design: monochrome, Geist and Geist Mono, one type scale (12, 13, 15, 17 and
-22 px), color only in the coverage map, links as small muted text. A change should look like it was
-always there. Before asking for review, check it in light and dark mode, at a desktop width and at
-390 px, with the keyboard, and with JavaScript off (the page must still show everything).
+`render_html.py` renders `classic.html`, the whole map as one static page that works without
+JavaScript. The app's `<noscript>` points to it, and a build without Node uses it as `index.html`. To
+rebuild only that page: `python3 render_html.py build/site/roadmap.json build/site/classic.html`.
+
+### Run the app
+
+Node 24 or newer:
+
+```sh
+cd web
+npm ci            # the exact versions in package-lock.json
+npm run dev       # http://localhost:5173 over the committed site/roadmap.json and web/sample/feed.json
+npm test          # Vitest: data mapping, sorting, filters, routes and the list views
+npm run build     # typecheck, then web/dist/
+```
+
+`npm run dev` serves `roadmap.json` and the other data files from `ROADMAP_DATA` (default `../site`),
+then from `web/sample/`. To look at your own build: `ROADMAP_DATA=../build/site npm run dev` after
+`python3 roadmap.py --offline --out build/site`.
+
+| File | What it does |
+|---|---|
+| `web/src/data/model.ts` | `roadmap.json` → what the views show: the ranking by game, fix status, the stage ladder, correction links |
+| `web/src/data/lists.ts` | The roadmap board's lanes, and the filters and sort columns of the lists |
+| `web/src/data/feed.ts` | `feed.json` → the Changes view and the dates of recent fixes |
+| `web/src/lib/router.ts` | Hash routes, the drawer over the view it was opened from, the classic page's anchors |
+| `web/src/views/` | One file per view (Roadmap, Blockers, Games, Coverage, Changes, Data) and the two drawers |
+| `web/src/styles/` | Design tokens (`tokens.css`) and layout (`app.css`) |
+| `web/src/test/fixture-roadmap.json` | The fixture build of `tests/fixtures`, which the tests read |
+
+After a change to the shape of `roadmap.json`, regenerate the fixture:
+`python3 roadmap.py --offline --no-network --cache tests/fixtures/raw.json --curated
+tests/fixtures/curated.json --out build/fixture-site`, then copy `build/fixture-site/roadmap.json` to
+`web/src/test/fixture-roadmap.json`.
+
+### Design
+
+The map has a settled design: monochrome oklch neutrals, Geist, Geist Mono for IDs and table numbers,
+Geist Pixel for headline numbers, one type scale (12, 13, 15, 17 and 22 px), ink rather than an accent
+color for emphasis, and green only where something is implemented or fixed. The landing view answers
+three questions with numbers and labels: how far games get, what is being fixed, what comes next.
+Everything dense lives on the other views, and details open in the drawer. A change should look like
+it was always there.
+
+Before asking for review, check it in light and dark mode, at 1440 px and at 390 px (nothing may
+scroll sideways), with the keyboard only (Tab, Enter, Escape, the arrow keys in a list, `/` for
+search), and `classic.html` with JavaScript off.
 
 ## Setup and checks
 
@@ -106,10 +152,15 @@ python3 -m unittest discover -s tests
 python3 roadmap.py --validate
 ```
 
-The generator itself uses the Python standard library only; please keep it that way.
+For the web app: `cd web && npm ci && npm run typecheck && npm test && npm run build`.
 
-CI (`.github/workflows/ci.yml`) runs all of this on Python 3.11 for every pull request, forks included,
-without secrets. A labeler adds `data-correction`, `mining` or `rendering` from the files you touch.
+The generator itself uses the Python standard library only; please keep it that way. The web app has
+two runtime dependencies, `react` and `react-dom`; please keep that list short too, and pin exact
+versions.
+
+CI (`.github/workflows/ci.yml`) runs all of this, the Python part on Python 3.11 and the web app on
+Node 24, for every pull request, forks included, without secrets. A labeler adds `data-correction`,
+`mining` or `rendering` from the files you touch.
 
 ## Module map
 
@@ -127,7 +178,8 @@ without secrets. A labeler adds `data-correction`, `mining` or `rendering` from 
 | `anyps5_roadmap/render_md.py` | `ROADMAP.md` and `llms.txt` |
 | `anyps5_roadmap/preview.py` | The PR preview summary; `rank_moves` compares two rankings |
 | `anyps5_roadmap/feed.py` | `feed.json`: what changed since the live `roadmap.json`, as a JSON Feed |
-| `render_html.py` | `index.html` |
+| `render_html.py` | `classic.html` (and `index.html` in a build without Node) |
+| `web/` | The front page: a React app over `roadmap.json` and `feed.json` (see [Rendering](#rendering)) |
 | `tests/` | Fixture tests; `tests/fixtures/raw.json` is a tiny upstream, `curated.json` a tiny curated file |
 
 ## Pull requests

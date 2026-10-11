@@ -10,5 +10,6 @@
 - [ ] Stages count only for `main`, or `main` plus PRs that are merged now
 - [ ] A new or changed mining rule comes with a fixture test in `tests/`
 - [ ] Tests, `ruff check .` and `ruff format --check .` pass locally
+- [ ] For changes in `web/`: `npm test` and `npm run build` pass, and I checked light and dark at 1440 px and 390 px
 - [ ] I read the "Blocker map preview" in the CI job summary and it shows what I expected
 - [ ] AI-assisted: <!-- yes / no -->

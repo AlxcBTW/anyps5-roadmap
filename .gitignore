@@ -3,3 +3,8 @@ __pycache__/
 *.pyc
 site/preview*.html
 build/
+# built: the Pages workflow puts the web app (web/) at site/index.html and site/assets/; a local run of
+# roadmap.py writes the classic page to site/index.html too and, when live, site/feed.json
+site/index.html
+site/assets/
+site/feed.json

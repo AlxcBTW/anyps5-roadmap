@@ -12,7 +12,7 @@ implements.
 A community project, not an official AnyPS5 page. Every stage and link on it comes from public GitHub
 data and links its source.
 
-![The blocker map in dark mode: the count of open blockers and games, the stage ladder, and the top of the Fix next ranking with its side panel](docs/screenshot.png)
+![The blocker map in dark mode: four headline numbers, the games by stage, and the board of blockers in review, next up and recently fixed](docs/screenshot.png)
 
 ## How it works
 
@@ -28,7 +28,7 @@ data and links its source.
   progress.json, COMPATIBILITY.md, PM4 sources --> coverage.py, assemble.py
                                                     |
                                                     v
-                                  site/roadmap.json --> index.html, ROADMAP.md, llms.txt
+            site/roadmap.json, feed.json --> the web app (web/), classic.html, ROADMAP.md, llms.txt
                                           |
                                           v
   the live roadmap.json, feed.json --> feed.py --> site/feed.json (last 50 items)
@@ -57,7 +57,8 @@ git clone https://github.com/AlxcBTW/anyps5-roadmap && cd anyps5-roadmap
 python3 -m unittest discover -s tests                     # fixture tests, no network
 python3 roadmap.py --offline --no-network --cache tests/fixtures/raw.json --curated tests/fixtures/curated.json --out build/site
 gh auth login                                             # only for live data
-python3 roadmap.py --out build/site                       # live build; open build/site/index.html
+python3 roadmap.py --out build/site                       # live build; open build/site/classic.html
+cd web && npm ci && npm run dev                           # the app (Node 24) at http://localhost:5173
 ```
 
 The live build needs the [GitHub CLI](https://cli.github.com/) and saves what it fetched in
@@ -90,7 +91,7 @@ Every field is described in [AGENTS.md](AGENTS.md) and in the published
 
 ## Correct an entry
 
-- **On the page:** each game row and each blocker has a "Report a correction" link. It opens an issue
+- **On the page:** each game and each blocker opens a panel with a "Report a correction" link. It opens an issue
   form with the title ID, the stage on the page and its source already filled in.
 - **As a pull request:** edit `data/blockers.json`. [CONTRIBUTING.md](CONTRIBUTING.md) walks through a
   first data fix in five minutes. CI shows what the change does to the ranking and the stages, and the
@@ -106,7 +107,7 @@ Bugs in AnyPS5 itself belong in [AnyPS5's issues](https://github.com/boykopovar/
 - Reports that only exist on Discord are invisible until someone copies them to GitHub.
 - Titles without a PPSA ID (some homebrew) appear only when curated.
 
-The full list, as of the last build, is under "Known gaps in the data" on the page and in
+The full list, as of the last build, is under "Known gaps in the data" in the page's Data view and in
 `roadmap.json` → `gaps`.
 
 ## License

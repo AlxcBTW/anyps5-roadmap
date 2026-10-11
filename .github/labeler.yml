@@ -18,3 +18,4 @@ rendering:
           - 'anyps5_roadmap/render_md.py'
           - 'tests/test_render.py'
           - 'site/fonts/**'
+          - 'web/**'

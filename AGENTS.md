@@ -11,6 +11,7 @@ python3 roadmap.py --upstream-checkout /path/to/AnyPS5            # live: gh api
 python3 roadmap.py --offline --upstream-checkout /path/to/AnyPS5  # rebuild from data/cache/
 python3 roadmap.py --validate                                     # check data/blockers.json only
 python3 -m unittest discover -s tests                             # fixture tests, no network
+cd web && npm ci && npm run dev                                   # the page, over site/roadmap.json
 ```
 
 `gh` must be logged in (or `GH_TOKEN` set). A run lists every issue and PR in the window
@@ -115,3 +116,5 @@ Titles whose best stage is Playable only count toward `total`.
 - Keep `why` and `note` short and factual. No adjectives, no guesses about causes.
 - Do not copy console dumps, keys or personal data into this repo.
 - After editing, run the tests and an offline build, then read the diff of `site/ROADMAP.md`.
+- The page (`web/`) reads `roadmap.json` in the browser. A data fix needs no change there, and nothing
+  built (`site/index.html`, `site/assets/`, `web/dist/`) is edited by hand.

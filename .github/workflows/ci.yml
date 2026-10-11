@@ -2,7 +2,8 @@ name: CI
 
 # Runs on every PR (forks included) and on every push to main. Needs no secrets and
 # no write access: lint, tests, curated-data validation, an offline build from the
-# fixtures and, on PRs, a preview of what the change does to the blocker map.
+# fixtures, the web app's typecheck, tests and build and, on PRs, a preview of what the
+# change does to the blocker map, with the built site to download.
 
 on:
   push:
@@ -50,12 +51,41 @@ jobs:
         run: |
           python roadmap.py --offline --no-network --cache tests/fixtures/raw.json \
             --curated tests/fixtures/curated.json --out build/fixture-site
-          test -s build/fixture-site/index.html && test -s build/fixture-site/roadmap.json
+          test -s build/fixture-site/index.html && test -s build/fixture-site/classic.html
+          test -s build/fixture-site/roadmap.json
+
+  web:
+    name: web
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    defaults:
+      run:
+        working-directory: web
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: "24"
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+
+      - name: Install the exact versions in package-lock.json
+        run: npm ci --no-audit --no-fund
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Tests
+        run: npm test
+
+      - name: Build
+        run: npx vite build
 
   preview:
     name: preview
     if: github.event_name == 'pull_request'
-    needs: check
+    needs: [check, web]
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
@@ -97,6 +127,20 @@ jobs:
             || python build/base-src/roadmap.py --offline --cache "$PWD/$snap" "${base_curated[@]}" --out build/base \
             || echo "::warning::The base branch did not build; the summary shows this PR only."
           python -m anyps5_roadmap.preview build/base build/head --snapshot "$label" | tee -a "$GITHUB_STEP_SUMMARY"
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: "24"
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+
+      # the same front page as the live site: the web app over this PR's roadmap.json
+      - name: Add the web app to the preview
+        working-directory: web
+        run: |
+          npm ci --no-audit --no-fund
+          npx vite build
+          cp -R dist/. ../build/head/
 
       - name: Upload the built site
         uses: actions/upload-artifact@v7
