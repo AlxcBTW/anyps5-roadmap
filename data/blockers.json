@@ -267,7 +267,19 @@
     {"title": "PPSA26344", "claim": "Ingame", "claim_url": "https://github.com/boykopovar/AnyPS5/pull/757#issuecomment-6080729041",
      "verdict": "suppressed",
      "quote": "sharpemu/sharpemu#926 (\"Ghost of Yōtei: rendering up to the gamma screen and difficulty menu\") boots PPSA26344 to gameplay, and its first shader item describes the mechanism this PR implements:",
-     "reason": "Gameplay was reached in another emulator (sharpemu); the same comment says AnyPS5 main stops at GetImageResource dword 0."}
+     "reason": "Gameplay was reached in another emulator (sharpemu); the same comment says AnyPS5 main stops at GetImageResource dword 0."},
+    {"title": "PPSA05684", "claim": "Menus", "claim_url": "https://github.com/boykopovar/AnyPS5/pull/2916",
+     "verdict": "suppressed",
+     "quote": "Title: Uncharted: Legacy of Thieves Collection (PPSA05684), on its own bring-up branch.",
+     "reason": "The run was on the title's own bring-up branch, not on main."},
+    {"title": "PPSA16064", "claim": "Menus", "claim_url": "https://github.com/boykopovar/AnyPS5/pull/2233",
+     "verdict": "suppressed",
+     "quote": "Minecraft Dungeons II (PPSA16064, UE5) title screen, with the other changes that title needs.",
+     "reason": "The title screen needed other changes beyond this PR."},
+    {"title": "PPSA36082", "claim": "Ingame", "claim_url": "https://github.com/boykopovar/AnyPS5/pull/1202#issuecomment-6081737193",
+     "verdict": "suppressed",
+     "quote": "in Hades II (PPSA36082) gameplay on Linux / RTX 4090, ShaderMemory::Regions + TakeRecentRegions were about 18% of the draw thread (bit-by-bit run scan, every stage of every draw).",
+     "reason": "Gameplay tied to an unmerged DRAFT perf change; no main-only run shown."}
   ],
   "titles": [
     {
