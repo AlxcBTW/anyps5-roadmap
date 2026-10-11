@@ -22,6 +22,7 @@ from .assemble import assemble
 from .collect import collect
 from .config import CACHE, CURATED, PROGRESS_URL, ROOT, STAGES, UPSTREAM, WINDOW_DAYS
 from .coverage import build_coverage
+from .feed import publish as publish_feed
 from .model import Model
 from .render_md import render_llms, render_markdown
 from .upstream import Upstream, http_get
@@ -220,6 +221,7 @@ def main(argv=None) -> int:
     fonts = ROOT / "site" / "fonts"
     if fonts.is_dir() and (out / "fonts").resolve() != fonts.resolve():
         shutil.copytree(fonts, out / "fonts", dirs_exist_ok=True)  # a build outside site/ still renders in Geist
+    publish_feed(doc, out, cache.parent, network, log)  # against the live site, before the deploy replaces it
     (out / "index.html").write_text(
         render_html.Page(doc, out).render(), **lf
     )  # last: it lists the sizes of the other files

@@ -201,6 +201,12 @@ def render_llms(doc: dict) -> str:
         "",
         f"- [roadmap.json](roadmap.json): full data, `schema_version` {doc['schema_version']}. Keys: stages, scoring, stats, ranking "
         "(blocker ids, best first), blockers, titles, coverage (isa, hle, pm4, registers), focus (areas, help_wanted), gaps, sources.",
+        "- [feed.json](feed.json): what each snapshot changed, as a JSON Feed 1.1, newest first; the last 50 snapshots "
+        "that changed something. An item lists blockers resolved, blockers entering, leaving or moving in the ranking "
+        "(moves only when the blocker's own score changed and one of its places is in the top 15), and titles whose "
+        "`best_stage` or first open blocker changed, in plain sentences with links to the page. Its `id` and "
+        "`date_published` are the snapshot's `generated_at`; `_anyps5.changes` holds the same as records "
+        "(`type`: resolved, entered, left, moved, stage or stop) and `_anyps5.since` the snapshot it compares with.",
         "- [ROADMAP.md](ROADMAP.md): ranking, titles, coverage and help wanted as Markdown tables.",
         "- [index.html](index.html): the same for people.",
         "",

@@ -125,7 +125,8 @@ without secrets. A labeler adds `data-correction`, `mining` or `rendering` from 
 | `anyps5_roadmap/coverage.py` | HLE and ISA coverage from progress.json; PM4 packets from the driver sources |
 | `anyps5_roadmap/assemble.py` | `roadmap.json`: stats, focus areas, help wanted, `KNOWN_GAPS` |
 | `anyps5_roadmap/render_md.py` | `ROADMAP.md` and `llms.txt` |
-| `anyps5_roadmap/preview.py` | The PR preview summary |
+| `anyps5_roadmap/preview.py` | The PR preview summary; `rank_moves` compares two rankings |
+| `anyps5_roadmap/feed.py` | `feed.json`: what changed since the live `roadmap.json`, as a JSON Feed |
 | `render_html.py` | `index.html` |
 | `tests/` | Fixture tests; `tests/fixtures/raw.json` is a tiny upstream, `curated.json` a tiny curated file |
 

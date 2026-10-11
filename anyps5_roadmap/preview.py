@@ -82,24 +82,56 @@ def stats_table(base: dict, head: dict) -> list[str]:
     return rows
 
 
-def ranking_changes(base: dict, head: dict) -> list[str]:
+def rank_moves(base: dict, head: dict) -> list[dict]:
+    """Every blocker ranked in either build, with its place and score in both (None where it is not ranked).
+
+    The head's ranking comes first, in order, then the blockers only the base ranks, in the base's order.
+    `blocker` is the head's entry when there is one, `old` the base's. The PR preview and the change feed
+    (feed.py) both read the ranking through this."""
     old = {b["id"]: (n, b) for n, b in enumerate(ranked(base), 1)}
-    new = ranked(head)
+    moves = []
+    for n, b in enumerate(ranked(head), 1):
+        was, ob = old.pop(b["id"], (None, None))
+        moves.append(
+            {
+                "blocker": b,
+                "old": ob,
+                "rank": n,
+                "was": was,
+                "score": b.get("score"),
+                "was_score": (ob or {}).get("score"),
+            }
+        )
+    for was, ob in old.values():
+        moves.append({"blocker": ob, "old": ob, "rank": None, "was": was, "score": None, "was_score": ob.get("score")})
+    return moves
+
+
+def ranking_changes(base: dict, head: dict) -> list[str]:
+    moves = rank_moves(base, head)
     rows = []
-    for n, b in enumerate(new[:TOP], 1):
-        if b["id"] not in old:
+    for m in moves:
+        n, was, b = m["rank"], m["was"], m["blocker"]
+        if n is None or n > TOP:
+            continue
+        if was is None:
             change = "new"
         else:
-            was, ob = old[b["id"]]
             parts = []
             if was != n:
                 parts.append(f"{'▲' if was > n else '▼'}{abs(was - n)} (was {was})")
-            if ob.get("score") != b.get("score"):
-                parts.append(f"score {ob.get('score')} → {b.get('score')}")
+            if m["was_score"] != m["score"]:
+                parts.append(f"score {m['was_score']} → {m['score']}")
             change = ", ".join(parts)
         rows.append((n, b, change))
-    top_new = {b["id"] for b in new[:TOP]}
-    dropped = [(n, b) for n, b in old.values() if n <= TOP and b["id"] not in top_new]
+    dropped = sorted(
+        (
+            (m["was"], m["old"])
+            for m in moves
+            if m["was"] is not None and m["was"] <= TOP and (m["rank"] or TOP + 1) > TOP
+        ),
+        key=lambda wb: wb[0],
+    )
     if not any(change for _, _, change in rows) and not dropped:
         return []
     out = [f"### Ranking, top {TOP}", "", "| # | Blocker | Score | Change |", "|--:|---|--:|---|"]

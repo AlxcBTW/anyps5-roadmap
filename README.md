@@ -29,6 +29,9 @@ data and links its source.
                                                     |
                                                     v
                                   site/roadmap.json --> index.html, ROADMAP.md, llms.txt
+                                          |
+                                          v
+  the live roadmap.json, feed.json --> feed.py --> site/feed.json (last 50 items)
 ```
 
 1. **Mine.** `collect.py` reads the upstream issues and PRs of the last 60 days (all open ones) with
@@ -39,7 +42,8 @@ data and links its source.
 2. **Curate.** `data/blockers.json` holds what mining gets wrong or cannot see: blockers, the order in
    which they stop each game, and hand reviews of mined stages. A curated fact always wins.
 3. **Render.** `assemble.py` writes `site/roadmap.json`. The page, `ROADMAP.md` and `llms.txt` are
-   rendered from that file alone, so people and tools see the same data.
+   rendered from that file alone, so people and tools see the same data. `feed.py` compares it with
+   the `roadmap.json` that is live before the deploy and adds what changed to `feed.json`.
 
 The code is in [`anyps5_roadmap/`](anyps5_roadmap/); [CONTRIBUTING.md](CONTRIBUTING.md#module-map)
 has a module map.
@@ -75,6 +79,11 @@ seconds, which is the quick way to try a change to `data/blockers.json`. Add
   the only open stop, the first open stop, or any stop).
 - **`origin`** says where a fact comes from: `curated` (data/blockers.json), `upstream`
   (COMPATIBILITY.md), `github` (native "blocked by" links) or `mined` (text rules).
+- **Changes** are in [feed.json](https://alxcbtw.github.io/anyps5-roadmap/feed.json), a
+  [JSON Feed 1.1](https://www.jsonfeed.org/version/1.1/) that feed readers can follow. Each snapshot
+  that changed something adds one item: blockers resolved, blockers that enter, leave or move in the
+  ranking, and titles whose stage or first open blocker changed, each linked on the page. The feed keeps
+  the last 50 items, so a reader that checks every few hours misses nothing.
 
 Every field is described in [AGENTS.md](AGENTS.md) and in the published
 [llms.txt](https://alxcbtw.github.io/anyps5-roadmap/llms.txt).

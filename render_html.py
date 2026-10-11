@@ -35,6 +35,7 @@ AREAS = {
 }
 FILES = [
     ("roadmap.json", "Everything on this page, for tools and scripts"),
+    ("feed.json", "What changed in each snapshot, for feed readers"),
     ("llms.txt", "Entry point for language models"),
     ("ROADMAP.md", "Ranking, games and coverage as Markdown tables"),
     ("AGENTS.md", "How to add or correct an entry"),
@@ -802,6 +803,7 @@ class Page:
 <link rel="preload" href="fonts/Geist-Variable.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="fonts/GeistPixel-Square.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="alternate" type="application/json" href="roadmap.json">
+<link rel="alternate" type="application/feed+json" href="feed.json" title="AnyPS5 blocker map: changes">
 <link rel="alternate" type="text/plain" href="llms.txt" title="llms.txt">
 <script>try{{var t=localStorage.getItem("theme");if(t==="light"||t==="dark")document.documentElement.dataset.theme=t}}catch(e){{}}document.documentElement.classList.add("js")</script>
 <style>{CSS}</style>
