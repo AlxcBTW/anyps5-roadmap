@@ -1,0 +1,572 @@
+{
+ "version": "https://jsonfeed.org/version/1.1",
+ "title": "AnyPS5 blocker map: changes",
+ "home_page_url": "https://alxcbtw.github.io/anyps5-roadmap/",
+ "feed_url": "https://alxcbtw.github.io/anyps5-roadmap/feed.json",
+ "description": "What each snapshot of the AnyPS5 blocker map changed: blockers resolved, blockers entering, leaving or moving in the ranking, and titles whose stage or first open blocker changed. Generated data, community prototype, not official.",
+ "language": "en",
+ "items": [
+  {
+   "id": "2026-10-10T21:43:48Z",
+   "url": "https://alxcbtw.github.io/anyps5-roadmap/",
+   "title": "4 blockers resolved, 13 ranking changes, 43 titles changed",
+   "content_text": "#2871 “Astro Bot (PPSA21564) on Linux/NVIDIA: NGG passthrough vertex program with s_barrier fails SPIR-V validation at its first draw on main de5e541d” is resolved.\n#2712 “Astro Bot: a 2D-array comparison sample with emulated compare has no prepared mode for a plain 2D T# (image descriptor is incompatible with the static runtime image interface)” is resolved.\n#2689 “libkernel: export pthread_mutexattr_setprioceiling / getprioceiling (ZLvf6lVAc4M)” is resolved.\n#2687 “libkernel: non-fixed map hints inside a sceKernelReserveVirtualRange range are placed elsewhere” is resolved.\n#2591 “Road of Death (PPSA07286) fails on startup: missing libSceXml.prx” moved up from No. 20 to No. 3 (score 6 → 18).\nPR #1482 “_umtx_op wait and wake are not implemented” moved down from No. 3 to No. 5 (score 16 → 13).\n1578~atoll “atoll (fLcU5G6Qrjs) is not exported by libSceLibcInternal” moved up from No. 30 to No. 7 (score 6 → 12).\n#3043 “PRAGMATA (PPSA02530 v01.200.000) on Windows: the title's libc rejects its allocator's mspace buffer in the ASLR-relocated image above 1 TiB, so the first malloc returns NULL and start-up faults” entered the ranking at No. 11 (score 7).\n#3055 “AGC: GTA V libSceJobManager compute kernel reads its V#s from a block that is still all 0xFF at capture” entered the ranking at No. 14 (score 6).\n#3032 “libc: implement vsnprintf_s and vsscanf_s (PPSA04029); fix branch ready” entered the ranking at No. 15 (score 6).\n#2942 “Launching Silksong Failed” entered the ranking at No. 16 (score 6).\n#2886 “libkernel: Windows lstat misreports symbolic links instead of throwing” moved down from No. 13 to No. 35 (score 6 → 3).\n#2811 “libSceNet Sockets implementation issue” moved down from No. 14 to No. 36 (score 6 → 3).\n#3037 “AGC: BDA written-page tracking overflows at capacity or after eight colliding pages” entered the ranking at No. 46 (score 1).\n#3036 “AGC: sampled 2D MSAA image has no descriptor shape (PPSA99902 conditional startup)” entered the ranking at No. 47 (score 1).\n#2970 “AGC: SW_64KB_D_X color target refused during PPSA99902 conditional startup” entered the ranking at No. 48 (score 1).\n#2944 “AMD RX 6700 XT: 9 agc_driver execution tests segfault in amdvlk64, sdwa_float_selectors and sdwa_ldexp_f16 give wrong results” entered the ranking at No. 49 (score 1).\n3D MiniGolf (PPSA03647) is at Converts now (no stage before).\nAd Infinitum (PPSA10600) now stops at #3043 “PRAGMATA (PPSA02530 v01.200.000) on Windows: the title's libc rejects its allocator's mspace buffer in the ASLR-relocated image above 1 TiB, so the first malloc returns NULL and start-up faults”.\nApe Escape (PPSA06320) is at Starts now (no stage before).\nAstro Bot (PPSA21564) has no known stop left (was #2871).\nAstro Bot (PPSA21567) now stops at #665 “AGC sampler: border colour table (BORDER_COLOR_TYPE 3) not implemented” (was #479).\nCapy Mobile (PPSA92280) is at Converts now (no stage before).\nControl Resonant (PPSA34547) has no known stop left (was #2689).\nCult of the Lamb (PPSA06465) is at Converts now (no stage before).\nCyberpunk 2077 (PPSA04029) now stops at #3032 “libc: implement vsnprintf_s and vsscanf_s (PPSA04029); fix branch ready”.\nCyberpunk's (PPSA03974) is at Starts now (no stage before).\nDreaming Sarah (PPSA02929) now stops at #2944 “AMD RX 6700 XT: 9 agc_driver execution tests segfault in amdvlk64, sdwa_float_selectors and sdwa_ldexp_f16 give wrong results”.\nEVO Player (PPSA99039) went from Converts to Starts.\nEVO Player (PPSA99039) now stops at 1578~atoll “atoll (fLcU5G6Qrjs) is not exported by libSceLibcInternal”.\nFPV Simulator (PPSA10698) is at Presents now (no stage before).\nGhost of Yōtei (PPSA26344) now stops at #2715 “Ghost of Yōtei: compute shader 0x80003aa700 loads its T# from a buffer at an index read from another buffer in a loop (GetImageResource dword 0 is not a valid runtime value)” (was #1920).\nGTA V (PPSA04264) now stops at #3055 “AGC: GTA V libSceJobManager compute kernel reads its V#s from a block that is still all 0xFF at capture”.\nHades (PPSA03355) is at Converts now (no stage before).\nHollow Knight: Silksong (PPSA12544) now stops at #865 “agc-driver: storage image write-back drops GPU results for CPU-stamped 64 KiB edge blocks (boxes in Silksong's menu text)” (was PR #1482).\nMiddle Ages Ping Pong (PPSA28319) is at Converts now (no stage before).\nMiddle Ages Ping Pong (PPSA28319) now stops at #2942 “Launching Silksong Failed”.\nMinecraft (PPSA17221) is at Starts now (no stage before).\nNuvio PS5 (PPSA99997) is at Converts now (no stage before).\nPalworld (PPSA23126) is at Converts now (no stage before).\nPICO-8 for PS5 (PPSA99808) is at Converts now (no stage before).\nPPSA03747 is at Starts now (no stage before).\nPPSA15186 is at Starts now (no stage before).\nPPSA99010 is at Converts now (no stage before).\nPRAGMATA (PPSA02530) now stops at #2591 “Road of Death (PPSA07286) fails on startup: missing libSceXml.prx”.\nProspero Multi Tools (PPSA99110) is at Converts now (no stage before).\nProspero Win (PPSA99995) is at Converts now (no stage before).\nPS5VR (PPSA99177) is at Converts now (no stage before).\nPSBox Cloud Gaming (PPSA99810) is at Converts now (no stage before).\nRatchet & Clank: Rift Apart (PPSA01474) is at Starts now (no stage before).\nAnd 14 more changes, not listed here.",
+   "content_html": "<ul><li><a href=\"https://github.com/boykopovar/AnyPS5/issues/2871\">#2871</a> “Astro Bot (PPSA21564) on Linux/NVIDIA: NGG passthrough vertex program with s_barrier fails SPIR-V validation at its first draw on main de5e541d” is resolved.</li><li><a href=\"https://github.com/boykopovar/AnyPS5/issues/2712\">#2712</a> “Astro Bot: a 2D-array comparison sample with emulated compare has no prepared mode for a plain 2D T# (image descriptor is incompatible with the static runtime image interface)” is resolved.</li><li><a href=\"https://github.com/boykopovar/AnyPS5/issues/2689\">#2689</a> “libkernel: export pthread_mutexattr_setprioceiling / getprioceiling (ZLvf6lVAc4M)” is resolved.</li><li><a href=\"https://github.com/boykopovar/AnyPS5/issues/2687\">#2687</a> “libkernel: non-fixed map hints inside a sceKernelReserveVirtualRange range are placed elsewhere” is resolved.</li><li><a href=\"https://alxcbtw.github.io/anyps5-roadmap/#b-2591\">#2591</a> “Road of Death (PPSA07286) fails on startup: missing libSceXml.prx” moved up from No. 20 to No. 3 (score 6 → 18).</li><li><a href=\"https://alxcbtw.github.io/anyps5-roadmap/#b-pr-1482\">PR #1482</a> “_umtx_op wait and wake are not implemented” moved down from No. 3 to No. 5 (score 16 → 13).</li><li><a href=\"https://alxcbtw.github.io/anyps5-roadmap/#b-1578~atoll\">1578~atoll</a> “atoll (fLcU5G6Qrjs) is not exported by libSceLibcInternal” moved up from No. 30 to No. 7 (score 6 → 12).</li><li><a href=\"https://alxcbtw.github.io/anyps5-roadmap/#b-3043\">#3043</a> “PRAGMATA (PPSA02530 v01.200.000) on Windows: the title&#x27;s libc rejects its allocator&#x27;s mspace buffer in the ASLR-relocated image above 1 TiB, so the first malloc returns NULL and start-up faults” entered the ranking at No. 11 (score 7).</li><li><a href=\"https://alxcbtw.github.io/anyps5-roadmap/#b-3055\">#3055</a> “AGC: GTA V libSceJobManager compute kernel reads its V#s from a block that is still all 0xFF at capture” entered the ranking at No. 14 (score 6).</li><li><a href=\"https://alxcbtw.github.io/anyps5-roadmap/#b-3032\">#3032</a> “libc: implement vsnprintf_s and vsscanf_s (PPSA04029); fix branch ready” entered the ranking at No. 15 (score 6).</li><li><a href=\"https://alxcbtw.github.io/anyps5-roadmap/#b-2942\">#2942</a> “Launching Silksong Failed” entered the ranking at No. 16 (score 6).</li><li><a href=\"https://alxcbtw.github.io/anyps5-roadmap/#b-2886\">#2886</a> “libkernel: Windows lstat misreports symbolic links instead of throwing” moved down from No. 13 to No. 35 (score 6 → 3).</li><li><a href=\"https://alxcbtw.github.io/anyps5-roadmap/#b-2811\">#2811</a> “libSceNet Sockets implementation issue” moved down from No. 14 to No. 36 (score 6 → 3).</li><li><a href=\"https://alxcbtw.github.io/anyps5-roadmap/#b-3037\">#3037</a> “AGC: BDA written-page tracking overflows at capacity or after eight colliding pages” entered the ranking at No. 46 (score 1).</li><li><a href=\"https://alxcbtw.github.io/anyps5-roadmap/#b-3036\">#3036</a> “AGC: sampled 2D MSAA image has no descriptor shape (PPSA99902 conditional startup)” entered the ranking at No. 47 (score 1).</li><li><a href=\"https://alxcbtw.github.io/anyps5-roadmap/#b-2970\">#2970</a> “AGC: SW_64KB_D_X color target refused during PPSA99902 conditional startup” entered the ranking at No. 48 (score 1).</li><li><a href=\"https://alxcbtw.github.io/anyps5-roadmap/#b-2944\">#2944</a> “AMD RX 6700 XT: 9 agc_driver execution tests segfault in amdvlk64, sdwa_float_selectors and sdwa_ldexp_f16 give wrong results” entered the ranking at No. 49 (score 1).</li><li><a href=\"https://alxcbtw.github.io/anyps5-roadmap/#g-PPSA03647\">3D MiniGolf (PPSA03647)</a> is at Converts now (no stage before).</li><li><a href=\"https://alxcbtw.github.io/anyps5-roadmap/#g-PPSA10600\">Ad Infinitum (PPSA10600)</a> now stops at #3043 “PRAGMATA (PPSA02530 v01.200.000) on Windows: the title&#x27;s libc rejects its allocator&#x27;s mspace buffer in the ASLR-relocated image above 1 TiB, so the first malloc returns NULL and start-up faults”.</li><li><a href=\"https://alxcbtw.github.io/anyps5-roadmap/#g-PPSA06320\">Ape Escape (PPSA06320)</a> is at Starts now (no stage before).</li><li><a href=\"https://alxcbtw.github.io/anyps5-roadmap/#g-PPSA21564\">Astro Bot (PPSA21564)</a> has no known stop left (was #2871).</li><li><a href=\"https://alxcbtw.github.io/anyps5-roadmap/#g-PPSA21567\">Astro Bot (PPSA21567)</a> now stops at #665 “AGC sampler: border colour table (BORDER_COLOR_TYPE 3) not implemented” (was #479).</li><li><a href=\"https://alxcbtw.github.io/anyps5-roadmap/#g-PPSA92280\">Capy Mobile (PPSA92280)</a> is at Converts now (no stage before).</li><li><a href=\"https://alxcbtw.github.io/anyps5-roadmap/\">Control Resonant (PPSA34547)</a> has no known stop left (was #2689).</li><li><a href=\"https://alxcbtw.github.io/anyps5-roadmap/#g-PPSA06465\">Cult of the Lamb (PPSA06465)</a> is at Converts now (no stage before).</li><li><a href=\"https://alxcbtw.github.io/anyps5-roadmap/#g-PPSA04029\">Cyberpunk 2077 (PPSA04029)</a> now stops at #3032 “libc: implement vsnprintf_s and vsscanf_s (PPSA04029); fix branch ready”.</li><li><a href=\"https://alxcbtw.github.io/anyps5-roadmap/#g-PPSA03974\">Cyberpunk&#x27;s (PPSA03974)</a> is at Starts now (no stage before).</li><li><a href=\"https://alxcbtw.github.io/anyps5-roadmap/#g-PPSA02929\">Dreaming Sarah (PPSA02929)</a> now stops at #2944 “AMD RX 6700 XT: 9 agc_driver execution tests segfault in amdvlk64, sdwa_float_selectors and sdwa_ldexp_f16 give wrong results”.</li><li><a href=\"https://alxcbtw.github.io/anyps5-roadmap/#g-PPSA99039\">EVO Player (PPSA99039)</a> went from Converts to Starts.</li><li><a href=\"https://alxcbtw.github.io/anyps5-roadmap/#g-PPSA99039\">EVO Player (PPSA99039)</a> now stops at 1578~atoll “atoll (fLcU5G6Qrjs) is not exported by libSceLibcInternal”.</li><li><a href=\"https://alxcbtw.github.io/anyps5-roadmap/#g-PPSA10698\">FPV Simulator (PPSA10698)</a> is at Presents now (no stage before).</li><li><a href=\"https://alxcbtw.github.io/anyps5-roadmap/#g-PPSA26344\">Ghost of Yōtei (PPSA26344)</a> now stops at #2715 “Ghost of Yōtei: compute shader 0x80003aa700 loads its T# from a buffer at an index read from another buffer in a loop (GetImageResource dword 0 is not a valid runtime value)” (was #1920).</li><li><a href=\"https://alxcbtw.github.io/anyps5-roadmap/#g-PPSA04264\">GTA V (PPSA04264)</a> now stops at #3055 “AGC: GTA V libSceJobManager compute kernel reads its V#s from a block that is still all 0xFF at capture”.</li><li><a href=\"https://alxcbtw.github.io/anyps5-roadmap/#g-PPSA03355\">Hades (PPSA03355)</a> is at Converts now (no stage before).</li><li><a href=\"https://alxcbtw.github.io/anyps5-roadmap/#g-PPSA12544\">Hollow Knight: Silksong (PPSA12544)</a> now stops at #865 “agc-driver: storage image write-back drops GPU results for CPU-stamped 64 KiB edge blocks (boxes in Silksong&#x27;s menu text)” (was PR #1482).</li><li><a href=\"https://alxcbtw.github.io/anyps5-roadmap/#g-PPSA28319\">Middle Ages Ping Pong (PPSA28319)</a> is at Converts now (no stage before).</li><li><a href=\"https://alxcbtw.github.io/anyps5-roadmap/#g-PPSA28319\">Middle Ages Ping Pong (PPSA28319)</a> now stops at #2942 “Launching Silksong Failed”.</li><li><a href=\"https://alxcbtw.github.io/anyps5-roadmap/#g-PPSA17221\">Minecraft (PPSA17221)</a> is at Starts now (no stage before).</li><li><a href=\"https://alxcbtw.github.io/anyps5-roadmap/#g-PPSA99997\">Nuvio PS5 (PPSA99997)</a> is at Converts now (no stage before).</li><li><a href=\"https://alxcbtw.github.io/anyps5-roadmap/#g-PPSA23126\">Palworld (PPSA23126)</a> is at Converts now (no stage before).</li><li><a href=\"https://alxcbtw.github.io/anyps5-roadmap/#g-PPSA99808\">PICO-8 for PS5 (PPSA99808)</a> is at Converts now (no stage before).</li><li><a href=\"https://alxcbtw.github.io/anyps5-roadmap/#g-PPSA03747\">PPSA03747</a> is at Starts now (no stage before).</li><li><a href=\"https://alxcbtw.github.io/anyps5-roadmap/#g-PPSA15186\">PPSA15186</a> is at Starts now (no stage before).</li><li><a href=\"https://alxcbtw.github.io/anyps5-roadmap/#g-PPSA99010\">PPSA99010</a> is at Converts now (no stage before).</li><li><a href=\"https://alxcbtw.github.io/anyps5-roadmap/#g-PPSA02530\">PRAGMATA (PPSA02530)</a> now stops at #2591 “Road of Death (PPSA07286) fails on startup: missing libSceXml.prx”.</li><li><a href=\"https://alxcbtw.github.io/anyps5-roadmap/#g-PPSA99110\">Prospero Multi Tools (PPSA99110)</a> is at Converts now (no stage before).</li><li><a href=\"https://alxcbtw.github.io/anyps5-roadmap/#g-PPSA99995\">Prospero Win (PPSA99995)</a> is at Converts now (no stage before).</li><li><a href=\"https://alxcbtw.github.io/anyps5-roadmap/#g-PPSA99177\">PS5VR (PPSA99177)</a> is at Converts now (no stage before).</li><li><a href=\"https://alxcbtw.github.io/anyps5-roadmap/#g-PPSA99810\">PSBox Cloud Gaming (PPSA99810)</a> is at Converts now (no stage before).</li><li><a href=\"https://alxcbtw.github.io/anyps5-roadmap/#g-PPSA01474\">Ratchet &amp; Clank: Rift Apart (PPSA01474)</a> is at Starts now (no stage before).</li></ul><p>And 14 more changes, not listed here.</p>",
+   "date_published": "2026-10-10T21:43:48Z",
+   "_anyps5": {
+    "about": "https://alxcbtw.github.io/anyps5-roadmap/llms.txt",
+    "since": "2026-10-10T19:04:58Z",
+    "changes": [
+     {
+      "type": "resolved",
+      "blocker": "2871",
+      "url": "https://github.com/boykopovar/AnyPS5/issues/2871"
+     },
+     {
+      "type": "resolved",
+      "blocker": "2712",
+      "url": "https://github.com/boykopovar/AnyPS5/issues/2712"
+     },
+     {
+      "type": "resolved",
+      "blocker": "2689",
+      "url": "https://github.com/boykopovar/AnyPS5/issues/2689"
+     },
+     {
+      "type": "resolved",
+      "blocker": "2687",
+      "url": "https://github.com/boykopovar/AnyPS5/issues/2687"
+     },
+     {
+      "type": "moved",
+      "blocker": "2591",
+      "rank": 3,
+      "was": 20,
+      "score": 18,
+      "was_score": 6,
+      "url": "https://alxcbtw.github.io/anyps5-roadmap/#b-2591"
+     },
+     {
+      "type": "moved",
+      "blocker": "pr-1482",
+      "rank": 5,
+      "was": 3,
+      "score": 13,
+      "was_score": 16,
+      "url": "https://alxcbtw.github.io/anyps5-roadmap/#b-pr-1482"
+     },
+     {
+      "type": "moved",
+      "blocker": "1578~atoll",
+      "rank": 7,
+      "was": 30,
+      "score": 12,
+      "was_score": 6,
+      "url": "https://alxcbtw.github.io/anyps5-roadmap/#b-1578~atoll"
+     },
+     {
+      "type": "entered",
+      "blocker": "3043",
+      "rank": 11,
+      "score": 7,
+      "url": "https://alxcbtw.github.io/anyps5-roadmap/#b-3043"
+     },
+     {
+      "type": "entered",
+      "blocker": "3055",
+      "rank": 14,
+      "score": 6,
+      "url": "https://alxcbtw.github.io/anyps5-roadmap/#b-3055"
+     },
+     {
+      "type": "entered",
+      "blocker": "3032",
+      "rank": 15,
+      "score": 6,
+      "url": "https://alxcbtw.github.io/anyps5-roadmap/#b-3032"
+     },
+     {
+      "type": "entered",
+      "blocker": "2942",
+      "rank": 16,
+      "score": 6,
+      "url": "https://alxcbtw.github.io/anyps5-roadmap/#b-2942"
+     },
+     {
+      "type": "moved",
+      "blocker": "2886",
+      "rank": 35,
+      "was": 13,
+      "score": 3,
+      "was_score": 6,
+      "url": "https://alxcbtw.github.io/anyps5-roadmap/#b-2886"
+     },
+     {
+      "type": "moved",
+      "blocker": "2811",
+      "rank": 36,
+      "was": 14,
+      "score": 3,
+      "was_score": 6,
+      "url": "https://alxcbtw.github.io/anyps5-roadmap/#b-2811"
+     },
+     {
+      "type": "entered",
+      "blocker": "3037",
+      "rank": 46,
+      "score": 1,
+      "url": "https://alxcbtw.github.io/anyps5-roadmap/#b-3037"
+     },
+     {
+      "type": "entered",
+      "blocker": "3036",
+      "rank": 47,
+      "score": 1,
+      "url": "https://alxcbtw.github.io/anyps5-roadmap/#b-3036"
+     },
+     {
+      "type": "entered",
+      "blocker": "2970",
+      "rank": 48,
+      "score": 1,
+      "url": "https://alxcbtw.github.io/anyps5-roadmap/#b-2970"
+     },
+     {
+      "type": "entered",
+      "blocker": "2944",
+      "rank": 49,
+      "score": 1,
+      "url": "https://alxcbtw.github.io/anyps5-roadmap/#b-2944"
+     },
+     {
+      "type": "stage",
+      "title": "PPSA03647",
+      "stage": "Converts",
+      "was": null,
+      "url": "https://alxcbtw.github.io/anyps5-roadmap/#g-PPSA03647"
+     },
+     {
+      "type": "stop",
+      "title": "PPSA10600",
+      "blocker": "3043",
+      "was": null,
+      "url": "https://alxcbtw.github.io/anyps5-roadmap/#g-PPSA10600"
+     },
+     {
+      "type": "stage",
+      "title": "PPSA06320",
+      "stage": "Starts",
+      "was": null,
+      "url": "https://alxcbtw.github.io/anyps5-roadmap/#g-PPSA06320"
+     },
+     {
+      "type": "stop",
+      "title": "PPSA21564",
+      "blocker": null,
+      "was": "2871",
+      "url": "https://alxcbtw.github.io/anyps5-roadmap/#g-PPSA21564"
+     },
+     {
+      "type": "stop",
+      "title": "PPSA21567",
+      "blocker": "665",
+      "was": "479",
+      "url": "https://alxcbtw.github.io/anyps5-roadmap/#g-PPSA21567"
+     },
+     {
+      "type": "stage",
+      "title": "PPSA92280",
+      "stage": "Converts",
+      "was": null,
+      "url": "https://alxcbtw.github.io/anyps5-roadmap/#g-PPSA92280"
+     },
+     {
+      "type": "stop",
+      "title": "PPSA34547",
+      "blocker": null,
+      "was": "2689",
+      "url": "https://alxcbtw.github.io/anyps5-roadmap/"
+     },
+     {
+      "type": "stage",
+      "title": "PPSA06465",
+      "stage": "Converts",
+      "was": null,
+      "url": "https://alxcbtw.github.io/anyps5-roadmap/#g-PPSA06465"
+     },
+     {
+      "type": "stop",
+      "title": "PPSA04029",
+      "blocker": "3032",
+      "was": null,
+      "url": "https://alxcbtw.github.io/anyps5-roadmap/#g-PPSA04029"
+     },
+     {
+      "type": "stage",
+      "title": "PPSA03974",
+      "stage": "Starts",
+      "was": null,
+      "url": "https://alxcbtw.github.io/anyps5-roadmap/#g-PPSA03974"
+     },
+     {
+      "type": "stop",
+      "title": "PPSA02929",
+      "blocker": "2944",
+      "was": null,
+      "url": "https://alxcbtw.github.io/anyps5-roadmap/#g-PPSA02929"
+     },
+     {
+      "type": "stage",
+      "title": "PPSA99039",
+      "stage": "Starts",
+      "was": "Converts",
+      "url": "https://alxcbtw.github.io/anyps5-roadmap/#g-PPSA99039"
+     },
+     {
+      "type": "stop",
+      "title": "PPSA99039",
+      "blocker": "1578~atoll",
+      "was": null,
+      "url": "https://alxcbtw.github.io/anyps5-roadmap/#g-PPSA99039"
+     },
+     {
+      "type": "stage",
+      "title": "PPSA10698",
+      "stage": "Presents",
+      "was": null,
+      "url": "https://alxcbtw.github.io/anyps5-roadmap/#g-PPSA10698"
+     },
+     {
+      "type": "stop",
+      "title": "PPSA26344",
+      "blocker": "2715",
+      "was": "1920",
+      "url": "https://alxcbtw.github.io/anyps5-roadmap/#g-PPSA26344"
+     },
+     {
+      "type": "stop",
+      "title": "PPSA04264",
+      "blocker": "3055",
+      "was": null,
+      "url": "https://alxcbtw.github.io/anyps5-roadmap/#g-PPSA04264"
+     },
+     {
+      "type": "stage",
+      "title": "PPSA03355",
+      "stage": "Converts",
+      "was": null,
+      "url": "https://alxcbtw.github.io/anyps5-roadmap/#g-PPSA03355"
+     },
+     {
+      "type": "stop",
+      "title": "PPSA12544",
+      "blocker": "865",
+      "was": "pr-1482",
+      "url": "https://alxcbtw.github.io/anyps5-roadmap/#g-PPSA12544"
+     },
+     {
+      "type": "stage",
+      "title": "PPSA28319",
+      "stage": "Converts",
+      "was": null,
+      "url": "https://alxcbtw.github.io/anyps5-roadmap/#g-PPSA28319"
+     },
+     {
+      "type": "stop",
+      "title": "PPSA28319",
+      "blocker": "2942",
+      "was": null,
+      "url": "https://alxcbtw.github.io/anyps5-roadmap/#g-PPSA28319"
+     },
+     {
+      "type": "stage",
+      "title": "PPSA17221",
+      "stage": "Starts",
+      "was": null,
+      "url": "https://alxcbtw.github.io/anyps5-roadmap/#g-PPSA17221"
+     },
+     {
+      "type": "stage",
+      "title": "PPSA99997",
+      "stage": "Converts",
+      "was": null,
+      "url": "https://alxcbtw.github.io/anyps5-roadmap/#g-PPSA99997"
+     },
+     {
+      "type": "stage",
+      "title": "PPSA23126",
+      "stage": "Converts",
+      "was": null,
+      "url": "https://alxcbtw.github.io/anyps5-roadmap/#g-PPSA23126"
+     },
+     {
+      "type": "stage",
+      "title": "PPSA99808",
+      "stage": "Converts",
+      "was": null,
+      "url": "https://alxcbtw.github.io/anyps5-roadmap/#g-PPSA99808"
+     },
+     {
+      "type": "stage",
+      "title": "PPSA03747",
+      "stage": "Starts",
+      "was": null,
+      "url": "https://alxcbtw.github.io/anyps5-roadmap/#g-PPSA03747"
+     },
+     {
+      "type": "stage",
+      "title": "PPSA15186",
+      "stage": "Starts",
+      "was": null,
+      "url": "https://alxcbtw.github.io/anyps5-roadmap/#g-PPSA15186"
+     },
+     {
+      "type": "stage",
+      "title": "PPSA99010",
+      "stage": "Converts",
+      "was": null,
+      "url": "https://alxcbtw.github.io/anyps5-roadmap/#g-PPSA99010"
+     },
+     {
+      "type": "stop",
+      "title": "PPSA02530",
+      "blocker": "2591",
+      "was": null,
+      "url": "https://alxcbtw.github.io/anyps5-roadmap/#g-PPSA02530"
+     },
+     {
+      "type": "stage",
+      "title": "PPSA99110",
+      "stage": "Converts",
+      "was": null,
+      "url": "https://alxcbtw.github.io/anyps5-roadmap/#g-PPSA99110"
+     },
+     {
+      "type": "stage",
+      "title": "PPSA99995",
+      "stage": "Converts",
+      "was": null,
+      "url": "https://alxcbtw.github.io/anyps5-roadmap/#g-PPSA99995"
+     },
+     {
+      "type": "stage",
+      "title": "PPSA99177",
+      "stage": "Converts",
+      "was": null,
+      "url": "https://alxcbtw.github.io/anyps5-roadmap/#g-PPSA99177"
+     },
+     {
+      "type": "stage",
+      "title": "PPSA99810",
+      "stage": "Converts",
+      "was": null,
+      "url": "https://alxcbtw.github.io/anyps5-roadmap/#g-PPSA99810"
+     },
+     {
+      "type": "stage",
+      "title": "PPSA01474",
+      "stage": "Starts",
+      "was": null,
+      "url": "https://alxcbtw.github.io/anyps5-roadmap/#g-PPSA01474"
+     }
+    ],
+    "not_listed": 14
+   }
+  },
+  {
+   "id": "2026-10-10T19:04:58Z",
+   "url": "https://alxcbtw.github.io/anyps5-roadmap/",
+   "title": "1 ranking change, 16 titles changed",
+   "content_text": "#2811 “libSceNet Sockets implementation issue” moved up from No. 44 to No. 14 (score 1 → 6).\nAstro Bot (PPSA21564) went from Ingame to Starts.\nAstro Bot (PPSA21567) went from Ingame to Starts.\nAstro's Playroom (PPSA01325) went from Menus to Starts.\nDemon's Souls (PPSA01341) went from Ingame to Starts.\nDisney Epic Mickey: Rebrushed (PPSA15657) went from Ingame to Starts.\nGhost of Yōtei (PPSA26344) went from Ingame to Starts.\nGod of War: Sons of Sparta (PPSA28997) went from Ingame to Presents.\nGrand Theft Auto V (PPSA04263) went from Ingame to Menus.\nGTA V (PPSA04264) went from Ingame to Menus.\nHades II (PPSA36082) went from Ingame to Presents.\nHollow Knight: Silksong (PPSA12544) went from Ingame to Presents.\nLEGO Horizon Adventures (PPSA14632) went from Ingame to Presents.\nLEGO Party! (PPSA29141) went from Menus to Presents.\nMinecraft Dungeons II (PPSA16064) went from Playable to Presents.\nSonic Origins (PPSA05324) went from Menus to Presents.\nUncharted: Legacy of Thieves Collection (PPSA05684) went from Ingame to Starts.",
+   "content_html": "<ul><li><a href=\"https://alxcbtw.github.io/anyps5-roadmap/#b-2811\">#2811</a> “libSceNet Sockets implementation issue” moved up from No. 44 to No. 14 (score 1 → 6).</li><li><a href=\"https://alxcbtw.github.io/anyps5-roadmap/#g-PPSA21564\">Astro Bot (PPSA21564)</a> went from Ingame to Starts.</li><li><a href=\"https://alxcbtw.github.io/anyps5-roadmap/#g-PPSA21567\">Astro Bot (PPSA21567)</a> went from Ingame to Starts.</li><li><a href=\"https://alxcbtw.github.io/anyps5-roadmap/#g-PPSA01325\">Astro&#x27;s Playroom (PPSA01325)</a> went from Menus to Starts.</li><li><a href=\"https://alxcbtw.github.io/anyps5-roadmap/#g-PPSA01341\">Demon&#x27;s Souls (PPSA01341)</a> went from Ingame to Starts.</li><li><a href=\"https://alxcbtw.github.io/anyps5-roadmap/#g-PPSA15657\">Disney Epic Mickey: Rebrushed (PPSA15657)</a> went from Ingame to Starts.</li><li><a href=\"https://alxcbtw.github.io/anyps5-roadmap/#g-PPSA26344\">Ghost of Yōtei (PPSA26344)</a> went from Ingame to Starts.</li><li><a href=\"https://alxcbtw.github.io/anyps5-roadmap/#g-PPSA28997\">God of War: Sons of Sparta (PPSA28997)</a> went from Ingame to Presents.</li><li><a href=\"https://alxcbtw.github.io/anyps5-roadmap/#g-PPSA04263\">Grand Theft Auto V (PPSA04263)</a> went from Ingame to Menus.</li><li><a href=\"https://alxcbtw.github.io/anyps5-roadmap/#g-PPSA04264\">GTA V (PPSA04264)</a> went from Ingame to Menus.</li><li><a href=\"https://alxcbtw.github.io/anyps5-roadmap/#g-PPSA36082\">Hades II (PPSA36082)</a> went from Ingame to Presents.</li><li><a href=\"https://alxcbtw.github.io/anyps5-roadmap/#g-PPSA12544\">Hollow Knight: Silksong (PPSA12544)</a> went from Ingame to Presents.</li><li><a href=\"https://alxcbtw.github.io/anyps5-roadmap/#g-PPSA14632\">LEGO Horizon Adventures (PPSA14632)</a> went from Ingame to Presents.</li><li><a href=\"https://alxcbtw.github.io/anyps5-roadmap/#g-PPSA29141\">LEGO Party! (PPSA29141)</a> went from Menus to Presents.</li><li><a href=\"https://alxcbtw.github.io/anyps5-roadmap/#g-PPSA16064\">Minecraft Dungeons II (PPSA16064)</a> went from Playable to Presents.</li><li><a href=\"https://alxcbtw.github.io/anyps5-roadmap/#g-PPSA05324\">Sonic Origins (PPSA05324)</a> went from Menus to Presents.</li><li><a href=\"https://alxcbtw.github.io/anyps5-roadmap/#g-PPSA05684\">Uncharted: Legacy of Thieves Collection (PPSA05684)</a> went from Ingame to Starts.</li></ul>",
+   "date_published": "2026-10-10T19:04:58Z",
+   "_anyps5": {
+    "about": "https://alxcbtw.github.io/anyps5-roadmap/llms.txt",
+    "since": "2026-10-10T18:44:31Z",
+    "changes": [
+     {
+      "type": "moved",
+      "blocker": "2811",
+      "rank": 14,
+      "was": 44,
+      "score": 6,
+      "was_score": 1,
+      "url": "https://alxcbtw.github.io/anyps5-roadmap/#b-2811"
+     },
+     {
+      "type": "stage",
+      "title": "PPSA21564",
+      "stage": "Starts",
+      "was": "Ingame",
+      "url": "https://alxcbtw.github.io/anyps5-roadmap/#g-PPSA21564"
+     },
+     {
+      "type": "stage",
+      "title": "PPSA21567",
+      "stage": "Starts",
+      "was": "Ingame",
+      "url": "https://alxcbtw.github.io/anyps5-roadmap/#g-PPSA21567"
+     },
+     {
+      "type": "stage",
+      "title": "PPSA01325",
+      "stage": "Starts",
+      "was": "Menus",
+      "url": "https://alxcbtw.github.io/anyps5-roadmap/#g-PPSA01325"
+     },
+     {
+      "type": "stage",
+      "title": "PPSA01341",
+      "stage": "Starts",
+      "was": "Ingame",
+      "url": "https://alxcbtw.github.io/anyps5-roadmap/#g-PPSA01341"
+     },
+     {
+      "type": "stage",
+      "title": "PPSA15657",
+      "stage": "Starts",
+      "was": "Ingame",
+      "url": "https://alxcbtw.github.io/anyps5-roadmap/#g-PPSA15657"
+     },
+     {
+      "type": "stage",
+      "title": "PPSA26344",
+      "stage": "Starts",
+      "was": "Ingame",
+      "url": "https://alxcbtw.github.io/anyps5-roadmap/#g-PPSA26344"
+     },
+     {
+      "type": "stage",
+      "title": "PPSA28997",
+      "stage": "Presents",
+      "was": "Ingame",
+      "url": "https://alxcbtw.github.io/anyps5-roadmap/#g-PPSA28997"
+     },
+     {
+      "type": "stage",
+      "title": "PPSA04263",
+      "stage": "Menus",
+      "was": "Ingame",
+      "url": "https://alxcbtw.github.io/anyps5-roadmap/#g-PPSA04263"
+     },
+     {
+      "type": "stage",
+      "title": "PPSA04264",
+      "stage": "Menus",
+      "was": "Ingame",
+      "url": "https://alxcbtw.github.io/anyps5-roadmap/#g-PPSA04264"
+     },
+     {
+      "type": "stage",
+      "title": "PPSA36082",
+      "stage": "Presents",
+      "was": "Ingame",
+      "url": "https://alxcbtw.github.io/anyps5-roadmap/#g-PPSA36082"
+     },
+     {
+      "type": "stage",
+      "title": "PPSA12544",
+      "stage": "Presents",
+      "was": "Ingame",
+      "url": "https://alxcbtw.github.io/anyps5-roadmap/#g-PPSA12544"
+     },
+     {
+      "type": "stage",
+      "title": "PPSA14632",
+      "stage": "Presents",
+      "was": "Ingame",
+      "url": "https://alxcbtw.github.io/anyps5-roadmap/#g-PPSA14632"
+     },
+     {
+      "type": "stage",
+      "title": "PPSA29141",
+      "stage": "Presents",
+      "was": "Menus",
+      "url": "https://alxcbtw.github.io/anyps5-roadmap/#g-PPSA29141"
+     },
+     {
+      "type": "stage",
+      "title": "PPSA16064",
+      "stage": "Presents",
+      "was": "Playable",
+      "url": "https://alxcbtw.github.io/anyps5-roadmap/#g-PPSA16064"
+     },
+     {
+      "type": "stage",
+      "title": "PPSA05324",
+      "stage": "Presents",
+      "was": "Menus",
+      "url": "https://alxcbtw.github.io/anyps5-roadmap/#g-PPSA05324"
+     },
+     {
+      "type": "stage",
+      "title": "PPSA05684",
+      "stage": "Starts",
+      "was": "Ingame",
+      "url": "https://alxcbtw.github.io/anyps5-roadmap/#g-PPSA05684"
+     }
+    ]
+   }
+  },
+  {
+   "id": "2026-10-10T18:44:31Z",
+   "url": "https://alxcbtw.github.io/anyps5-roadmap/",
+   "title": "1 blocker resolved, 3 ranking changes, 3 titles changed",
+   "content_text": "1578~cpuset_getaffinity “cpuset_getaffinity (Pdgml4rbxYk) is not exported” is resolved.\n#2908 “ProsperoStore (PPSA99000): startup stop on unresolved sceKernelGetSystemSwVersion” entered the ranking at No. 12 (score 6).\n#2914 “Astro's Playroom (PPSA01325): shader ABI resolution passes a different Shader* header pointer for the same code” entered the ranking at No. 43 (score 1).\n1578~_fstatfs “unresolved ELF import 17Mfe1B3X6U (_fstatfs) (row in #1578)” left the ranking (was No. 29).\nOpenNOW (PPSA99082) has no known stop left (was 1578~cpuset_getaffinity).\nProsperoStore (PPSA99000) now stops at #2908 “ProsperoStore (PPSA99000): startup stop on unresolved sceKernelGetSystemSwVersion”.\nStremio Plus (PPSA74126) has no known stop left (was 1578~_fstatfs).",
+   "content_html": "<ul><li><a href=\"https://github.com/boykopovar/AnyPS5/issues/1578#issuecomment-6092658382\">1578~cpuset_getaffinity</a> “cpuset_getaffinity (Pdgml4rbxYk) is not exported” is resolved.</li><li><a href=\"https://alxcbtw.github.io/anyps5-roadmap/#b-2908\">#2908</a> “ProsperoStore (PPSA99000): startup stop on unresolved sceKernelGetSystemSwVersion” entered the ranking at No. 12 (score 6).</li><li><a href=\"https://alxcbtw.github.io/anyps5-roadmap/#b-2914\">#2914</a> “Astro&#x27;s Playroom (PPSA01325): shader ABI resolution passes a different Shader* header pointer for the same code” entered the ranking at No. 43 (score 1).</li><li><a href=\"https://github.com/boykopovar/AnyPS5/issues/1578#issuecomment-6092658382\">1578~_fstatfs</a> “unresolved ELF import 17Mfe1B3X6U (_fstatfs) (row in #1578)” left the ranking (was No. 29).</li><li><a href=\"https://alxcbtw.github.io/anyps5-roadmap/#g-PPSA99082\">OpenNOW (PPSA99082)</a> has no known stop left (was 1578~cpuset_getaffinity).</li><li><a href=\"https://alxcbtw.github.io/anyps5-roadmap/#g-PPSA99000\">ProsperoStore (PPSA99000)</a> now stops at #2908 “ProsperoStore (PPSA99000): startup stop on unresolved sceKernelGetSystemSwVersion”.</li><li><a href=\"https://alxcbtw.github.io/anyps5-roadmap/#g-PPSA74126\">Stremio Plus (PPSA74126)</a> has no known stop left (was 1578~_fstatfs).</li></ul>",
+   "date_published": "2026-10-10T18:44:31Z",
+   "_anyps5": {
+    "about": "https://alxcbtw.github.io/anyps5-roadmap/llms.txt",
+    "since": "2026-10-10T18:16:33Z",
+    "changes": [
+     {
+      "type": "resolved",
+      "blocker": "1578~cpuset_getaffinity",
+      "url": "https://github.com/boykopovar/AnyPS5/issues/1578#issuecomment-6092658382"
+     },
+     {
+      "type": "entered",
+      "blocker": "2908",
+      "rank": 12,
+      "score": 6,
+      "url": "https://alxcbtw.github.io/anyps5-roadmap/#b-2908"
+     },
+     {
+      "type": "entered",
+      "blocker": "2914",
+      "rank": 43,
+      "score": 1,
+      "url": "https://alxcbtw.github.io/anyps5-roadmap/#b-2914"
+     },
+     {
+      "type": "left",
+      "blocker": "1578~_fstatfs",
+      "was": 29,
+      "url": "https://github.com/boykopovar/AnyPS5/issues/1578#issuecomment-6092658382"
+     },
+     {
+      "type": "stop",
+      "title": "PPSA99082",
+      "blocker": null,
+      "was": "1578~cpuset_getaffinity",
+      "url": "https://alxcbtw.github.io/anyps5-roadmap/#g-PPSA99082"
+     },
+     {
+      "type": "stop",
+      "title": "PPSA99000",
+      "blocker": "2908",
+      "was": null,
+      "url": "https://alxcbtw.github.io/anyps5-roadmap/#g-PPSA99000"
+     },
+     {
+      "type": "stop",
+      "title": "PPSA74126",
+      "blocker": null,
+      "was": "1578~_fstatfs",
+      "url": "https://alxcbtw.github.io/anyps5-roadmap/#g-PPSA74126"
+     }
+    ]
+   }
+  }
+ ]
+}

@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AnyPS5 blocker map</title>
+<meta name="description" content="How far PS5 games get in AnyPS5, the tool that ports PS5 executables to Linux and Windows, and which open issues stop them, ranked by how many games a fix moves.">
+<meta name="color-scheme" content="light dark">
+<link rel="alternate" type="application/json" href="roadmap.json" vite-ignore>
+<link rel="alternate" type="application/feed+json" href="feed.json" title="AnyPS5 blocker map: changes" vite-ignore>
+<link rel="alternate" type="text/plain" href="llms.txt" title="llms.txt" vite-ignore>
+<link rel="preload" href="../site/fonts/Geist-Variable.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="../site/fonts/GeistPixel-Square.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="roadmap.json" as="fetch" type="application/json" crossorigin="anonymous" vite-ignore>
+<script>try{var t=localStorage.getItem("theme");if(t==="light"||t==="dark")document.documentElement.dataset.theme=t}catch(e){}</script>
+</head>
+<body>
+<noscript>
+  <p style="max-width:40em;margin:48px auto;padding:0 16px;font:15px/1.55 system-ui,sans-serif">
+    The AnyPS5 blocker map needs JavaScript. Without it, read the same data as
+    <a href="classic.html">one static page</a>, as <a href="ROADMAP.md">ROADMAP.md</a> or as
+    <a href="llms.txt">llms.txt</a>.
+  </p>
+</noscript>
+<div id="root"></div>
+<script type="module" src="/src/main.tsx"></script>
+</body>
+</html>
