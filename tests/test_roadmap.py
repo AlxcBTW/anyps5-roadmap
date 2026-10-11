@@ -10,6 +10,7 @@ HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE.parent))
 
 import roadmap as r  # noqa: E402
+from anyps5_roadmap import mine  # noqa: E402
 
 FIX = HERE / "fixtures"
 NOW = dt.datetime(2026, 10, 10, 12, 0, tzinfo=dt.UTC)
@@ -120,6 +121,15 @@ class Extraction(unittest.TestCase):
         line = "Some Game (PPSA01234, Unity 2022.3 IL2CPP)"
         self.assertEqual(r.classify(r.ENGINE_RULES, line), "Unity")
 
+    def test_stage_report_phrasings(self):
+        self.assertEqual(r.stage_in("PPSA01234 boots to black", 0)[0], "Presents")
+        self.assertEqual(r.stage_in("PPSA01234 reaches the intro", 0)[0], "Presents")
+        self.assertEqual(r.stage_in("PPSA01234 plays the opening cutscene", 0)[0], "Presents")
+        self.assertEqual(r.stage_in("PPSA01234 reaches the save select screen", 0)[0], "Menus")
+        self.assertEqual(r.stage_in("PPSA01234 gets to the character creator", 0)[0], "Menus")
+        self.assertEqual(r.stage_in("PPSA01234 makes it to the hub world", 0)[0], "Ingame")
+        self.assertIsNone(r.stage_in("PPSA01234 never boots to black", 0))
+
     def test_leading_verbs_are_not_part_of_a_name(self):
         line = "Adds LEGO Party! (PPSA29141, Unity 2022.3 IL2CPP, FMOD) to the tested compatibility list"
         self.assertEqual(r.name_before(line, line.find("PPSA")), "LEGO Party!")
@@ -132,6 +142,16 @@ class Extraction(unittest.TestCase):
     def test_closing_references(self):
         refs = r.closing_refs("Fixes #12 and #34. Closes owner/repo#5. Mentions #99.", "example/AnyPS5")
         self.assertEqual(refs, [("example/AnyPS5", 12), ("example/AnyPS5", 34), ("owner/repo", 5)])
+
+    def test_resubmission_references(self):
+        text = (
+            "This is #1872 again, which was closed. Resubmission of #2174. It resubmits PR #1745. "
+            "Reopened as a new PR of #2106. Replaces #2481. Supersedes #1855."
+        )
+        self.assertEqual(mine.resubmitted_refs(text), [1872, 2174, 1745, 2106, 2481, 1855])
+        for other in ("Superseded by #2099", "Follow-up to #419", "tested #1480 again", "Fixes #12"):
+            with self.subTest(other=other):
+                self.assertEqual(mine.resubmitted_refs(other), [])
 
     def test_pm4_unsupported_reason_parser(self):
         src = """
@@ -208,6 +228,25 @@ class Ranking(unittest.TestCase):
         self.assertEqual(self.b["10"]["origin"], "curated")
         self.assertEqual(self.b["11"]["origin"], "mined")
         self.assertEqual(self.b["10"]["area"], "shader")
+
+    def test_a_resubmission_carries_on_a_closed_fix_pr(self):
+        prs = {p["ref"]: p for p in self.b["pr-33"]["prs"]}
+        self.assertEqual((prs["#33"]["state"], prs["#33"]["origin"]), ("closed", "curated"))
+        self.assertEqual(
+            (prs["#34"]["link"], prs["#34"]["state"], prs["#34"]["origin"], prs["#34"]["resubmits"]),
+            ("fixes", "open", "mined", "#33"),
+        )
+        self.assertEqual(self.b["pr-33"]["status"], "open")
+        # once the resubmission is merged, the PR-only blocker is resolved like any merged fix
+        raw = json.loads((FIX / "raw.json").read_text(encoding="utf-8"))
+        pr34 = next(p for p in raw["prs"] if p["number"] == 34)
+        pr34.update({"state": "MERGED", "merged": True, "mergedAt": "2026-10-09T09:00:00Z"})
+        model = r.Model(raw, r.load_curated(FIX / "curated.json"), "example/AnyPS5", NOW)
+        self.assertEqual(model.blockers["pr-33"]["status"], "resolved")
+        # an open PR that names the closed one without resubmitting it is not a fix
+        pr34.update({"state": "OPEN", "merged": False, "mergedAt": None, "body": "Follow-up to #33."})
+        model = r.Model(raw, r.load_curated(FIX / "curated.json"), "example/AnyPS5", NOW)
+        self.assertEqual([p["ref"] for p in model.blockers["pr-33"]["prs"]], ["#33"])
 
     def test_curated_stage_wins(self):
         best = self.model.best_stage(self.t["PPSA30279"])

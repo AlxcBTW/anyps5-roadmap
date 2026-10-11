@@ -167,13 +167,26 @@ STAGE_RULES = [
     ("Playable", re.compile(r"(?<!un)(?<!not )\bplayable\b", re.I)),
     (
         "Ingame",
-        re.compile(r"\bin-game\b|\bingame\b|\bgameplay\b|\b(?:first|tutorial) level\b|\bminutes of play\b", re.I),
+        re.compile(
+            r"\bin-game\b|\bingame\b|\bgameplay\b|\b(?:first|tutorial) level\b|\bminutes of play\b|"
+            r"\bhub world\b",
+            re.I,
+        ),
     ),
-    ("Menus", re.compile(r"\b(?:main|title|start|pause|home) (?:menu|screen)\b|\bmenus?\b", re.I)),
+    (
+        "Menus",
+        re.compile(
+            r"\b(?:main|title|start|pause|home) (?:menu|screen)\b|\bmenus?\b|"
+            r"\bselect screens?\b|\bcharacter creat(?:or|ion)s?\b",
+            re.I,
+        ),
+    ),
     (
         "Presents",
         re.compile(
-            r"\bloading screen\b|\bblack (?:screen|frames?)\b|\bintro (?:video|movie)\b|\bsplash\b|\brenders?\b|\bdraws? (?:its|the) (?:full |complete )?(?:ui|screen|frame)|\b\d+ ?fps\b|\bpresents\b",
+            r"\bloading screen\b|\bblack (?:screen|frames?)\b|\bboots? to black\b|\bintro\b|\bcutscenes?\b|"
+            r"\bintro (?:video|movie)\b|\bsplash\b|\brenders?\b|\bdraws? (?:its|the) (?:full |complete )?(?:ui|screen|frame)|"
+            r"\b\d+ ?fps\b|\bpresents\b",
             re.I,
         ),
     ),
@@ -195,6 +208,16 @@ MAIN_BUILD = re.compile(
     r"(?<![\w-])`?main`?\s+(?:at|@)\s+`?[0-9a-f]{7,40}\b|(?<![\w-])main\s+\(`?[0-9a-f]{7,40}`?\)",
     re.I,
 )
+# A line that links a CI run reports a build on the runner, not a title run: "Windows was last built
+# and tested on the earlier base (fork run [37987888113](…/actions/runs/37987888113): Windows 511/511)".
+CI_RUN = re.compile(r"github\.com/[\w.\-]+/[\w.\-]+/actions/runs/\d+")
+# "different from the description (PPSA01317 menu load, warm caches)": a parenthesis right after a
+# reference to the thread's description restates that text; it is not a report of its own.
+DESCRIPTION_REF = re.compile(
+    r"\b(?:the|this|that|its|your|their|[\w-]+'s)\s+(?:(?:PR|pull request|issue|original)\s+)?(?:description|body)\s*$",
+    re.I,
+)
+PAREN = re.compile(r"\([^()]*\)")
 
 SIG_START = re.compile(
     r"FAIL: unresolved ELF import|Failed to load module:|undefined symbol:|what\(\):|presentation failed:|AGC graphics:|ShaderRecompiler::Recompile:"
@@ -218,6 +241,12 @@ ISSUE_URL_RE = re.compile(r"https://github\.com/(?P<repo>[\w.\-]+/[\w.\-]+)/(?:i
 SHORT_REF_RE = re.compile(r"(?<![\w/#&])(?:(?P<repo>[\w.\-]+/[\w.\-]+))?#(?P<num>\d{1,6})\b")
 CLOSING_RE = re.compile(
     r"(?i)\b(?:fix(?:es|ed)?|close[sd]?|resolve[sd]?)\b:?\s+(?P<refs>(?:(?:[\w.\-]+/[\w.\-]+)?#\d+|https://github\.com/[\w.\-]+/[\w.\-]+/issues/\d+)(?:\s*(?:,|and|&)\s*(?:(?:[\w.\-]+/[\w.\-]+)?#\d+|https://github\.com/[\w.\-]+/[\w.\-]+/issues/\d+))*)"
+)
+# A PR that stands in for an earlier one: "This is #1872 again", "Resubmission of #2174", "resubmits PR #1745",
+# "Reopened as a new PR of #2106", "Replaces #2481", "Supersedes #1855". Not "superseded by" or "follow-up to".
+RESUBMITS_RE = re.compile(
+    r"(?i)\bis\s+(?:PR\s+)?#(\d+)\s+again\b|\bresubmi(?:ssion|ts|tted)\s+(?:of\s+)?(?:PR\s+)?#(\d+)|"
+    r"\breopened as (?:a )?new PR (?:of|for)\s+#(\d+)|\b(?:replaces|supersedes)\s+(?:PR\s+)?#(\d+)"
 )
 REGISTER_RE = re.compile(r"\b(?:SPI|PA|CB|DB|VGT|SQ|GE|COMPUTE|SX|TA|IA|GRBM|RLC)_[A-Z0-9_]{3,}\b")
 
@@ -470,6 +499,11 @@ def closing_refs(text: str, default_repo: str) -> list[tuple[str, int]]:
     return out
 
 
+def resubmitted_refs(text: str) -> list[int]:
+    """Numbers of the PRs (same repository) that a PR's text says it resubmits or replaces."""
+    return [int(next(g for g in m.groups() if g)) for m in RESUBMITS_RE.finditer(text or "")]
+
+
 def stage_in(line: str, title_pos: int) -> tuple[str, str] | None:
     """Highest stage keyword in a line that is not negated; returns (stage, phrase)."""
     best = None
@@ -495,6 +529,23 @@ def clip(text: str, n: int) -> str:
         return text
     cut = text[:n].rsplit(" ", 1)[0].rstrip(",;:-–—(")
     return cut + "…"
+
+
+def run_text(text: str) -> str:
+    """The text without the lines that link a CI run: what the OS and GPU of its title runs are read from."""
+    return "\n".join(line for line in text.splitlines() if not CI_RUN.search(line))
+
+
+def restated_spans(line: str) -> list[tuple[int, int]]:
+    """The parentheses in a line that restate the thread's description, as (start, end) offsets."""
+    return [m.span() for m in PAREN.finditer(line) if DESCRIPTION_REF.search(strip_md(line[: m.start()]))]
+
+
+def blank(line: str, spans: list[tuple[int, int]]) -> str:
+    """The line with each span replaced by spaces, so the offsets of everything else stay put."""
+    for a, b in spans:
+        line = line[:a] + " " * (b - a) + line[b:]
+    return line
 
 
 def build_of(text: str, kind: str, number: int) -> str:

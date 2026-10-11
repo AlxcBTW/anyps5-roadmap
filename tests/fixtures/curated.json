@@ -5,7 +5,9 @@
      "signature": "ShaderRecompiler::Recompile: shader info collection failed: packed pixel ancillary input has an unsupported live use",
      "fix_prs": [{"number": 20}], "next": "Land #20."},
     {"id": "pr-30", "issue": null, "title": "Direct memory stall on Windows", "area": "libkernel",
-     "fix_prs": [{"number": 30}]}
+     "fix_prs": [{"number": 30}]},
+    {"id": "pr-33", "issue": null, "title": "pthread_set_name_np is not exported", "area": "libkernel",
+     "fix_prs": [{"number": 33, "note": "closed without merge"}]}
   ],
   "not_blockers": [],
   "stage_reviews": [

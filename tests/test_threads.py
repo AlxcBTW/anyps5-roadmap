@@ -58,6 +58,26 @@ class Rules(unittest.TestCase):
         # crash words in prose are not stops
         self.assertEqual(mine.code_blocks("A Segmentation fault happens on boot."), [])
 
+    def test_a_line_that_links_a_ci_run_does_not_name_the_os_of_title_runs(self):
+        text = (
+            "- Windows was last built on the earlier base (fork run [1](https://github.com/someone/AnyPS5/actions/runs/1): "
+            "Windows 511/511).\n- Linux (CachyOS), RTX 3080: full ctest passes."
+        )
+        self.assertEqual(r.classify(r.OS_RULES, text), "Windows")  # Windows is the first OS rule
+        self.assertEqual(r.classify(r.OS_RULES, mine.run_text(text)), "Linux")
+        # an OS named without a CI run link still counts
+        self.assertEqual(mine.run_text("Windows 11, MinGW: ctest passes"), "Windows 11, MinGW: ctest passes")
+
+    def test_a_parenthesis_after_the_description_restates_it(self):
+        line = "This measures something different from the description (PPSA01317 menu load, warm caches): 007 boots."
+        spans = mine.restated_spans(line)
+        self.assertEqual([line[a:b] for a, b in spans], ["(PPSA01317 menu load, warm caches)"])
+        self.assertEqual(r.stage_in(mine.blank(line, spans), line.find("007"))[0], "Starts")
+        for line in ("Hollow Knight (PPSA12544) reaches the main menu", "As the PR description says: PPSA01317 menu"):
+            with self.subTest(line=line):
+                self.assertEqual(mine.restated_spans(line), [])
+        self.assertTrue(mine.restated_spans("unlike this PR's description (PPSA01317 menu)"))
+
     def test_bots(self):
         self.assertTrue(mine.is_bot("github-actions[bot]"))
         self.assertTrue(mine.is_bot("dependabot"))
@@ -120,6 +140,20 @@ class DeepModel(unittest.TestCase):
         review["claim_url"] = "https://github.com/example/AnyPS5/pull/50"
         m = r.Model(raw, curated, "example/AnyPS5", NOW)
         self.assertFalse(any("/pull/50" in e["url"] for e in m.titles[GHOST]["evidence"]))
+
+    def test_title_runs_take_their_os_from_the_text_not_from_a_ci_run(self):
+        ev = [e for e in self.model.titles["PPSA01888"]["evidence"] if e["url"].endswith("/pull/52")]
+        self.assertEqual(
+            [(e["stage"], e["os"], e["gpu"], e["build"]) for e in ev], [("Converts", "Linux", "NVIDIA", "main")]
+        )
+
+    def test_a_title_named_only_in_a_restated_description_gets_no_stage(self):
+        self.assertEqual(self.model.titles["PPSA01777"]["evidence"], [])
+        self.assertIsNone(self.model.unverified_claim(self.model.titles["PPSA01777"]))
+        self.assertTrue(self.model.titles["PPSA01777"]["mentions"])  # still linked to the PR
+        # the restated menu is not read for the title the comment is about either
+        comment = [e for e in self.model.titles["PPSA01888"]["evidence"] if e["url"].endswith("#issuecomment-521")]
+        self.assertEqual(comment, [])
 
     def test_links_record_how_they_are_known(self):
         b40 = {p["ref"]: p for p in self.model.blockers["40"]["prs"]}
