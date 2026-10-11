@@ -232,6 +232,7 @@ IMPORT_RE = re.compile(
     r"FAIL: unresolved ELF import\s+`?(?P<nid>[A-Za-z0-9+\-_]{11})`?(?:\s*\(`?(?P<sym>[\w:]+)`?\))?\s+from\s+`?(?P<lib>[\w.\-]+?)(?:\.s?prx)?`?"
     r"(?=[`'\"\s)|.,;]|$)(?:[`'\"]*\s*\(`(?P<sym2>[\w:]+)`\))?"
 )
+IMPORT_NID_RE = re.compile(r"FAIL: unresolved ELF import\s+`?[A-Za-z0-9+\-_]{11}(?![A-Za-z0-9+\-_])")
 MODULE_RE = re.compile(r"Failed to load module:\s*\S*?[\\/]?(?P<lib>[\w.\-]+\.s?prx)")
 UNDEF_RE = re.compile(r"undefined symbol:\s*`?(?P<nid>[A-Za-z0-9+\-_]{11})")
 QUOTED_RE = re.compile(r"[\"“]([^\"”]{20,160})[\"”]")
@@ -438,6 +439,9 @@ def signature_from(line: str, next_line: str = "") -> dict | None:
     um = UNDEF_RE.match(rest)
     if um:
         return import_signature(um.group("nid"), None, None)
+    if rest.startswith("FAIL: unresolved ELF import") and not IMPORT_NID_RE.match(rest):
+        # the prefix quoted without its NID ("post the `FAIL: unresolved ELF import ...` line") names no stop
+        return None
     families, kept = [], ""
     while True:
         w = SIG_WRAPPER.match(rest)

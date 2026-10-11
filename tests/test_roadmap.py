@@ -28,6 +28,14 @@ class Extraction(unittest.TestCase):
         self.assertEqual(win["symbol"], "pthread_sigmask")
         self.assertEqual(win["library"], "libkernel")
 
+    def test_an_import_prefix_without_its_nid_is_no_signature(self):
+        quoted = "If someone with the title can post the `FAIL: unresolved ELF import ...` line from main, I'll add it."
+        self.assertIsNone(r.signature_from(quoted))
+        self.assertIsNone(r.signature_from("stops at: FAIL: unresolved ELF import"))
+        self.assertEqual(
+            r.signature_from("FAIL: unresolved ELF import VANhIWcqYak")["display"].split()[-1], "VANhIWcqYak"
+        )
+
     def test_wrappers_and_addresses_are_normalised(self):
         a = r.signature_from(
             "presentation failed: compute shader 0x2006410000: AGC graphics: storage image access to "
@@ -218,6 +226,16 @@ class Ranking(unittest.TestCase):
         # a measurement comment naming three titles is a mention, not a blocker link
         self.assertNotIn("10", [s["blocker"] for s in self.t["PPSA02929"]["chain"]])
 
+    def test_a_curated_title_can_exclude_a_mined_blocker(self):
+        raw = json.loads((FIX / "raw.json").read_text(encoding="utf-8"))
+        curated = r.load_curated(FIX / "curated.json")
+        curated["titles"].append(
+            {"id": "PPSA01746", "excluded": [{"id": "11", "why": "its stop is the same with and without the fix"}]}
+        )
+        model = r.Model(raw, curated, "example/AnyPS5", NOW)
+        self.assertEqual([s["blocker"] for s in model.titles["PPSA01746"]["chain"]], ["10"])
+        self.assertNotIn("PPSA01746", model.blockers["11"]["titles"])
+
     def test_closed_issues_drop_out_of_the_open_chain(self):
         stray = self.t["PPSA02100"]
         self.assertEqual([s["blocker"] for s in stray["open_chain"]], ["10"])
@@ -394,7 +412,14 @@ class Ranking(unittest.TestCase):
     def test_validation_lists_every_problem_at_once(self):
         data = {
             "blockers": [{"id": "1", "area": "gpu", "fix_prs": [{"repo": "x/y"}]}, {"id": "1"}],
-            "titles": [{"id": "PPSA123", "blockers": [{"id": "9"}], "evidence": [{"stage": "Boots", "url": ""}]}],
+            "titles": [
+                {
+                    "id": "PPSA123",
+                    "blockers": [{"id": "9"}],
+                    "excluded": [{"id": "8"}],
+                    "evidence": [{"stage": "Boots", "url": ""}],
+                }
+            ],
             "stage_reviews": [{"title": "PPSA01746", "verdict": "maybe"}],
         }
         errors = r.validate_curated(data)
@@ -405,6 +430,8 @@ class Ranking(unittest.TestCase):
             "fix_prs[0] needs a PR number",
             "PPSA plus five digits",
             "names blocker '9', which is not in blockers[]",
+            "excluded[0] names blocker '8', which is not in blockers[]",
+            "excluded[0] needs a why",
             "stage 'Boots'",
             "has no url",
             "verdict must be confirmed, downgraded or suppressed",

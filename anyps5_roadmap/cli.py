@@ -68,6 +68,11 @@ def validate_curated(data: dict) -> list[str]:
         for j, step in enumerate(t.get("blockers", [])):
             if str(step.get("id")) not in known:
                 errors.append(f"{at}: blockers[{j}] names blocker {step.get('id')!r}, which is not in blockers[]")
+        for j, step in enumerate(t.get("excluded", [])):
+            if str(step.get("id")) not in known:
+                errors.append(f"{at}: excluded[{j}] names blocker {step.get('id')!r}, which is not in blockers[]")
+            if not step.get("why"):
+                errors.append(f"{at}: excluded[{j}] needs a why")
         for j, ev in enumerate(t.get("evidence", [])):
             if ev.get("stage") not in STAGES:
                 errors.append(f"{at}: evidence[{j}] has stage {ev.get('stage')!r}; use one of {', '.join(STAGES)}")
