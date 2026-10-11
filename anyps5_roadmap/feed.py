@@ -210,17 +210,18 @@ def fetch(url: str, get: Callable[[str], bytes], log) -> tuple[dict | None, bool
     return (data, True) if isinstance(data, dict) else (None, False)
 
 
-def publish(doc: dict, out: Path, cache_dir: Path, network: bool, log, get: Callable[[str], bytes] = http_get):
-    """Write out/feed.json from the live roadmap.json and feed.json. A copy goes to cache_dir, which the
-    Roadmap workflow keeps between runs: when the live feed cannot be read, the items come from there."""
+def publish(doc: dict, out: Path, cache_dir: Path | None, network: bool, log, get: Callable[[str], bytes] = http_get):
+    """Write out/feed.json from the live roadmap.json and feed.json. A live run passes cache_dir and keeps a
+    copy there, which the Roadmap workflow keeps between runs: when the live feed cannot be read, the items
+    come from that copy."""
     if not network:
         log("feed.json: skipped (--no-network)")
         return None
     bust = "?build=" + "".join(c for c in doc["generated_at"] if c.isdigit())  # past the Pages CDN cache
     base, _ = fetch(SITE_URL + "roadmap.json" + bust, get, log)
     previous, reached = fetch(SITE_URL + NAME + bust, get, log)
-    saved = cache_dir / NAME
-    if not reached and saved.exists():
+    saved = cache_dir / NAME if cache_dir else None
+    if not reached and saved and saved.exists():
         log(f"feed.json: carrying the items over from {saved}")
         previous, _ = fetch(str(saved), lambda _: saved.read_bytes(), log)
     try:
@@ -230,8 +231,9 @@ def publish(doc: dict, out: Path, cache_dir: Path, network: bool, log, get: Call
         feed = build(doc, None, previous)
     text = json.dumps(feed, indent=1, ensure_ascii=False) + "\n"
     for path in (out / NAME, saved):
-        path.parent.mkdir(parents=True, exist_ok=True)
-        path.write_text(text, encoding="utf-8", newline="\n")
+        if path:
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_text(text, encoding="utf-8", newline="\n")
     new = bool(feed["items"]) and feed["items"][0]["id"] == doc["generated_at"]
     log(f"feed.json: {len(feed['items'])} items, {'one new' if new else 'no new one'}")
     return out / NAME

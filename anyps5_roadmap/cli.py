@@ -221,7 +221,8 @@ def main(argv=None) -> int:
     fonts = ROOT / "site" / "fonts"
     if fonts.is_dir() and (out / "fonts").resolve() != fonts.resolve():
         shutil.copytree(fonts, out / "fonts", dirs_exist_ok=True)  # a build outside site/ still renders in Geist
-    publish_feed(doc, out, cache.parent, network, log)  # against the live site, before the deploy replaces it
+    # against the live site, before the deploy replaces it; only a live run keeps a copy next to the API cache
+    publish_feed(doc, out, None if args.offline else cache.parent, network, log)
     (out / "index.html").write_text(
         render_html.Page(doc, out).render(), **lf
     )  # last: it lists the sizes of the other files

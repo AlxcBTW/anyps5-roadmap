@@ -201,6 +201,11 @@ class Publish(unittest.TestCase):
         self.assertEqual([i["id"] for i in out["items"]], [old_item(0)["id"]])
         self.assertIn("could not be compared", self.log.getvalue())
 
+    def test_an_offline_build_keeps_no_copy(self):
+        path = feed.publish(self.head, self.out, None, True, lambda m: None, self.site(**{"roadmap.json": self.base}))
+        self.assertTrue(path.exists())
+        self.assertFalse(self.cache.exists())
+
     def test_an_unreadable_live_feed_falls_back_to_the_cached_copy(self):
         self.cache.mkdir(parents=True)
         (self.cache / "feed.json").write_text(json.dumps({"items": [old_item(0)]}), encoding="utf-8")
