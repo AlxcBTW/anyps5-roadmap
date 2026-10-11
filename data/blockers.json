@@ -182,6 +182,21 @@
       ]
     },
     {
+      "id": "2136",
+      "issue": 2136,
+      "title": "Relinker: raw syscall instructions of the ps5-payload-dev SDK libc stubs are refused",
+      "signature": "FAIL: Forbidden syscall instruction at code offset 0x0",
+      "area": "relinker",
+      "related_prs": [{"number": 2206}],
+      "next": "Maintainer decision on the open question: opt-in trap, trap by default, or host implementations for the stubs. With the stubs trapped, eight of the nine titles relink and stop on ordinary import stops.",
+      "sources": [
+        "https://github.com/boykopovar/AnyPS5/issues/2136",
+        "https://github.com/boykopovar/AnyPS5/issues/2136#issuecomment-6104954017",
+        "https://github.com/boykopovar/AnyPS5/issues/2136#issuecomment-6095592760",
+        "https://github.com/boykopovar/AnyPS5/pull/2206"
+      ]
+    },
+    {
       "id": "siglongjmp",
       "issue": null,
       "title": "siglongjmp is not exported (libkernel)",
@@ -544,6 +559,42 @@
         {"id": "3501", "why": "first stop on main a11c8f7f"},
         {"id": "3165", "why": "next stop once reallocf is in"}
       ]
+    },
+    {
+      "id": "PPSA01153", "name": "OliSe Player", "kind": "homebrew",
+      "blockers": [{"id": "2136", "why": "first stop on main 6c9cb3a5, at 0xb04df7 (SDK generic syscall stub); with the stubs trapped, the next stop is the import 04AjkP0jO9U"}]
+    },
+    {
+      "id": "PPSA99004", "name": "ProsperoAI", "kind": "homebrew",
+      "blockers": [{"id": "2136", "why": "first stop on main 6c9cb3a5, at 0x1108bf7 (SDK generic syscall stub); with the stubs trapped, the next stop is the import 5G2ONUzRgjY"}]
+    },
+    {
+      "id": "PPSA99008", "name": "ProsperoEden", "kind": "homebrew",
+      "blockers": [{"id": "2136", "why": "first stop on main 6c9cb3a5, at 0x214dcda (SDK link stub, syscall number 9); with the stubs trapped, the next stop is the import 5G2ONUzRgjY"}]
+    },
+    {
+      "id": "PPSA99011", "name": "PS5 FSR4 Showcase", "kind": "homebrew",
+      "blockers": [{"id": "2136", "why": "first stop on main 6c9cb3a5, at 0x511d17 (SDK generic syscall stub); with the stubs trapped, the next stop is the import r28hEh6cNH0"}]
+    },
+    {
+      "id": "PPSA99203", "name": "PS5SX2", "kind": "homebrew",
+      "blockers": [{"id": "2136", "why": "first stop on main 6c9cb3a5, at 0x10a2d37 (SDK generic syscall stub); with the stubs trapped, the next stop is the import aML18Z0J0t0"}]
+    },
+    {
+      "id": "PPSA99204", "name": "PS5NES", "kind": "homebrew",
+      "blockers": [{"id": "2136", "why": "first stop on main 6c9cb3a5, at 0xc43f97 (SDK generic syscall stub); the catalog download returns 404 on 2026-10-11; with the stubs trapped, the next stop is the import VUzjXknPPBs"}]
+    },
+    {
+      "id": "PPSA99206", "name": "PS5N64", "kind": "homebrew",
+      "blockers": [{"id": "2136", "why": "first stop on main 6c9cb3a5, at 0xcb9da7 (SDK generic syscall stub); the catalog download returns 404 on 2026-10-11; with the stubs trapped, the next stop is the import oxMp8uPqa+U"}]
+    },
+    {
+      "id": "PPSA99288", "name": "Nuvio Max'd", "kind": "homebrew",
+      "blockers": [{"id": "2136", "why": "first stop on main 6c9cb3a5, at 0x21a6cda; not an SDK stub, so it still fails with the stubs trapped"}]
+    },
+    {
+      "id": "PPSA99360", "name": "PS5CEMU-HAR", "kind": "homebrew",
+      "blockers": [{"id": "2136", "why": "first stop on main 6c9cb3a5, at 0x1699f07 (SDK generic syscall stub); with the stubs trapped, the next stop is the import 04AjkP0jO9U"}]
     },
     {
       "id": "PPSA99600", "name": "Cloud Play", "kind": "homebrew",
