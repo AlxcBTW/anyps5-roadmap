@@ -102,9 +102,7 @@
       "signature": "FAIL: unresolved ELF import JZKw5+Wrnaw (pthread_sigmask) from libkernel",
       "area": "libkernel",
       "fix_prs": [{"number": 2106, "note": "closed without merge"}],
-      "next": "Reopen #2106 or submit pthread_sigmask again.",
-      "help_wanted": "Needs an author who passes the PR intake rule, or a maintainer to reopen #2106.",
-      "sources": ["https://github.com/boykopovar/AnyPS5/pull/2106", "https://github.com/boykopovar/AnyPS5/issues/1578"]
+      "sources": ["https://github.com/boykopovar/AnyPS5/pull/2106", "https://github.com/boykopovar/AnyPS5/issues/1578", "https://github.com/boykopovar/AnyPS5/pull/2897"]
     },
     {
       "id": "2761",
@@ -167,6 +165,16 @@
       "fix_prs": [{"number": 1872, "note": "closed without merge"}],
       "next": "Review #3031, which resubmits #1872.",
       "sources": ["https://github.com/boykopovar/AnyPS5/pull/1872", "https://github.com/boykopovar/AnyPS5/issues/1578", "https://github.com/boykopovar/AnyPS5/pull/3031"]
+    },
+    {
+      "id": "pr-1922",
+      "issue": null,
+      "title": "pthread_getaffinity_np is not exported (libkernel)",
+      "signature": "FAIL: unresolved ELF import Jb2uGFMr688 (pthread_getaffinity_np) from libkernel",
+      "area": "libkernel",
+      "fix_prs": [{"number": 1922, "note": "closed without merge"}],
+      "next": "Submit #1922 again; PS5VR stops here once #3031 is in.",
+      "sources": ["https://github.com/boykopovar/AnyPS5/pull/1922", "https://github.com/boykopovar/AnyPS5/pull/3031"]
     }
   ],
   "not_blockers": [
@@ -319,7 +327,16 @@
     },
     {"id": "PPSA03001", "name": "Sifu", "engine": "Unreal Engine 4", "kind": "retail", "blockers": [{"id": "1409", "why": "same 8-bit storage access pattern"}]},
     {"id": "PPSA68091", "name": "Ruffle Flash", "kind": "homebrew", "blockers": [{"id": "pr-2106", "why": "next import stop"}]},
-    {"id": "PPSA99007", "name": "Yamagi Quake II", "kind": "homebrew", "blockers": [{"id": "pr-2106", "why": "next import stop"}]},
+    {
+      "id": "PPSA99007", "name": "Yamagi Quake II", "kind": "homebrew",
+      "blockers": [{"id": "pr-2106", "why": "next import stop"}, {"id": "pr-1872", "why": "first stop on main b8a083b2"}]
+    },
+    {"id": "PPSA69420", "name": "ScreenTester5", "kind": "homebrew", "blockers": [{"id": "pr-1872", "why": "first stop on main b8a083b2"}]},
+    {"id": "PPSA99039", "name": "EVO Player", "kind": "homebrew", "blockers": [{"id": "pr-1872", "why": "first stop on main b8a083b2"}]},
+    {
+      "id": "PPSA99177", "name": "PS5VR", "kind": "homebrew",
+      "blockers": [{"id": "pr-1872", "why": "first stop on main b8a083b2"}, {"id": "pr-1922", "why": "next stop with #3031"}]
+    },
     {
       "id": "PPSA99109", "name": "Prospero Explorer", "engine": ".NET NativeAOT", "kind": "homebrew", "paths": ["Windows", "Linux"],
       "blockers": [{"id": "2761", "scope": ["Windows"], "why": "faults reading 0x28 through an unpatched TLS read"}, {"id": "pr-2106", "why": "pthread_sigmask import"}]
