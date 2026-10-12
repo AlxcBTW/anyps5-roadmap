@@ -147,6 +147,46 @@ class Extraction(unittest.TestCase):
         # a stop phrase before the keyword means the title did not get past it
         self.assertEqual(r.stage_in("PPSA05684 stops in its first level with an error", 0)[0], "Menus")
 
+    def test_a_word_that_only_sits_next_to_the_id_is_not_a_name(self):
+        def before(line):
+            return r.name_before(line, line.find("PPSA"))
+
+        # sentence openers and verbs
+        self.assertIsNone(before("Does PPSA01317 stop earlier than the description says?"))
+        self.assertIsNone(before("Not PPSA18605: that one stops at the intro"))
+        self.assertIsNone(before("Retried PPSA20612 on another machine."))
+        self.assertIsNone(before("It stops. Retried PPSA20612 on another machine."))
+        # a one-word title at the start of a line still counts
+        self.assertEqual(before("Returnal PPSA01285 crashes in the first room"), "Returnal")
+        self.assertEqual(before("Stray (PPSA02100, UE4)"), "Stray")
+        # a possessive owns something
+        self.assertIsNone(before("Cyberpunk's PPSA03974 build ships its own libc.prx"))
+        self.assertEqual(before("Demon's Souls (PPSA01341)"), "Demon's Souls")
+        # a list: the words before the connector name other games
+        self.assertIsNone(before("These come from Astro Bot, Epic Mickey and PPSA15186 (#1817, #2207)"))
+        self.assertEqual(before("Taxi Chaos 2 - PPSA30279"), "Taxi Chaos 2")
+
+    def test_a_report_header_before_a_label_colon_is_not_part_of_the_name(self):
+        line = "# Claude Code Report : Commandos: Origins (PPSA14708) on Linux"
+        self.assertEqual(r.name_before(line, line.find("PPSA")), "Commandos: Origins")
+        line = "Kena: Bridge of Spirits (PPSA01746)"
+        self.assertEqual(r.name_before(line, line.find("PPSA")), "Kena: Bridge of Spirits")
+
+    def test_or_joins_the_words_of_a_name_but_on_does_not(self):
+        line = "Ready or Not (PPSA18605) stops at startup"
+        self.assertEqual(r.name_before(line, line.find("PPSA")), "Ready or Not")
+        # "on" stays a label: "Impact on Demon's Souls (PPSA01341)" names Demon's Souls only
+        line = "Impact on Demon's Souls (PPSA01341)"
+        self.assertEqual(r.name_before(line, line.find("PPSA")), "Demon's Souls")
+        line = "Tested on Stray (PPSA02100)"
+        self.assertEqual(r.name_before(line, line.find("PPSA")), "Stray")
+
+    def test_an_engine_in_the_parenthesis_is_not_a_name(self):
+        line = "PPSA18391 (Clickteam Fusion) queries trophies with a null `details`"
+        self.assertIsNone(r.name_after(line, line.find("PPSA") + 9))
+        line = "PPSA02929 (Dreaming Sarah, Construct) segfaults"
+        self.assertEqual(r.name_after(line, line.find("PPSA") + 9), "Dreaming Sarah")
+
     def test_closing_references(self):
         refs = r.closing_refs("Fixes #12 and #34. Closes owner/repo#5. Mentions #99.", "example/AnyPS5")
         self.assertEqual(refs, [("example/AnyPS5", 12), ("example/AnyPS5", 34), ("owner/repo", 5)])
@@ -521,6 +561,22 @@ class Ranking(unittest.TestCase):
             "needs sources",
             "must be an https link",
         ):
+            self.assertIn(needle, joined)
+
+    def test_name_sources_validation(self):
+        good = {
+            "id": "PPSA01317",
+            "name": "Gran Turismo 7",
+            "name_sources": ["https://prosperopatches.com/PPSA01317"],
+        }
+        self.assertEqual(r.validate_curated({"titles": [good]}), [])
+        bad = [
+            {**good, "id": "PPSA01284", "name": ""},
+            {**good, "id": "PPSA03974", "name_sources": []},
+            {**good, "id": "PPSA20612", "name_sources": ["http://prosperopatches.com/PPSA20612"]},
+        ]
+        joined = "\n".join(r.validate_curated({"titles": bad}))
+        for needle in ("name_sources without a name", "name_sources needs the public links", "must be an https link"):
             self.assertIn(needle, joined)
 
     def test_invalid_json_names_line_and_column(self):

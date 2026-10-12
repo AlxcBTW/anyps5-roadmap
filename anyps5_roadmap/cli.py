@@ -65,6 +65,16 @@ def validate_curated(data: dict) -> list[str]:
         at = _where("titles", i, t)
         if not TITLE_ID.fullmatch(str(t.get("id", ""))):
             errors.append(f"{at}: id must be a PS5 title ID, PPSA plus five digits")
+        if "name_sources" in t:
+            links = t["name_sources"]
+            if not t.get("name"):
+                errors.append(f"{at}: name_sources without a name")
+            if not isinstance(links, list) or not links:
+                errors.append(f"{at}: name_sources needs the public links that tie this title ID to its name")
+                links = []
+            for url in links:
+                if not str(url).startswith("https://"):
+                    errors.append(f"{at}: name source {url!r} must be an https link")
         for j, step in enumerate(t.get("blockers", [])):
             if str(step.get("id")) not in known:
                 errors.append(f"{at}: blockers[{j}] names blocker {step.get('id')!r}, which is not in blockers[]")

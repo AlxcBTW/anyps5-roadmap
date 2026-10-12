@@ -50,7 +50,8 @@ too) and copy the exact state. Never invent a PPSA ID, a title name or a stage.
 | Field | Meaning |
 |---|---|
 | `id` | PS5 title ID, `PPSA` + 5 digits. One entry per region ID. |
-| `name`, `engine`, `kind` | `kind` is `retail` or `homebrew`. |
+| `name`, `engine`, `kind` | `kind` is `retail` or `homebrew`. `name` wins over every mined name. |
+| `name_sources` | Public links that tie this title ID to `name`: its PlayStation Store product, `https://prosperopatches.com/PPSA…`, serialstation, or the upstream issue text that says so. Required in practice whenever `name` replaces a mined name (the validator checks the links are https and that a name exists). Add it for a name the miner got wrong or could not read; never write a name you only know from memory. |
 | `paths` | Optional OS/GPU paths, e.g. `["Windows/NVIDIA", "Windows/AMD"]`, when a title stops at different places. |
 | `blockers` | Ordered chain, first stop first: `{"id": "2783", "scope": ["Windows/NVIDIA"], "why": "…"}`. A step without `scope` applies to every path. Every `id` must exist in `blockers[]`. |
 | `evidence` | Best stages seen: `{"stage", "os", "gpu", "build", "date", "url", "note"}`. `url` is required: a stage without a public source is not added, however sure you are. `build` says what was running: `main`, `main + #2054`, `main + local patches`. |

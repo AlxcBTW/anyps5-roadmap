@@ -759,7 +759,23 @@
       ]
     },
     {"id": "PPSA22520", "name": "Animal Well"},
-    {"id": "PPSA29141", "name": "LEGO Party!", "engine": "Unity"}
+    {"id": "PPSA29141", "name": "LEGO Party!", "engine": "Unity"},
+    {"id": "PPSA01284", "name": "Returnal", "name_sources": ["https://prosperopatches.com/PPSA01284", "https://store.playstation.com/en-us/product/UP9000-PPSA01284%5F00-RETURNALGAME0001"]},
+    {"id": "PPSA01317", "name": "Gran Turismo 7", "name_sources": ["https://prosperopatches.com/PPSA01317"]},
+    {"id": "PPSA02015", "name": "Death Stranding 2: On the Beach", "name_sources": ["https://prosperopatches.com/PPSA02015"]},
+    {"id": "PPSA03974", "name": "Cyberpunk 2077", "name_sources": ["https://prosperopatches.com/PPSA03974"]},
+    {"id": "PPSA15186", "name": "Vampire: The Masquerade - Bloodlines 2", "name_sources": ["https://prosperopatches.com/PPSA15186"]},
+    {"id": "PPSA15388", "name": "High on Life", "name_sources": ["https://prosperopatches.com/PPSA15388", "https://store.playstation.com/en-us/product/UP3024-PPSA15388_00-0636789504534087"]},
+    {"id": "PPSA18391", "name": "Afterdream", "name_sources": ["https://prosperopatches.com/PPSA18391"]},
+    {"id": "PPSA18605", "name": "Ready or Not", "name_sources": ["https://prosperopatches.com/PPSA18605", "https://store.playstation.com/ja-jp/product/UP6322-PPSA18605_00-0342498734252743"]},
+    {"id": "PPSA20612", "name": "Dragon Quest III HD-2D Remake", "name_sources": ["https://prosperopatches.com/PPSA20612"]},
+    {"id": "PPSA27836", "name": "Onimusha: Way of the Sword", "name_sources": ["https://prosperopatches.com/PPSA27836", "https://store.playstation.com/en-us/product/UP0102-PPSA27836_00-0000000000000001"]},
+    {"id": "PPSA34356", "name": "Marsupilami 2 - Salsa Palombia", "name_sources": ["https://prosperopatches.com/PPSA34356", "https://store.playstation.com/en-tw/product/EP4295-PPSA34356_00-MARSU2PS500000EU"]},
+    {"id": "PPSA01825", "name": "The Pathless", "name_sources": ["https://prosperopatches.com/PPSA01825"]},
+    {"id": "PPSA21444", "name": "DOOM + DOOM II", "name_sources": ["https://prosperopatches.com/PPSA21444"]},
+    {"id": "PPSA25573", "name": "Extinction Rifts", "name_sources": ["https://github.com/andshrew/PlayStation-Titles/blob/main/PS5_Titles_by_Name.tsv", "https://store.playstation.com/en-us/concept/10011998"]},
+    {"id": "PPSA26223", "name": "The Mound: Omen of Cthulhu", "name_sources": ["https://prosperopatches.com/PPSA26223"]},
+    {"id": "PPSA34823", "name": "New Super Lucky's Tale", "name_sources": ["https://prosperopatches.com/PPSA34823", "https://store.playstation.com/en-gb/product/EP4293-PPSA34823_00-NSLT000000000PS5"]}
   ],
   "title_tags_note": "What kind of game a title is, from a fixed list (2026-10-13). A tag needs a source that names it: the Wikidata genre of the item whose name and platform (PS5) match, the PlayStation Store genre of this title ID, the SteamSpy user tags of that item's Steam app (2D, 3D, Shooter, Platformer only), or the homebrew's own README. No source, no tag. See AGENTS.md.",
   "title_tags": [

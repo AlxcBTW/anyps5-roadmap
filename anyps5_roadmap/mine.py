@@ -11,7 +11,10 @@ from .config import STAGES
 TITLE_RE = re.compile(r"\bPPSA\d{5}\b")
 MD_NOISE = re.compile(r"[*_`\[\]]|\]\([^)]*\)")
 NAME_TOKEN = re.compile(r"[A-Z0-9À-ɏ][\w'’&.!:+\-]*")
-NAME_CONNECT = {"of", "the", "and", "&", "a", "in", "for", "to", "de", "-", "–", ":", "vs.", "x"}
+NAME_CONNECT = {"of", "the", "and", "&", "a", "in", "for", "to", "de", "-", "–", ":", "vs.", "x", "or"}
+# A connector right before the title ID joins it to a list ("Astro Bot, Epic Mickey and PPSA15186"), so the
+# words before it name other games. Punctuation connectors ("Name - PPSA…", "Name: PPSA…") do not.
+NAME_JOINERS = {"of", "the", "and", "&", "a", "in", "for", "to", "de", "vs.", "x", "or"}
 NAME_LABELS = {"title", "game", "titles", "another", "also", "tested", "with", "on", "in", "and", "from", "see"}
 NAME_REJECT = {
     "windows",
@@ -158,6 +161,14 @@ NAME_LEAD_VERBS = {
     "lets",
     "gets",
 }
+# A lone capitalised word that opens a sentence right before a title ID is the sentence's first word, not a title:
+# "Does PPSA01317 stop earlier?", "Not PPSA18605", "Retried PPSA20612 on another machine". Function words and
+# verb forms; a real one-word title ("Returnal PPSA01285 crashes") is not matched.
+SENTENCE_OPENER = re.compile(
+    r"(?:Does|Do|Did|Is|Are|Was|Were|Can|Could|Will|Would|Should|Has|Have|Had|Not|No|Yes|Also|Still|Now|Then|"
+    r"Same|Both|Only|Just|Maybe|Why|How|What|When|Where|Which|Who|If|So|But|And|Or|Since|See|Re)|"
+    r"[A-Z][a-z]{2,}(?:ed|ing)",
+)
 STOP_WORDS = re.compile(
     r"\b(?:stops?|stopped|stuck|hangs?|halts?|freezes|crash(?:es|ed)?|aborts?|dies|faults?|segfaults?|fails?|failed|same (?:error|stop|crash|message)|refused|throws?)\b",
     re.I,
@@ -283,6 +294,15 @@ def name_before(line: str, pos: int) -> str | None:
         else:
             break
     # out holds the words last-to-first, so out[-1] is the first word of the name
+    if out and out[0].lower() in NAME_JOINERS:
+        return None
+    if ":" in out[1:]:
+        # a colon with spaces on both sides is a label separator ("Claude Code Report : Commandos: Origins"),
+        # unlike the colon inside a title ("Commandos: Origins")
+        out = out[: out.index(":", 1)]
+    # nothing before the words, or a sentence end / bullet just before them
+    before = tokens[: len(tokens) - len(out)]
+    sentence_start = not before or before[-1][-1] in ".!?:" or before[-1] == "-"
     while out and (
         out[-1].lower() in NAME_CONNECT
         or out[-1].lower().rstrip(":") in NAME_LABELS
@@ -291,6 +311,8 @@ def name_before(line: str, pos: int) -> str | None:
         out.pop()
     while out and out[0].lower() in NAME_CONNECT:
         out.pop(0)
+    if len(out) == 1 and sentence_start and SENTENCE_OPENER.fullmatch(out[0]):
+        return None
     return clean_name(" ".join(reversed(out)))
 
 
@@ -299,6 +321,8 @@ def name_after(line: str, end: int) -> str | None:
     m = re.match(r"\s*\(([^,;)]{2,48})[,;)]", rest)
     if m:
         cand = m.group(1).strip()
+        if any(rx.fullmatch(cand) for rx, _ in ENGINE_RULES):
+            return None  # "PPSA18391 (Clickteam Fusion)": the engine, not the title
         if not re.match(r"v?\d+\.\d+|0x|UE\d|\d+ ?(?:fps|s)\b", cand, re.I):
             return clean_name(cand)
         return None
@@ -332,6 +356,8 @@ def clean_name(name: str | None) -> str | None:
         return None
     if re.fullmatch(r"v?\d[\d.]*", words[0]) and len(words) == 1:
         return None
+    if re.search(r"['’]s?$", words[-1]) and not re.search(r"s['’]$", words[-1]):
+        return None  # "Cyberpunk's PPSA03974 build": a possessive owns something, it is not the title
     return name
 
 
