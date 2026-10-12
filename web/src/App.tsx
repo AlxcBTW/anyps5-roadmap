@@ -1,5 +1,6 @@
 import { lazy, Suspense, useCallback, useEffect, useMemo, useRef } from "react";
 import { Drawer } from "./components/Drawer";
+import { Footer } from "./components/Footer";
 import { TopBar } from "./components/TopBar";
 import { resolvedAt, snapshots } from "./data/feed";
 import { DataContext, useJson, type Data } from "./data/load";
@@ -10,20 +11,19 @@ import { useMedia } from "./lib/useMedia";
 import { BlockerDetail } from "./views/BlockerDetail";
 import { Blockers } from "./views/Blockers";
 import { Changes } from "./views/Changes";
-import { Data as DataView } from "./views/Data";
+import { About } from "./views/About";
 import { GameDetail } from "./views/GameDetail";
-import { Games } from "./views/Games";
-import { Roadmap } from "./views/Roadmap";
+import { Home } from "./views/Home";
 
 const Coverage = lazy(() => import("./views/Coverage"));
 
 const TITLES = {
-  roadmap: "AnyPS5 blocker map",
-  blockers: "Blockers · AnyPS5 blocker map",
+  roadmap: "AnyPS5 blocker map: how far PS5 games get",
   games: "Games · AnyPS5 blocker map",
+  blockers: "Blockers · AnyPS5 blocker map",
   coverage: "Coverage · AnyPS5 blocker map",
   changes: "Changes · AnyPS5 blocker map",
-  data: "Data · AnyPS5 blocker map",
+  data: "About · AnyPS5 blocker map",
 } as const;
 
 export function App() {
@@ -70,11 +70,11 @@ export function App() {
         >
           Skip to content
         </a>
-        <TopBar view={view} model={data?.model ?? null} />
-        <main id="main" ref={main} tabIndex={-1} className="wrap main">
+        <TopBar view={view} project={data?.model.project ?? "AlxcBTW/anyps5-roadmap"} />
+        <main id="main" ref={main} tabIndex={-1} className="page main">
           {roadmap.status === "loading" && (
             <p className="loading" role="status">
-              Loading the blocker map…
+              Loading the games…
             </p>
           )}
           {(roadmap.status === "error" || roadmap.status === "missing") && (
@@ -92,6 +92,7 @@ export function App() {
             </DataContext.Provider>
           )}
         </main>
+        <Footer model={data?.model ?? null} />
       </div>
       {drawerOpen && (
         <DataContext.Provider value={data}>
@@ -113,8 +114,6 @@ function ViewSwitch({ loc }: { loc: Location }) {
   switch (loc.under.view) {
     case "blockers":
       return <Blockers loc={loc} />;
-    case "games":
-      return <Games loc={loc} />;
     case "coverage":
       return (
         <Suspense fallback={<p className="loading" role="status">Loading the coverage map…</p>}>
@@ -124,8 +123,8 @@ function ViewSwitch({ loc }: { loc: Location }) {
     case "changes":
       return <Changes loc={loc} />;
     case "data":
-      return <DataView />;
+      return <About loc={loc} />;
     default:
-      return <Roadmap loc={loc} />;
+      return <Home loc={loc} />; // the front page, also at #/games
   }
 }

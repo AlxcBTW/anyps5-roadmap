@@ -12,7 +12,7 @@ export function Drawer({ modal, label, itemKey, onClose, children }: {
   onClose: () => void;
   children: ReactNode;
 }) {
-  const ref = useRef<HTMLElement>(null);
+  const ref = useRef<HTMLDivElement>(null);
 
   // give focus back to the link that opened the drawer (ItemLink records it) when the drawer closes
   useEffect(
@@ -53,7 +53,7 @@ export function Drawer({ modal, label, itemKey, onClose, children }: {
   return (
     <>
       {modal && <div className="scrim" onClick={onClose} aria-hidden="true" />}
-      <aside ref={ref} className="drawer" role="dialog" aria-modal={modal || undefined} aria-labelledby="drawer-title">
+      <div ref={ref} className="drawer" role="dialog" aria-modal={modal || undefined} aria-labelledby="drawer-title">
         <div className="drawer-bar">
           <span className="drawer-kind">{label}</span>
           <button type="button" className="icon-btn" onClick={onClose}>
@@ -62,7 +62,7 @@ export function Drawer({ modal, label, itemKey, onClose, children }: {
           </button>
         </div>
         <div className="drawer-body">{children}</div>
-      </aside>
+      </div>
     </>
   );
 }

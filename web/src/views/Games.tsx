@@ -1,46 +1,51 @@
-// One row per title ID: the highest confirmed stage, where it stops now and what follows.
-// Unverified claims show as a marked note and are never sorted on.
+// Every game on the map, one row each: its highest confirmed stage and the issue that stops it now.
+// Region IDs of one game collapse into its best row; the drawer lists the others. Unverified claims
+// live in the drawer and are never shown as a stage or sorted on.
 
-import { useMemo } from "react";
-import { GAME_SORTS, filterGames, gameAccessors, gameCount, gameNatural, stageCounts, type GameSort } from "../data/lists";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { GAME_SORTS, gameAccessors, gameList, onePerGame, stageCounts, type GameSort } from "../data/lists";
 import { useData } from "../data/load";
-import { fmtDate, plural } from "../lib/format";
+import type { GameRow } from "../data/model";
+import { plural } from "../lib/format";
 import { setParams, type Location } from "../lib/router";
-import { formatSort, nextSort, parseSort, sortRows, type Dir, type Sort } from "../lib/sort";
-import { Chips, Empty, ItemLink, Pips, SearchField, SortHeader, SortSelect, ViewHead } from "../components/ui";
+import { formatSort, parseSort, sortRows, type Dir, type Sort } from "../lib/sort";
+import { Chips, Empty, ItemLink, SortSelect, StageMeter, StatusPill } from "../components/ui";
 import { ListKeys } from "./listKeys";
 
 const DEFAULT: Sort<GameSort> = { key: "stage", dir: "desc" };
+const FIRST_PAGE = 30;
 
 const SORT_OPTIONS: { key: GameSort; label: string; dir: Dir }[] = [
-  { key: "stage", label: "Highest stage", dir: "desc" },
-  { key: "stage", label: "Lowest stage", dir: "asc" },
+  { key: "stage", label: "Furthest first", dir: "desc" },
+  { key: "stage", label: "Earliest first", dir: "asc" },
   { key: "name", label: "Name, A to Z", dir: "asc" },
-  { key: "stop", label: "Stop, by rank", dir: "asc" },
-  { key: "chain", label: "Most stops", dir: "desc" },
   { key: "report", label: "Latest report", dir: "desc" },
 ];
 
-export function Games({ loc }: { loc: Location }) {
+export function GameList({ loc }: { loc: Location }) {
   const { model } = useData();
   const p = loc.under.params;
   const stage = p.get("stage") ?? "all";
   const q = p.get("q") ?? "";
   const sort = parseSort(p.get("sort"), GAME_SORTS, DEFAULT);
-  const counts = useMemo(() => stageCounts(model.games), [model]);
+  const counts = useMemo(() => stageCounts(onePerGame(model.games)), [model]);
   const rows = useMemo(
-    () => sortRows(filterGames(model.games, { stage, q }), gameAccessors, sort),
+    () => sortRows(gameList(model.games, { stage, q }), gameAccessors, sort),
     [model, stage, q, sort],
   );
+  const [expanded, setExpanded] = useState(false);
+  const filtered = !!q.trim() || stage !== "all";
+  const shown = expanded || filtered ? rows : rows.slice(0, FIRST_PAGE);
+  const list = useRef<HTMLUListElement>(null);
+  const focusAt = useRef<number | null>(null);
+  useEffect(() => {
+    if (focusAt.current == null) return;
+    list.current?.querySelectorAll<HTMLElement>("[data-row-link]")[focusAt.current]?.focus();
+    focusAt.current = null;
+  }, [expanded]);
+
   const set = (changes: Record<string, string | null>) => setParams(loc, changes);
-  const onSort = (k: GameSort, natural: Dir) => {
-    const s = nextSort(sort, k, natural);
-    set({ sort: k === DEFAULT.key && s.dir === DEFAULT.dir ? null : formatSort(s) });
-  };
-  const head = (k: GameSort, label: string, className?: string) => (
-    <SortHeader k={k} label={label} sort={sort} natural={gameNatural[k]} onSort={onSort} className={className} />
-  );
-  const stages = model.stages.length;
+  const total = model.stages.length;
   const chips = [
     { value: "all", label: "All", count: counts.get("all") },
     ...[...model.stages].reverse().map((s) => ({ value: s.name, label: s.name, count: counts.get(s.name) ?? 0 })),
@@ -48,109 +53,112 @@ export function Games({ loc }: { loc: Location }) {
   ].filter((c) => c.count || c.value === stage);
 
   return (
-    <div className="list-view">
-      <ViewHead title="Games" count={String(model.counts.games)}>
-        The highest stage confirmed on AnyPS5 main for each title ID, and what stops it now.
-      </ViewHead>
-      <details className="explain">
-        <summary>What the stages mean</summary>
-        <ol className="stage-defs">
-          {model.ladder.map((r, i) => (
-            <li key={r.stage.name}>
-              <Pips rank={i} total={stages} />
-              <span className="sd-name">{r.stage.name}</span>
-              <span className="sd-def">{r.stage.meaning}</span>
-              {r.heldBy && (
-                <span className="sd-held muted">
-                  {plural(r.heldBy.games, "game")} here {r.heldBy.games === 1 ? "stops" : "stop"} first at{" "}
-                  <ItemLink item={{ kind: "blocker", id: r.heldBy.row.id }} loc={loc} className="mono">
-                    {r.heldBy.row.ref}
-                  </ItemLink>
-                </span>
-              )}
-            </li>
-          ))}
-        </ol>
-        <p className="muted small">
-          Mined stages of Menus or higher count only after someone reviews them; until then they show as unverified claims.
-        </p>
-      </details>
-
-      <div className="toolbar">
-        <SearchField label="Search games and errors" placeholder="Game, PPSA ID, engine or log line" value={q} onChange={(v) => set({ q: v || null })} />
+    <section className="section games" aria-labelledby="h-games">
+      <div className="section-head">
+        <h2 id="h-games">Games</h2>
         <SortSelect options={SORT_OPTIONS} sort={sort} onChange={(s) => set({ sort: s.key === DEFAULT.key && s.dir === DEFAULT.dir ? null : formatSort(s) })} />
       </div>
       <Chips legend="Stage" value={stage} onChange={(v) => set({ stage: v === "all" ? null : v })} chips={chips} />
-      <p className="result" role="status">
-        {plural(gameCount(rows), "game")} in {plural(rows.length, "title ID")}
-      </p>
+      <div className="list-meta">
+        <p className="result" role="status">
+          {resultLine(rows.length, stage, q)}
+        </p>
+        <details className="explain">
+          <summary>What the stages mean</summary>
+          <ol className="stage-defs">
+            {model.stages.map((s, i) => (
+              <li key={s.name}>
+                <StageMeter rank={i} total={total} />
+                <span className="sd-name">{s.name}</span>
+                <span className="sd-def">{s.meaning}</span>
+              </li>
+            ))}
+          </ol>
+          <p className="explain-note">
+            A stage counts once it is reached on AnyPS5 main. Menus and higher count only after someone checks the report.
+          </p>
+        </details>
+      </div>
 
       {rows.length ? (
         <ListKeys loc={loc}>
-          <table className="table games-table">
-            <thead>
-              <tr>
-                {head("name", "Game", "c-main")}
-                {head("stage", "Stage", "c-stage")}
-                {head("stop", "Stops at", "c-stop")}
-                {head("chain", "Stops left", "c-num")}
-                {head("report", "Last report", "c-date")}
-              </tr>
-            </thead>
-            <tbody>
-              {rows.map((g) => (
-                <tr key={g.id} aria-current={loc.route.item?.id === g.id ? "true" : undefined}>
-                  <td className="c-main">
-                    <ItemLink item={{ kind: "game", id: g.id }} loc={loc} className="row-link" data-row-link="">
-                      {g.name}
-                    </ItemLink>
-                    <span className="row-sub">
-                      {g.named && <span className="mono">{g.id}</span>}
-                      {g.title.engine && <span>{g.title.engine}</span>}
-                    </span>
-                  </td>
-                  <td className="c-stage" data-label="Stage">
-                    <span className="stage">
-                      <Pips rank={g.stageRank} total={stages} />
-                      <span className={g.stage ? undefined : "muted"}>{g.stage ?? "No stage yet"}</span>
-                    </span>
-                    {(g.reports || g.claim) && (
-                      <span className="row-sub">
-                        {g.reports && <span>{g.reports}</span>}
-                        {g.claim && <span className="claim-note">Claims {g.claim.stage}, unverified</span>}
-                      </span>
-                    )}
-                  </td>
-                  <td className="c-stop" data-label="Stops at">
-                    {g.firstStop ? (
-                      <>
-                        <span className="stop-line">
-                          <span className="mono">{g.firstStop.ref}</span> {g.firstStop.title}
-                        </span>
-                        {g.steps[0].scope && <span className="row-sub">{g.steps[0].scope.join(", ")}</span>}
-                      </>
-                    ) : (
-                      <span className="muted">None known</span>
-                    )}
-                  </td>
-                  <td className="c-num mono" data-label="Stops left">
-                    {g.steps.length || "–"}
-                  </td>
-                  <td className="c-date" data-label="Last report">
-                    {fmtDate(g.lastReport)}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+          <div className="rows-head" aria-hidden="true">
+            <span>Game</span>
+            <span>Stage</span>
+            <span>Stops at</span>
+          </div>
+          <ul className="rows" ref={list}>
+            {shown.map((g) => (
+              <li key={g.id}>
+                <GameRowLink g={g} loc={loc} total={total} />
+              </li>
+            ))}
+          </ul>
+          {shown.length < rows.length && (
+            <button
+              type="button"
+              className="btn more-btn"
+              onClick={() => {
+                focusAt.current = shown.length;
+                setExpanded(true);
+              }}
+            >
+              Show all {rows.length} games
+            </button>
+          )}
         </ListKeys>
       ) : (
         <Empty
-          title={`No title IDs match${q ? ` “${q}”` : ""}${stage !== "all" ? ` at ${stage === "none" ? "no stage" : stage}` : ""}`}
+          title={`No games match${q ? ` “${q}”` : ""}${stage !== "all" ? ` at ${stage === "none" ? "no stage" : stage}` : ""}`}
           hint="Try a game name, a PPSA ID, an engine such as Unity, an issue number or part of an error line."
           onClear={() => set({ q: null, stage: null })}
         />
       )}
-    </div>
+    </section>
+  );
+}
+
+function resultLine(n: number, stage: string, q: string): string {
+  const where = stage === "all" ? "" : stage === "none" ? " without a stage" : ` at ${stage}`;
+  return `${plural(n, "game")}${where}${q.trim() ? ` matching “${q.trim()}”` : ""}`;
+}
+
+function GameRowLink({ g, loc, total }: { g: GameRow; loc: Location; total: number }) {
+  const stop = g.firstStop;
+  return (
+    <ItemLink
+      item={{ kind: "game", id: g.id }}
+      loc={loc}
+      className="row game-row"
+      data-row-link=""
+      aria-current={loc.route.item?.id === g.id ? "true" : undefined}
+    >
+      <span className="g-game">
+        <span className="row-title">{g.name}</span>
+        <span className="row-meta">
+          {g.named && <span className="mono">{g.id}</span>}
+          {g.title.engine && <span>{g.title.engine}</span>}
+        </span>
+      </span>
+      <span className="g-stage">
+        <StageMeter rank={g.stageRank} total={total} />
+        <span className={g.stage ? "stage-name" : "stage-name muted"}>{g.stage ?? "No stage yet"}</span>
+      </span>
+      <span className="g-stop">
+        {stop ? (
+          <>
+            <span className="g-stop-label">Stops at </span>
+            <span className="g-stop-title">{stop.title}</span>
+            <span className="row-meta">
+              <span className="mono">{stop.ref}</span>
+              {g.steps[0].scope && <span>Only on {g.steps[0].scope.join(", ")}</span>}
+              {stop.fix.kind !== "none" && <StatusPill row={stop} withRef={false} />}
+            </span>
+          </>
+        ) : (
+          <span className="g-stop-title muted">No open blocker known</span>
+        )}
+      </span>
+    </ItemLink>
   );
 }

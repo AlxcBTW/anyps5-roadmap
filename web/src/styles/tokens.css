@@ -1,6 +1,8 @@
-/* The blocker map's design system, carried over from the classic page (render_html.py):
-   monochrome oklch neutrals, ink for emphasis, green only for "implemented" and "fixed",
-   Geist for text, Geist Mono for IDs and numbers in tables, Geist Pixel for headline numbers. */
+/* The blocker map's design system.
+   Neutrals carry almost everything (ink for emphasis, grays for structure). One accent, blue, means
+   "you can act here": focus rings, the primary button, hovered links. Green means done: a fixed
+   blocker, an implemented function. Geist for text, Geist Mono for IDs, Geist Pixel for the few
+   headline numbers. */
 
 @font-face {
   font-family: Geist;
@@ -22,90 +24,126 @@
 
 :root {
   color-scheme: light;
-  --bg: oklch(0.985 0 0);
-  --surface: oklch(0.998 0 0);
-  --lane: oklch(0.962 0 0);
-  --card: oklch(0.998 0 0);
-  --hover: oklch(0.955 0 0);
-  --selected: oklch(0.95 0 0);
-  --code: oklch(0.955 0 0);
-  --line: oklch(0.915 0 0);
-  --line-strong: oklch(0.62 0 0);
-  --track: oklch(0.925 0 0);
-  --text: oklch(0.21 0 0);
-  --text-2: oklch(0.45 0 0);
-  --text-3: oklch(0.53 0 0);
-  --ok: oklch(0.56 0.15 149);
-  --ok-part: oklch(0.82 0.09 149);
-  --miss: oklch(0.9 0 0);
-  --grid: oklch(0.998 0 0 / 0.7);
-  --scrim: oklch(0.2 0 0 / 0.32);
-  --shadow-card: 0 0 0 1px var(--line), 0 1px 2px oklch(0 0 0 / 0.04);
-  --shadow-card-hover: 0 0 0 1px var(--line-strong), 0 2px 6px oklch(0 0 0 / 0.06);
-  --shadow-drawer: 0 0 0 1px var(--line), 0 24px 64px oklch(0 0 0 / 0.14), 0 4px 12px oklch(0 0 0 / 0.06);
 
+  /* surfaces */
+  --bg: oklch(0.985 0.002 265);
+  --surface: oklch(1 0 0);
+  --sunken: oklch(0.965 0.003 265);
+  --hover: oklch(0.955 0.004 265);
+  --selected: oklch(0.94 0.006 265);
+  /* lines */
+  --line: oklch(0.915 0.004 265);
+  --line-control: oklch(0.62 0.006 265);
+  --track: oklch(0.88 0.004 265);
+  /* text */
+  --text: oklch(0.2 0.006 265);
+  --text-2: oklch(0.43 0.006 265);
+  --text-3: oklch(0.52 0.006 265);
+  /* the accent: interactive only */
+  --accent: oklch(0.52 0.19 262);
+  --accent-hover: oklch(0.46 0.19 262);
+  --on-accent: oklch(0.99 0 0);
+  --focus: oklch(0.52 0.19 262);
+  /* done */
+  --ok: oklch(0.55 0.14 149);
+  --ok-part: oklch(0.8 0.08 149);
+  --miss: oklch(0.9 0.003 265);
+  --grid: oklch(1 0 0 / 0.7);
+
+  --scrim: oklch(0.2 0.006 265 / 0.32);
+  --shadow-raised: 0 0 0 1px var(--line), 0 1px 2px oklch(0 0 0 / 0.04);
+  --shadow-control: 0 1px 2px oklch(0 0 0 / 0.05);
+  --shadow-drawer: 0 0 0 1px var(--line), 0 24px 64px oklch(0 0 0 / 0.12), 0 4px 12px oklch(0 0 0 / 0.05);
+
+  /* type */
   --sans: Geist, ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
   --mono: "Geist Mono", ui-monospace, "Cascadia Mono", Consolas, monospace;
   --pixel: "Geist Pixel", "Geist Mono", ui-monospace, monospace;
-  --fs-xs: 12px;
-  --fs-s: 13px;
-  --fs-m: 15px;
-  --fs-l: 17px;
-  --fs-xl: 22px;
+  --text-display: clamp(2rem, 1.35rem + 2.6vw, 3.25rem);
+  --text-title: 1.375rem;
+  --text-heading: 1.0625rem;
+  --text-lede: 1.125rem;
+  --text-body: 1rem;
+  --text-ui: 0.9375rem;
+  --text-small: 0.8125rem;
+  --text-micro: 0.75rem;
+  --text-stat: 2.5rem;
 
-  --ease: cubic-bezier(0.2, 0, 0, 1);
+  /* space: one step per level of subordination */
+  --s-1: 4px;
+  --s-2: 8px;
+  --s-3: 12px;
+  --s-4: 16px;
+  --s-5: 24px;
+  --s-6: 32px;
+  --s-7: 48px;
+  --s-8: 64px;
+  --s-9: 96px;
+
+  --r-s: 6px;
+  --r-m: 10px;
+  --r-l: 16px;
+
   --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
-  --bar-h: 56px;
-  --gutter: clamp(16px, 3.2vw, 48px);
+  --ease: cubic-bezier(0.2, 0, 0, 1);
+
+  --page: 1120px;
+  --gutter: clamp(16px, 4vw, 40px);
+  --bar-h: 64px;
+  --drawer-w: min(520px, 42vw);
 }
 
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
     color-scheme: dark;
-    --bg: oklch(0.16 0 0);
-    --surface: oklch(0.195 0 0);
-    --lane: oklch(0.185 0 0);
-    --card: oklch(0.22 0 0);
-    --hover: oklch(0.235 0 0);
-    --selected: oklch(0.255 0 0);
-    --code: oklch(0.235 0 0);
-    --line: oklch(0.29 0 0);
-    --line-strong: oklch(0.55 0 0);
-    --track: oklch(0.27 0 0);
-    --text: oklch(0.95 0 0);
-    --text-2: oklch(0.76 0 0);
-    --text-3: oklch(0.67 0 0);
-    --ok: oklch(0.66 0.16 149);
-    --ok-part: oklch(0.45 0.09 149);
-    --miss: oklch(0.36 0 0);
-    --grid: oklch(0.195 0 0 / 0.75);
+    --bg: oklch(0.165 0.004 265);
+    --surface: oklch(0.205 0.005 265);
+    --sunken: oklch(0.19 0.004 265);
+    --hover: oklch(0.235 0.005 265);
+    --selected: oklch(0.26 0.006 265);
+    --line: oklch(0.29 0.005 265);
+    --line-control: oklch(0.55 0.006 265);
+    --track: oklch(0.33 0.005 265);
+    --text: oklch(0.955 0.003 265);
+    --text-2: oklch(0.79 0.004 265);
+    --text-3: oklch(0.69 0.004 265);
+    --accent: oklch(0.74 0.14 262);
+    --accent-hover: oklch(0.8 0.12 262);
+    --on-accent: oklch(0.17 0.02 262);
+    --focus: oklch(0.74 0.14 262);
+    --ok: oklch(0.7 0.15 149);
+    --ok-part: oklch(0.45 0.08 149);
+    --miss: oklch(0.34 0.005 265);
+    --grid: oklch(0.205 0.005 265 / 0.75);
     --scrim: oklch(0 0 0 / 0.55);
-    --shadow-card: 0 0 0 1px var(--line);
-    --shadow-card-hover: 0 0 0 1px var(--line-strong);
+    --shadow-raised: 0 0 0 1px var(--line);
+    --shadow-control: none;
     --shadow-drawer: 0 0 0 1px var(--line), 0 24px 64px oklch(0 0 0 / 0.5);
   }
 }
 :root[data-theme="dark"] {
   color-scheme: dark;
-  --bg: oklch(0.16 0 0);
-  --surface: oklch(0.195 0 0);
-  --lane: oklch(0.185 0 0);
-  --card: oklch(0.22 0 0);
-  --hover: oklch(0.235 0 0);
-  --selected: oklch(0.255 0 0);
-  --code: oklch(0.235 0 0);
-  --line: oklch(0.29 0 0);
-  --line-strong: oklch(0.55 0 0);
-  --track: oklch(0.27 0 0);
-  --text: oklch(0.95 0 0);
-  --text-2: oklch(0.76 0 0);
-  --text-3: oklch(0.67 0 0);
-  --ok: oklch(0.66 0.16 149);
-  --ok-part: oklch(0.45 0.09 149);
-  --miss: oklch(0.36 0 0);
-  --grid: oklch(0.195 0 0 / 0.75);
+  --bg: oklch(0.165 0.004 265);
+  --surface: oklch(0.205 0.005 265);
+  --sunken: oklch(0.19 0.004 265);
+  --hover: oklch(0.235 0.005 265);
+  --selected: oklch(0.26 0.006 265);
+  --line: oklch(0.29 0.005 265);
+  --line-control: oklch(0.55 0.006 265);
+  --track: oklch(0.33 0.005 265);
+  --text: oklch(0.955 0.003 265);
+  --text-2: oklch(0.79 0.004 265);
+  --text-3: oklch(0.69 0.004 265);
+  --accent: oklch(0.74 0.14 262);
+  --accent-hover: oklch(0.8 0.12 262);
+  --on-accent: oklch(0.17 0.02 262);
+  --focus: oklch(0.74 0.14 262);
+  --ok: oklch(0.7 0.15 149);
+  --ok-part: oklch(0.45 0.08 149);
+  --miss: oklch(0.34 0.005 265);
+  --grid: oklch(0.205 0.005 265 / 0.75);
   --scrim: oklch(0 0 0 / 0.55);
-  --shadow-card: 0 0 0 1px var(--line);
-  --shadow-card-hover: 0 0 0 1px var(--line-strong);
+  --shadow-raised: 0 0 0 1px var(--line);
+  --shadow-control: none;
   --shadow-drawer: 0 0 0 1px var(--line), 0 24px 64px oklch(0 0 0 / 0.5);
 }

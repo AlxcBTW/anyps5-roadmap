@@ -27,19 +27,26 @@ export function BlockerDetail({ id, loc }: { id: string; loc: Location }) {
         </h2>
         <div className="detail-tags">
           <StatusPill row={row} />
-          {b.origin === "curated" && <span className="tag">Curated</span>}
+          {b.origin === "curated" && <span className="tag">Checked by hand</span>}
           {b.help_wanted && <span className="tag">Help wanted</span>}
         </div>
       </header>
 
-      {row.open ? (
-        <dl className="stats">
-          <Stat n={row.firstStop} label={row.firstStop === 1 ? "Game stops here first" : "Games stop here first"} />
-          <Stat n={row.onlyStop} label={row.onlyStop === 1 ? "Game has no other stop" : "Games have no other stop"} />
-          <Stat n={row.games} label={row.games === 1 ? "Game in total" : "Games in total"} />
-          <Stat n={row.score} label="Score" hint={`3×${row.onlyStop} + 2×${row.firstStop} + ${row.games}`} />
-        </dl>
-      ) : (
+      {row.open && (
+        <div className="stats-wrap">
+          <dl className="stats">
+            <Stat n={row.firstStop} label={row.firstStop === 1 ? "Game stops here first" : "Games stop here first"} />
+            <Stat n={row.onlyStop} label={row.onlyStop === 1 ? "Game has no other stop" : "Games have no other stop"} />
+            <Stat n={row.games} label={row.games === 1 ? "Game in total" : "Games in total"} />
+          </dl>
+          {row.rank != null && (
+            <p className="score-line">
+              Score {row.score} = 3 × {row.onlyStop} + 2 × {row.firstStop} + {row.games}
+            </p>
+          )}
+        </div>
+      )}
+      {!row.open && (
         <p className="detail-note">
           Fixed
           {row.fix.pr && (
@@ -128,13 +135,10 @@ export function BlockerDetail({ id, loc }: { id: string; loc: Location }) {
   );
 }
 
-function Stat({ n, label, hint }: { n: number; label: string; hint?: string }) {
+function Stat({ n, label }: { n: number; label: string }) {
   return (
     <div className="stat">
-      <dt>
-        {label}
-        {hint && <span className="stat-hint mono">{hint}</span>}
-      </dt>
+      <dt>{label}</dt>
       <dd className="stat-n">{n}</dd>
     </div>
   );

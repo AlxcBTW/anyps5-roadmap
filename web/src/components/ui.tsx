@@ -52,10 +52,10 @@ export function ItemLink({ item, loc, className, children, ...rest }: { item: It
   );
 }
 
-/** One pip per stage, filled up to this one. */
-export function Pips({ rank, total }: { rank: number; total: number }) {
+/** How far a game gets: one segment per stage, filled up to its stage. The stage name beside it carries the meaning. */
+export function StageMeter({ rank, total }: { rank: number; total: number }) {
   return (
-    <span className="pips" aria-hidden="true">
+    <span className="meter" aria-hidden="true">
       {Array.from({ length: total }, (_, i) => (
         <i key={i} className={i <= rank ? "on" : undefined} />
       ))}
@@ -63,25 +63,14 @@ export function Pips({ rank, total }: { rank: number; total: number }) {
   );
 }
 
+/** The fix status of a blocker: a dot (filled: fix in review, green: fixed, hollow: no fix) and its label. */
 export function StatusPill({ row, withRef = true }: { row: BlockerRow; withRef?: boolean }) {
   const r = withRef ? statusRef(row) : null;
   return (
-    <span className={`pill pill-${row.fix.kind}`}>
+    <span className={`status status-${row.fix.kind}`}>
       <i aria-hidden="true" />
       {row.fix.label}
       {r && <span className="mono">{r}</span>}
-    </span>
-  );
-}
-
-/** A dot per game: filled when this blocker is the game's first stop, hollow when it comes later. */
-export function Dots({ dots, max = 10 }: { dots: boolean[]; max?: number }) {
-  return (
-    <span className="dots" aria-hidden="true">
-      {dots.slice(0, max).map((on, i) => (
-        <i key={i} className={on ? "on" : undefined} />
-      ))}
-      {dots.length > max && <span className="more">+{dots.length - max}</span>}
     </span>
   );
 }
@@ -109,9 +98,10 @@ export function Chips({ legend, chips, value, onChange }: { legend: string; chip
   );
 }
 
-/** The search field of a list. "/" focuses it from anywhere; Escape clears it. */
-export function SearchField({ label, placeholder, value, onChange }: { label: string; placeholder: string; value: string; onChange: (v: string) => void }) {
+/** The search field of a list. "/" focuses it from anywhere; Escape clears it. The large one shows its label. */
+export function SearchField({ label, placeholder, value, onChange, large = false }: { label: string; placeholder: string; value: string; onChange: (v: string) => void; large?: boolean }) {
   const ref = useRef<HTMLInputElement>(null);
+  const id = useId();
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       const tag = (document.activeElement as HTMLElement | null)?.tagName ?? "";
@@ -124,26 +114,31 @@ export function SearchField({ label, placeholder, value, onChange }: { label: st
     return () => removeEventListener("keydown", onKey);
   }, []);
   return (
-    <label className="search">
-      <SearchIcon />
-      <span className="sr-only">{label}</span>
-      <input
-        ref={ref}
-        type="search"
-        value={value}
-        placeholder={placeholder}
-        autoComplete="off"
-        spellCheck={false}
-        onChange={(e) => onChange(e.target.value)}
-        onKeyDown={(e) => {
-          if (e.key === "Escape" && value) {
-            e.preventDefault(); // keeps an open drawer open
-            onChange("");
-          }
-        }}
-      />
-      <kbd aria-hidden="true">/</kbd>
-    </label>
+    <div className={large ? "search search-lg" : "search"}>
+      <label htmlFor={id} className={large ? "search-label" : "sr-only"}>
+        {label}
+      </label>
+      <div className="search-box">
+        <SearchIcon />
+        <input
+          id={id}
+          ref={ref}
+          type="search"
+          value={value}
+          placeholder={placeholder}
+          autoComplete="off"
+          spellCheck={false}
+          onChange={(e) => onChange(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === "Escape" && value) {
+              e.preventDefault(); // keeps an open drawer open
+              onChange("");
+            }
+          }}
+        />
+        <kbd aria-hidden="true">/</kbd>
+      </div>
+    </div>
   );
 }
 
@@ -210,9 +205,9 @@ export function Empty({ title, hint, onClear }: { title: string; hint: string; o
   );
 }
 
-export function External({ href, children, className }: { href: string; children: ReactNode; className?: string }) {
+export function External({ href, children, ...rest }: { href: string; children: ReactNode } & Omit<AnchorHTMLAttributes<HTMLAnchorElement>, "href" | "rel">) {
   return (
-    <a href={href} className={className} rel="noreferrer">
+    <a {...rest} href={href} rel="noreferrer">
       {children}
     </a>
   );

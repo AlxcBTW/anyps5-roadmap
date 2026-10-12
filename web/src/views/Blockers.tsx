@@ -1,21 +1,21 @@
-// Every blocker in one sortable table: the ranking, the ones no game is linked to yet, and the
-// resolved ones. A row opens the blocker in the drawer.
+// Every blocker in one list: the ranking first, then the ones no game is linked to yet, then the
+// fixed ones. A row opens the blocker in the drawer.
 
-import { useMemo, type ReactNode } from "react";
+import { useMemo } from "react";
 import {
   BLOCKER_FILTERS,
   BLOCKER_SORTS,
   blockerAccessors,
-  blockerNatural,
   filterBlockers,
   type BlockerFilter,
   type BlockerSort,
 } from "../data/lists";
 import { useData } from "../data/load";
+import type { BlockerRow } from "../data/model";
 import { fmtDate, plural } from "../lib/format";
 import { setParams, type Location } from "../lib/router";
-import { formatSort, nextSort, parseSort, sortRows, type Dir, type Sort } from "../lib/sort";
-import { Chips, Dots, Empty, ItemLink, SearchField, SortHeader, SortSelect, StatusPill, ViewHead } from "../components/ui";
+import { formatSort, parseSort, sortRows, type Dir, type Sort } from "../lib/sort";
+import { Chips, Empty, ItemLink, SearchField, SortSelect, StatusPill, ViewHead } from "../components/ui";
 import { ListKeys } from "./listKeys";
 
 const DEFAULT: Sort<BlockerSort> = { key: "rank", dir: "asc" };
@@ -23,7 +23,6 @@ const DEFAULT: Sort<BlockerSort> = { key: "rank", dir: "asc" };
 const SORT_OPTIONS: { key: BlockerSort; label: string; dir: Dir }[] = [
   { key: "rank", label: "Rank", dir: "asc" },
   { key: "games", label: "Most games", dir: "desc" },
-  { key: "score", label: "Highest score", dir: "desc" },
   { key: "activity", label: "Latest activity", dir: "desc" },
   { key: "title", label: "Title, A to Z", dir: "asc" },
   { key: "area", label: "Area, A to Z", dir: "asc" },
@@ -31,7 +30,7 @@ const SORT_OPTIONS: { key: BlockerSort; label: string; dir: Dir }[] = [
 ];
 
 export function Blockers({ loc }: { loc: Location }) {
-  const { model } = useData();
+  const { model, resolvedAt } = useData();
   const p = loc.under.params;
   const status = (p.get("status") ?? "open") in BLOCKER_FILTERS ? ((p.get("status") ?? "open") as BlockerFilter) : "open";
   const area = p.get("area") ?? "";
@@ -52,30 +51,13 @@ export function Blockers({ loc }: { loc: Location }) {
     () => sortRows(filterBlockers(model.blockers, { status, area, q }), blockerAccessors, sort),
     [model, status, area, q, sort],
   );
-
   const set = (changes: Record<string, string | null>) => setParams(loc, changes);
-  const onSort = (k: BlockerSort, natural: Dir) => {
-    const s = nextSort(sort, k, natural);
-    set({ sort: k === DEFAULT.key && s.dir === DEFAULT.dir ? null : formatSort(s) });
-  };
-  const resolvedView = status === "resolved";
-  const head = (k: BlockerSort, label: ReactNode, className?: string) => (
-    <SortHeader k={k} label={label} sort={sort} natural={blockerNatural[k]} onSort={onSort} className={className} />
-  );
 
   return (
-    <div className="list-view">
+    <div className="view">
       <ViewHead title="Blockers" count={String(counts.open)}>
-        Open issues and PRs that stop games, ranked by how many games a fix moves.
+        Open issues in AnyPS5 that stop games, ranked by how many games a fix would move.
       </ViewHead>
-      <details className="explain">
-        <summary>How the ranking works</summary>
-        <p>
-          Score = 3 × games for which it is the only stop left + 2 × games it stops first + every game that lists it.
-          Games are counted by name, so the region IDs of one game count once. In the dots, a filled dot is a game it
-          stops first, a hollow one a game that hits it later.
-        </p>
-      </details>
 
       <div className="toolbar">
         <SearchField label="Search blockers" placeholder="Issue number, title or error line" value={q} onChange={(v) => set({ q: v || null })} />
@@ -101,80 +83,70 @@ export function Blockers({ loc }: { loc: Location }) {
           .filter((k) => counts[k] || k === status)
           .map((k) => ({ value: k, label: BLOCKER_FILTERS[k].label, count: counts[k] }))}
       />
-      <p className="result" role="status">
-        {plural(rows.length, "blocker")}
-        {(q || area) && " match"}
-      </p>
+      <div className="list-meta">
+        <p className="result" role="status">
+          {plural(rows.length, "blocker")}
+          {(q || area) && (rows.length === 1 ? " matches" : " match")}
+        </p>
+        <details className="explain">
+          <summary>How the ranking works</summary>
+          <p>
+            Each open blocker scores 3 points for every game it is the only stop of, 2 for every game it stops first, and 1
+            for every game that hits it at all. Games are counted by name, so the region IDs of one game count once.
+          </p>
+        </details>
+      </div>
 
       {rows.length ? (
         <ListKeys loc={loc}>
-          <table className="table blockers-table">
-            <thead>
-              <tr>
-                {head("rank", <>#<span className="sr-only"> Rank</span></>, "c-rank")}
-                {head("title", "Blocker", "c-main")}
-                {head("area", "Area", "c-area")}
-                {head("status", "Fix", "c-status")}
-                {!resolvedView && head("games", "Games", "c-games")}
-                {!resolvedView && head("score", "Score", "c-num")}
-                {head("activity", "Last activity", "c-date")}
-              </tr>
-            </thead>
-            <tbody>
-              {rows.map((r) => (
-                <tr key={r.id} aria-current={loc.route.item?.id === r.id ? "true" : undefined}>
-                  <td className="c-rank mono" data-label="Rank">
-                    {r.rank != null ? String(r.rank).padStart(2, "0") : "–"}
-                  </td>
-                  <td className="c-main">
-                    <ItemLink item={{ kind: "blocker", id: r.id }} loc={loc} className="row-link" data-row-link="">
-                      {r.title}
-                    </ItemLink>
-                    <span className="row-sub">
-                      <span className="mono">{r.ref}</span>
-                      <span className="sub-area">{r.area}</span>
-                      {r.blocker.signature && <span className="sig-line mono">{r.blocker.signature}</span>}
-                    </span>
-                  </td>
-                  <td className="c-area" data-label="Area">{r.area}</td>
-                  <td className="c-status" data-label="Fix">
-                    <StatusPill row={r} />
-                  </td>
-                  {!resolvedView && (
-                    <td className="c-games" data-label="Games">
-                      {r.games ? (
-                        <span className="games-cell">
-                          <Dots dots={r.dots} max={8} />
-                          <span className="mono">{r.games}</span>
-                          <span className="sr-only">
-                            {" "}games, first stop for {r.firstStop}
-                          </span>
-                        </span>
-                      ) : (
-                        <span className="muted">None linked</span>
-                      )}
-                    </td>
-                  )}
-                  {!resolvedView && (
-                    <td className="c-num mono" data-label="Score">
-                      {r.games ? r.score : "–"}
-                    </td>
-                  )}
-                  <td className="c-date" data-label="Last activity">
-                    {fmtDate(r.lastActivity)}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+          <ul className="rows">
+            {rows.map((r) => (
+              <li key={r.id}>
+                <BlockerRowLink row={r} loc={loc} fixedOn={resolvedAt.get(r.id)} />
+              </li>
+            ))}
+          </ul>
         </ListKeys>
       ) : (
         <Empty
           title={`No blockers match${q ? ` “${q}”` : ""}`}
-          hint="Try an issue number, part of an error line, or another area or status."
+          hint="Try an issue number such as 2548, a function name or part of an error line."
           onClear={() => set({ q: null, area: null, status: null })}
         />
       )}
     </div>
+  );
+}
+
+function gamesLine(r: BlockerRow): string {
+  if (!r.open) return "";
+  if (r.firstStop) return `Stops ${plural(r.firstStop, "game")}`;
+  if (r.games) return `Later stop for ${plural(r.games, "game")}`;
+  return "No game linked";
+}
+
+function BlockerRowLink({ row, loc, fixedOn }: { row: BlockerRow; loc: Location; fixedOn?: string }) {
+  const games = gamesLine(row);
+  return (
+    <ItemLink
+      item={{ kind: "blocker", id: row.id }}
+      loc={loc}
+      className="row blocker-row"
+      data-row-link=""
+      aria-current={loc.route.item?.id === row.id ? "true" : undefined}
+    >
+      <span className="b-rank mono">{row.rank != null ? <><span className="sr-only">Rank </span>{row.rank}</> : ""}</span>
+      <span className="b-main">
+        <span className="row-title">{row.title}</span>
+        <span className="row-meta">
+          <span className="mono">{row.ref}</span>
+          <span>{row.area}</span>
+          <StatusPill row={row} />
+        </span>
+      </span>
+      <span className={row.firstStop ? "b-games" : "b-games muted"}>
+        {row.open ? games : fixedOn ? `Fixed ${fmtDate(fixedOn)}` : row.lastActivity && `Last activity ${fmtDate(row.lastActivity)}`}
+      </span>
+    </ItemLink>
   );
 }

@@ -1,33 +1,8 @@
-// The lists the views show: the roadmap board's lanes, and the filters and sort columns of the
-// Blockers and Games tables. Pure functions over the model, so tests and views share them.
+// The lists the views show: the filters and sort orders of the game list and the blocker list.
+// Pure functions over the model, so tests and views share them.
 
 import type { Accessors, Dir } from "../lib/sort";
-import type { BlockerRow, GameRow, Model } from "./model";
-
-// -- the roadmap board --------------------------------------------------------
-
-export interface Board {
-  review: BlockerRow[]; // open, with a fix PR open or in draft
-  next: BlockerRow[]; // ranked, without an open fix PR, best first
-  fixed: { row: BlockerRow; date: string | null; fromFeed: boolean }[]; // resolved, newest first
-}
-
-export function board(model: Model, resolvedAt: Map<string, string>): Board {
-  const open = model.blockers.filter((r) => r.open);
-  const byRank = (a: BlockerRow, z: BlockerRow) => (a.rank ?? Infinity) - (z.rank ?? Infinity);
-  const fixed = model.blockers
-    .filter((r) => !r.open)
-    .map((row) => {
-      const seen = resolvedAt.get(row.id);
-      return { row, date: seen ?? row.lastActivity, fromFeed: !!seen };
-    })
-    .sort((a, z) => Number(z.fromFeed) - Number(a.fromFeed) || (z.date ?? "").localeCompare(a.date ?? ""));
-  return {
-    review: open.filter((r) => r.fix.kind === "review").sort(byRank),
-    next: open.filter((r) => r.rank != null && r.fix.kind !== "review").sort(byRank),
-    fixed,
-  };
-}
+import type { BlockerRow, GameRow } from "./model";
 
 // -- blockers -------------------------------------------------------------------
 
@@ -107,8 +82,20 @@ export function stageCounts(rows: readonly GameRow[]): Map<string, number> {
   return new Map([...names].map(([k, s]) => [k, s.size]));
 }
 
-export function gameCount(rows: readonly GameRow[]): number {
-  return new Set(rows.map((g) => g.name)).size;
+/** One row per game: the first title ID of each name in the given order, so a sorted list keeps its best. */
+export function onePerGame(rows: readonly GameRow[]): GameRow[] {
+  const seen = new Set<string>();
+  return rows.filter((g) => !seen.has(g.name) && !!seen.add(g.name));
+}
+
+/**
+ * The game list: one row per game, its best title ID (rows come highest stage first, as model.games
+ * does). The stage filter reads that row, like the stage chips and the ladder; the search reads every
+ * title ID of the game, so a region's PPSA ID still finds it.
+ */
+export function gameList(rows: readonly GameRow[], { stage, q }: GameQuery): GameRow[] {
+  const hit = new Set(filterGames(rows, { stage: "all", q }).map((g) => g.name));
+  return filterGames(onePerGame(rows), { stage, q: "" }).filter((g) => hit.has(g.name));
 }
 
 export const GAME_SORTS = ["name", "stage", "stop", "chain", "report"] as const;

@@ -1,25 +1,11 @@
 import { describe, expect, it } from "vitest";
 import { sortRows } from "../lib/sort";
 import { fixture } from "../test/fixture";
-import { blockerAccessors, board, filterBlockers, filterGames, gameAccessors, gameCount, stageCounts } from "./lists";
+import { blockerAccessors, filterBlockers, filterGames, gameAccessors, gameList, onePerGame, stageCounts } from "./lists";
 import { buildModel } from "./model";
 
 const model = buildModel(fixture);
 const ids = (rows: { id: string }[]) => rows.map((r) => r.id);
-
-describe("roadmap board", () => {
-  it("splits open blockers into in review and next up, and lists the resolved ones", () => {
-    const b = board(model, new Map());
-    expect(ids(b.review)).toEqual(["10", "pr-30", "pr-33"]); // ranked first, then not linked to a game
-    expect(ids(b.next)).toEqual(["13~pthread_sigmask", "13~uEtgPWgPxOk", "11"]);
-    expect(b.fixed.map((f) => f.row.id)).toEqual(["12"]);
-  });
-
-  it("dates a fix from the feed when the feed saw it resolved", () => {
-    const b = board(model, new Map([["12", "2026-10-11T04:50:34Z"]]));
-    expect(b.fixed[0]).toMatchObject({ date: "2026-10-11T04:50:34Z", fromFeed: true });
-  });
-});
 
 describe("blocker filters", () => {
   const all = { status: "open", area: "", q: "" } as const;
@@ -53,7 +39,23 @@ describe("game filters", () => {
   it("counts games per stage chip, by name", () => {
     const n = stageCounts(model.games);
     expect([n.get("all"), n.get("Converts"), n.get("Presents"), n.get("none")]).toEqual([12, 8, 2, 1]);
-    expect(gameCount(model.games)).toBe(12);
+  });
+
+  it("keeps one row per game, the first of its title IDs", () => {
+    const [a, b] = model.games;
+    const twin = { ...b, id: "PPSA00000", name: a.name };
+    expect(ids(onePerGame([a, twin, b]))).toEqual([a.id, b.id]);
+    expect(onePerGame(model.games)).toHaveLength(12);
+  });
+
+  it("lists a game once, at its best title ID, and finds it through any of its title IDs", () => {
+    const [a, b] = model.games; // a has the higher stage
+    const region = { ...b, name: a.name, search: "ppsa00000 region" };
+    const games = [a, region, ...model.games.slice(2)];
+    expect(ids(gameList(games, { stage: "all", q: "ppsa00000" }))).toEqual([a.id]);
+    expect(gameList(games, { stage: b.stage!, q: "" }).map((g) => g.name)).not.toContain(a.name);
+    const n = stageCounts(onePerGame(games));
+    expect([...n].filter(([k]) => k !== "all").reduce((sum, [, v]) => sum + v, 0)).toBe(n.get("all"));
   });
 
   it("sorts by stage without ever using an unverified claim", () => {

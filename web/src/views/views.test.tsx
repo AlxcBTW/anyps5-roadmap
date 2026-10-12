@@ -1,20 +1,21 @@
-// The list views through the DOM: filter chips, sortable headers, and rows that open the drawer.
-import { act, cleanup, fireEvent, render, screen, within } from "@testing-library/react";
+// The list views through the DOM: the front page search, filter chips, sort menus, and rows that open the drawer.
+import { act, cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { DataContext, type Data } from "../data/load";
 import { buildModel } from "../data/model";
 import { useLocation } from "../lib/router";
 import { fixture } from "../test/fixture";
 import { Blockers } from "./Blockers";
-import { Games } from "./Games";
+import { GameList } from "./Games";
+import { Home } from "./Home";
 
 const data: Data = { model: buildModel(fixture), snapshots: [], feed: "missing", resolvedAt: new Map(), sizes: {} };
 
-function Harness({ view }: { view: "games" | "blockers" }) {
+function Harness({ view }: { view: "home" | "games" | "blockers" }) {
   const loc = useLocation();
   return (
     <DataContext.Provider value={data}>
-      {view === "games" ? <Games loc={loc} /> : <Blockers loc={loc} />}
+      {view === "home" ? <Home loc={loc} /> : view === "games" ? <GameList loc={loc} /> : <Blockers loc={loc} />}
     </DataContext.Provider>
   );
 }
@@ -26,42 +27,47 @@ function go(hash: string) {
   });
 }
 
-const rowNames = () =>
-  screen
-    .getAllByRole("row")
-    .slice(1)
-    .map((r) => within(r).getAllByRole("link")[0].textContent);
+const rowNames = () => [...document.querySelectorAll("[data-row-link] .row-title")].map((n) => n.textContent);
 
 beforeEach(() => go("#/"));
 afterEach(cleanup);
+
+describe("Front page", () => {
+  it("searches the games from the hero and keeps the search in the address", () => {
+    go("#/");
+    render(<Harness view="home" />);
+    expect(rowNames()).toHaveLength(12);
+    fireEvent.change(screen.getByRole("searchbox", { name: "Find a game" }), { target: { value: "stray" } });
+    expect(location.hash).toBe("#/?q=stray");
+    expect(rowNames()).toEqual(["Stray"]);
+    expect(screen.getByRole("status").textContent).toBe("1 game matching “stray”");
+  });
+});
 
 describe("Games", () => {
   it("filters by a stage chip and writes the filter into the address", () => {
     go("#/games");
     render(<Harness view="games" />);
-    expect(screen.getAllByRole("row")).toHaveLength(13); // header + 12 title IDs
     fireEvent.click(screen.getByRole("radio", { name: /Presents/ }));
     expect(rowNames().sort()).toEqual(["Stray", "Taxi Chaos 2"]);
     expect(location.hash).toBe("#/games?stage=Presents");
-    expect(screen.getByRole("status").textContent).toBe("2 games in 2 title IDs");
+    expect(screen.getByRole("status").textContent).toBe("2 games at Presents");
   });
 
-  it("sorts by a column header and marks the sorted column", () => {
+  it("sorts from the sort menu", () => {
     go("#/games");
     render(<Harness view="games" />);
-    const header = screen.getByRole("columnheader", { name: /Game/ });
-    fireEvent.click(within(header).getByRole("button"));
-    expect(header.getAttribute("aria-sort")).toBe("ascending");
+    expect(rowNames()[0]).toBe("Dreaming Sarah"); // furthest first
+    expect(rowNames().at(-1)).toBe("Kena: Bridge of Spirits"); // no stage
+    fireEvent.change(screen.getByRole("combobox", { name: "Sort" }), { target: { value: "name:asc" } });
+    expect(location.hash).toBe("#/games?sort=name");
     expect(rowNames().slice(0, 3)).toEqual(["Dreaming Sarah", "Kena: Bridge of Spirits", "PPSA99001"]);
-    fireEvent.click(within(header).getByRole("button"));
-    expect(header.getAttribute("aria-sort")).toBe("descending");
-    expect(rowNames()[0]).toBe("Taxi Chaos 2");
   });
 
   it("names the search and offers a way out when nothing matches", () => {
     go("#/games?q=nothing-like-this");
     render(<Harness view="games" />);
-    expect(screen.getByText("No title IDs match “nothing-like-this”")).toBeTruthy();
+    expect(screen.getByText("No games match “nothing-like-this”")).toBeTruthy();
     fireEvent.click(screen.getByRole("button", { name: "Clear filters" }));
     expect(location.hash).toBe("#/games");
   });
@@ -76,7 +82,7 @@ describe("Blockers", () => {
       "Direct memory stall on Windows",
       "pthread_set_name_np is not exported", // no game linked yet: after the ranked ones
     ]);
-    fireEvent.click(screen.getAllByRole("link")[0]);
+    fireEvent.click(document.querySelector<HTMLAnchorElement>("[data-row-link]")!);
     expect(location.hash).toBe("#/blockers/10");
     expect((history.state as { under?: string }).under).toBe("#/blockers?status=review");
   });

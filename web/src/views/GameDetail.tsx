@@ -3,7 +3,7 @@ import { useData } from "../data/load";
 import type { Evidence } from "../data/schema";
 import { fmtDate, plural } from "../lib/format";
 import { viewHref, type Location } from "../lib/router";
-import { External, ItemLink, Pips, ViewLink } from "../components/ui";
+import { External, ItemLink, StageMeter, ViewLink } from "../components/ui";
 import { BlockerRef } from "./BlockerDetail";
 
 const VERDICTS = { confirmed: "Confirmed", downgraded: "Downgraded", suppressed: "Suppressed" } as const;
@@ -34,6 +34,7 @@ export function GameDetail({ id, loc }: { id: string; loc: Location }) {
   const stages = model.stages.length;
   const resolved = t.resolved_blockers.map((b) => model.blocker(b)).filter((r) => !!r);
   const evidence = t.evidence ?? [];
+  const meaning = model.stages.find((s) => s.name === g.stage)?.meaning;
 
   return (
     <article className="detail">
@@ -50,11 +51,51 @@ export function GameDetail({ id, loc }: { id: string; loc: Location }) {
 
       <section className="stage-box" aria-label="Stage">
         <div className="stage-line">
-          <Pips rank={g.stageRank} total={stages} />
+          <StageMeter rank={g.stageRank} total={stages} />
           <span className="stage-name">{g.stage ?? "No stage yet"}</span>
-          {g.reports && <span className="tag">{g.reports}</span>}
+          {g.stage && (
+            <span className="stage-of muted">
+              {g.stageRank + 1} of {stages}
+            </span>
+          )}
         </div>
-        {best?.url && <Source e={best} repo={model.repo} />}
+        <p className="stage-meaning">{meaning ?? "No report confirms how far it gets on AnyPS5 main yet."}</p>
+        {(best?.url || g.reports) && (
+          <p className="stage-source">
+            {best?.url && <Source e={best} repo={model.repo} brief />}
+            {g.reports && <span className="tag">{g.reports}</span>}
+          </p>
+        )}
+      </section>
+
+      <section className="detail-sec">
+        <h3>
+          Where it stops <span className="h-n">{g.steps.length}</span>
+        </h3>
+        {g.steps.length ? (
+          <ol className="chain">
+            {g.steps.map((s, i) => {
+              const row = model.blocker(s.id)!;
+              return (
+                <li key={s.id} className={i === 0 ? "now" : undefined}>
+                  <span className="chain-n mono" aria-hidden="true">{i + 1}</span>
+                  <div className="chain-body">
+                    <BlockerRef row={row} loc={loc} />
+                    <span className="chain-meta">
+                      {i === 0 && <span className="tag tag-now">Stops here now</span>}
+                      {s.scope?.map((p) => (
+                        <span key={p} className="tag tag-path">{p}</span>
+                      ))}
+                      {s.why && <span className="muted">{s.why}</span>}
+                    </span>
+                  </div>
+                </li>
+              );
+            })}
+          </ol>
+        ) : (
+          <p className="muted">No open stop known.</p>
+        )}
       </section>
 
       {g.claim && (
@@ -71,36 +112,6 @@ export function GameDetail({ id, loc }: { id: string; loc: Location }) {
           </p>
         </section>
       )}
-
-      <section className="detail-sec">
-        <h3>
-          Stops, in order <span className="h-n">{g.steps.length}</span>
-        </h3>
-        {g.steps.length ? (
-          <ol className="chain">
-            {g.steps.map((s, i) => {
-              const row = model.blocker(s.id)!;
-              return (
-                <li key={s.id} className={i === 0 ? "now" : undefined}>
-                  <span className="chain-n mono" aria-hidden="true">{i + 1}</span>
-                  <div className="chain-body">
-                    <BlockerRef row={row} loc={loc} />
-                    <span className="chain-meta">
-                      {i === 0 && <span className="tag">Stops here now</span>}
-                      {s.scope?.map((p) => (
-                        <span key={p} className="tag tag-path">{p}</span>
-                      ))}
-                      {s.why && <span className="muted">{s.why}</span>}
-                    </span>
-                  </div>
-                </li>
-              );
-            })}
-          </ol>
-        ) : (
-          <p className="muted">No open stop known.</p>
-        )}
-      </section>
 
       {resolved.length > 0 && (
         <section className="detail-sec">
@@ -142,16 +153,16 @@ export function GameDetail({ id, loc }: { id: string; loc: Location }) {
       {evidence.length > 0 && (
         <details className="detail-sec more">
           <summary>
-            <h3>
+            <span className="summary-title">
               Reports <span className="h-n">{evidence.length}</span>
-            </h3>
+            </span>
           </summary>
           <ul className="evidence">
             {evidence.map((e, i) => (
               <li key={i}>
                 <p className="ev-line">
                   <span className="ev-stage">{e.stage}</span>
-                  <Source e={e} repo={model.repo} inline />
+                  <Source e={e} repo={model.repo} />
                 </p>
                 {e.quote && <blockquote>{e.quote}</blockquote>}
               </li>
@@ -194,14 +205,15 @@ export function GameDetail({ id, loc }: { id: string; loc: Location }) {
   );
 }
 
-function Source({ e, repo, inline = false }: { e: Evidence; repo: string; inline?: boolean }) {
+/** Where a stage was seen and its link. The brief form, in the stage box, leaves the build and author to the reports. */
+function Source({ e, repo, brief = false }: { e: Evidence; repo: string; brief?: boolean }) {
   const where = [e.os, e.gpu].filter(Boolean).join(" · ");
-  const parts = [where, e.build && `build ${e.build}`, e.author && `by ${e.author}`, e.date && fmtDate(e.date)].filter(Boolean);
+  const parts = [where, !brief && e.build && `build ${e.build}`, !brief && e.author && `by ${e.author}`, e.date && fmtDate(e.date)].filter(Boolean);
   return (
-    <span className={inline ? "source" : "source source-block"}>
+    <span className="source">
       <External href={e.url}>{sourceLabel(e.url, repo)}</External>
       {parts.length > 0 && <span className="muted"> · {parts.join(" · ")}</span>}
-      {e.origin && e.origin !== "mined" && <span className="tag">{e.origin === "curated" ? "Curated" : "Upstream"}</span>}
+      {e.origin && e.origin !== "mined" && <span className="tag">{e.origin === "curated" ? "Checked by hand" : "From the AnyPS5 list"}</span>}
     </span>
   );
 }

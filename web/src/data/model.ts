@@ -33,7 +33,6 @@ export interface BlockerRow {
   games: number; // games that list it anywhere
   firstStop: number; // games it stops first
   onlyStop: number; // games for which it is the only stop left
-  dots: boolean[]; // one per game, first stops first; true = stops it first
   fix: FixStatus;
   helpWanted: boolean;
   lastActivity: string | null;
@@ -71,6 +70,7 @@ export interface Counts {
   games: number; // listed games, by name
   titleIds: number; // listed title IDs
   gamesWithStage: number;
+  reachMenus: number; // games whose best stage is Menus or higher
   gamesWaiting: number; // games with at least one open stop
   open: number;
   ranked: number;
@@ -150,8 +150,6 @@ export function buildModel(doc: RoadmapDoc): Model {
     const all = names(b.titles ?? []);
     const first = names(b.frontier_titles ?? []);
     const only = names(b.one_fix_titles ?? []);
-    const dots = [...all].sort((a, z) => a.localeCompare(z)).map((n) => first.has(n));
-    dots.sort((a, z) => Number(z) - Number(a));
     const r: BlockerRow = {
       id: b.id,
       ref: ref(b),
@@ -164,7 +162,6 @@ export function buildModel(doc: RoadmapDoc): Model {
       games: all.size,
       firstStop: first.size,
       onlyStop: only.size,
-      dots,
       fix: fixStatus(b),
       helpWanted: !!b.help_wanted,
       lastActivity: b.last_activity ?? null,
@@ -285,6 +282,7 @@ export function buildModel(doc: RoadmapDoc): Model {
       games: gameNames.size,
       titleIds: games.length,
       gamesWithStage: [...best.values()].filter(Boolean).length,
+      reachMenus: [...best.values()].filter((s) => s != null && stageRank(s) >= stageRank("Menus")).length,
       gamesWaiting: new Set(games.filter((g) => g.steps.length).map((g) => g.name)).size,
       open: open.length,
       ranked: linked.length,

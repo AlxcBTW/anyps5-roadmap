@@ -17,7 +17,6 @@ describe("ranking", () => {
     ]);
     const ten = model.blocker("10")!;
     expect([ten.games, ten.firstStop, ten.onlyStop]).toEqual([3, 2, 1]);
-    expect(ten.dots).toEqual([true, true, false]); // first stops first
   });
 
   it("keeps blockers without a game, and resolved ones, after the ranking", () => {
@@ -67,6 +66,7 @@ describe("games", () => {
     expect(model.noStage).toBe(1);
     expect(model.ladder.reduce((n, r) => n + r.games, 0) + model.noStage).toBe(model.counts.games);
     expect(model.ladder.find((r) => r.stage.name === "Converts")!.heldBy?.row.id).toBe("13~pthread_sigmask");
+    expect(model.counts.reachMenus).toBe(at.Menus + at.Ingame + at.Playable);
   });
 
   it("says what each game hits after a fix", () => {

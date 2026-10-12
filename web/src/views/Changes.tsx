@@ -1,11 +1,14 @@
 // What each snapshot changed, from feed.json, newest first. Every row opens its blocker or game.
 
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { CHANGE_GROUPS, CHANGE_LABELS, type ChangeGroup, type ChangeRow } from "../data/feed";
 import { useData } from "../data/load";
 import { fmtTime, plural } from "../lib/format";
 import { setParams, type Location } from "../lib/router";
 import { Chips, Empty, ItemLink, ViewHead } from "../components/ui";
+
+const ROWS_SHOWN = 6; // per snapshot, until someone asks for the rest
+const SNAPSHOTS_SHOWN = 10;
 
 const GROUP_LABELS: Record<ChangeGroup, string> = { resolved: "Fixed", ranking: "Ranking", games: "Games" };
 
@@ -25,13 +28,16 @@ export function Changes({ loc }: { loc: Location }) {
       }
     return n;
   }, [snapshots]);
-  const shown = snapshots
+  const [expanded, setExpanded] = useState<ReadonlySet<string>>(new Set());
+  const [older, setOlder] = useState(false);
+  const matching = snapshots
     .map((s) => ({ ...s, rows: s.rows.filter((r) => inGroup(r, group)) }))
     .filter((s) => s.rows.length || (group === "all" && s.notListed));
+  const shown = older ? matching : matching.slice(0, SNAPSHOTS_SHOWN);
 
   return (
     <div className="list-view">
-      <ViewHead title="Changes" count={snapshots.length ? String(counts.all) : undefined}>
+      <ViewHead title="Changes">
         What each hourly snapshot changed: blockers resolved, moves in the ranking, and games whose stage or first stop
         changed. Also as a <a href="feed.json">JSON feed</a>.
       </ViewHead>
@@ -70,7 +76,7 @@ export function Changes({ loc }: { loc: Location }) {
                   <span className="muted">{s.summary}</span>
                 </header>
                 <ul className="changes">
-                  {s.rows.map((r) => (
+                  {(expanded.has(s.id) ? s.rows : s.rows.slice(0, ROWS_SHOWN)).map((r) => (
                     <li key={r.key}>
                       <span className={`tag tag-change tag-${r.type}`}>{CHANGE_LABELS[r.type]}</span>
                       {r.item ? (
@@ -83,12 +89,22 @@ export function Changes({ loc }: { loc: Location }) {
                     </li>
                   ))}
                 </ul>
+                {!expanded.has(s.id) && s.rows.length > ROWS_SHOWN && (
+                  <button type="button" className="link-btn more-changes" onClick={() => setExpanded(new Set(expanded).add(s.id))}>
+                    Show all {s.rows.length} changes<span className="sr-only"> of {fmtTime(s.date)}</span>
+                  </button>
+                )}
                 {group === "all" && s.notListed > 0 && (
                   <p className="muted small">And {plural(s.notListed, "more change")}, not listed in the feed.</p>
                 )}
               </li>
             ))}
           </ol>
+          {shown.length < matching.length && (
+            <button type="button" className="btn more-btn" onClick={() => setOlder(true)}>
+              Show {matching.length - shown.length} older snapshots
+            </button>
+          )}
         </>
       )}
     </div>
