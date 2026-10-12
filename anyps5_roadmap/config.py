@@ -15,6 +15,7 @@ PROJECT_REPO = "AlxcBTW/anyps5-roadmap"  # this repository: corrections are file
 SITE_URL = "https://alxcbtw.github.io/anyps5-roadmap/"  # where the Roadmap workflow publishes site/
 WINDOW_DAYS = 60
 PROGRESS_URL = "https://boykopovar.github.io/AnyPS5/progress.json"
+ARCHIVE_URL = "https://github.com/boykopovar/AnyPS5/discussions/2475#discussioncomment-18886410"
 PM4_HEADER = "core/libs/prx/libSceAgcDriver/Execution/include/Pm4Opcodes.hpp"
 PM4_SOURCE = "core/libs/prx/libSceAgcDriver/Execution/src/Pm4.cpp"
 DRIVER_DIR = "core/libs/prx/libSceAgcDriver"

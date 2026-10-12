@@ -9,6 +9,7 @@ from typing import TYPE_CHECKING
 from .config import (
     PM4_HEADER,
     PM4_SOURCE,
+    ARCHIVE_URL,
     PROGRESS_URL,
     PROJECT_REPO,
     SCHEMA_VERSION,
@@ -173,7 +174,7 @@ def assemble(model: Model, coverage: dict, raw: dict, upstream: Upstream, now: d
             "curated": "data/blockers.json",
             "progress": PROGRESS_URL,
             "pm4": f"{PM4_HEADER} (raw, main) + {PM4_SOURCE} at {upstream.ref}",
-            "compatibility": f"https://github.com/{model.repo}/blob/main/docs/user/COMPATIBILITY.md",
+            "compatibility": ARCHIVE_URL,
         },
     }
 

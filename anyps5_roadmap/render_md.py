@@ -6,7 +6,7 @@ import html
 import re
 
 from .assemble import AREA_NAMES
-from .config import PROGRESS_URL, STAGES
+from .config import ARCHIVE_URL, PROGRESS_URL, STAGES
 
 
 def esc(s) -> str:
@@ -24,7 +24,7 @@ def area_name(area: str | None) -> str:
 def evidence_label(url: str, repo: str) -> str:
     m = re.search(r"/(issues|pull)/(\d+)(#issuecomment-\d+)?", url or "")
     if not m:
-        return "COMPATIBILITY.md" if url and "COMPATIBILITY" in url else "source"
+        return "archived report" if url and "discussions/2475" in url else "source"
     return f"#{m.group(2)}" + (" comment" if m.group(3) else "")
 
 
@@ -191,7 +191,7 @@ def render_llms(doc: dict) -> str:
         "cross-reference), `text` (read from PR text) or `resubmission` (the PR resubmits or carries a fix PR closed "
         "without merge, or carries a fork fix PR, named in `resubmits`).",
         "- `origin` is `curated` (data/blockers.json, reviewed by a person), `mined` (regex rules over issue and PR text), "
-        "`upstream` (docs/user/COMPATIBILITY.md) or `github` (native blocked-by links). Prefer curated facts when they conflict.",
+        "`upstream` (no longer produced since docs/user/COMPATIBILITY.md was removed upstream) or `github` (native blocked-by links). Prefer curated facts when they conflict.",
         "- Blocker ids are upstream issue numbers, `pr-N` for blockers known only through a PR, `N~symbol` for a crash site that only "
         "appears as a row in tracker issue N, or a slug.",
         "- Import signatures are keyed by NID, so `undefined symbol: X` (Linux) and `FAIL: unresolved ELF import X ...` (Windows) match.",
@@ -222,7 +222,7 @@ def render_llms(doc: dict) -> str:
         "",
         f"- [Upstream repository](https://github.com/{repo}): issues, PRs and source.",
         f"- [Upstream progress.json]({PROGRESS_URL}): HLE and ISA decode counts this page reuses.",
-        f"- [COMPATIBILITY.md](https://github.com/{repo}/blob/main/docs/user/COMPATIBILITY.md): the maintainers' tested-compatibility table.",
+        f"- [Archived compatibility reports]({ARCHIVE_URL}): the former docs/user/COMPATIBILITY.md, archived upstream; reports now live in the Game bring-up discussions.",
         "",
     ]
     return "\n".join(L)

@@ -128,7 +128,7 @@ def validate_command(path: Path) -> int:
 
 
 def read_cached_or_fetch(cache_dir: Path, name: str, fetch, offline: bool, network: bool, log) -> str | None:
-    """Upstream inputs (progress.json, COMPATIBILITY.md) are saved next to the API cache on a live run,
+    """Upstream inputs (progress.json) are saved next to the API cache on a live run,
     so an offline build reads the same snapshot. Without a saved copy, fetch it unless the network is off."""
     saved = cache_dir / name
     if offline and saved.exists():
@@ -160,7 +160,7 @@ def main(argv=None) -> int:
     ap.add_argument(
         "--no-network",
         action="store_true",
-        help="with --offline: never touch the network; progress.json and COMPATIBILITY.md come from the cache directory",
+        help="with --offline: never touch the network; progress.json comes from the cache directory",
     )
     ap.add_argument("--validate", action="store_true", help="only check the curated file (--curated) and exit")
     ap.add_argument("--refresh", action="store_true", help="read every thread again instead of reusing threads.json")
@@ -208,10 +208,7 @@ def main(argv=None) -> int:
     except json.JSONDecodeError as e:
         log(f"progress.json is not valid JSON: {e}")
         progress = None
-    compat = read_cached_or_fetch(
-        cache.parent, "COMPATIBILITY.md", lambda: upstream.raw("docs/user/COMPATIBILITY.md"), args.offline, network, log
-    )
-    model = Model(raw, curated, args.repo, now, compat, progress)
+    model = Model(raw, curated, args.repo, now, progress=progress)
     coverage = build_coverage(model, upstream, progress, log)
     doc = assemble(model, coverage, raw, upstream, now)
     out = Path(args.out)

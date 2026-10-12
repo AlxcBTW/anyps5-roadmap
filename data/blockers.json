@@ -454,6 +454,19 @@
   ],
   "titles": [
     {
+      "id": "PPSA02929", "name": "Dreaming Sarah", "kind": "retail",
+      "evidence": [
+        {"stage": "Playable", "os": "Windows", "build": "main", "url": "https://github.com/boykopovar/AnyPS5/discussions/2475#discussioncomment-18886410", "note": "Archived report from the removed docs/user/COMPATIBILITY.md: in game, playable, 60 FPS on GTX 1050 Ti, 36 FPS on Intel HD 620"}
+      ]
+    },
+    {
+      "id": "PPSA99666", "name": "DOOM Shareware (homebrew)", "kind": "homebrew",
+      "evidence": [
+        {"stage": "Ingame", "os": "Windows", "build": "main", "url": "https://github.com/boykopovar/AnyPS5/discussions/2475#discussioncomment-18886410", "note": "Archived report from the removed docs/user/COMPATIBILITY.md: E1M1 and later maps, weapon switching, save/load, audio"},
+        {"stage": "Ingame", "os": "Linux", "build": "main", "url": "https://github.com/boykopovar/AnyPS5/discussions/2475#discussioncomment-18886410", "note": "Archived report: E1M1 at 35 FPS on Mesa llvmpipe, software Vulkan only"}
+      ]
+    },
+    {
       "id": "PPSA30279", "name": "Taxi Chaos 2", "engine": "Unreal Engine", "kind": "retail",
       "paths": ["Windows/NVIDIA", "Windows/AMD"],
       "blockers": [

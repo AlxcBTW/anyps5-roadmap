@@ -75,7 +75,6 @@ class Model:
         curated: dict,
         repo: str,
         now: dt.datetime,
-        compat_md: str | None = None,
         progress: dict | None = None,
     ):
         self.raw, self.curated, self.repo, self.now = raw, curated, repo, now
@@ -88,7 +87,6 @@ class Model:
         self.titles: dict[str, dict] = {}
         self.blockers: dict[str, dict] = {}
         self.issue_info: dict[int, dict] = {}
-        self.compat_md = compat_md
         self.gaps: list[str] = []
         self.nid_names = self._nid_index(progress)
         self._index_prs()
@@ -96,7 +94,6 @@ class Model:
         self._index_resubmissions()
         self._mine_issues()
         self._mine_prs()
-        self._mine_compat()
         self._apply_curated_titles()
         self._build_blockers()
         self._build_chains()
@@ -532,41 +529,6 @@ class Model:
         for p in self.raw["prs"]:
             for src in self._sources(p, "pr"):
                 self._mine_text(src, None)
-
-    def _mine_compat(self):
-        if not self.compat_md:
-            return
-        header = []
-        for line in self.compat_md.splitlines():
-            cells = [c.strip() for c in line.strip().strip("|").split("|")]
-            if "ID" in cells and "Game" in cells:
-                header = cells
-                continue
-            ids = TITLE_RE.findall(line)
-            if not ids or not header:
-                continue
-            row = dict(zip(header, cells, strict=False))
-            t = self.title(ids[0])
-            if row.get("Game"):
-                t["names"][row["Game"]] += 5
-            for os_name in ("Windows", "Linux", "macOS"):
-                status = row.get(os_name, "")
-                st = stage_in(status, 0) if status and status != "?" else None
-                if st:
-                    t["evidence"].append(
-                        {
-                            "stage": st[0],
-                            "os": os_name,
-                            "gpu": None,
-                            "build": "main",
-                            "url": f"https://github.com/{self.repo}/blob/main/docs/user/COMPATIBILITY.md",
-                            "date": None,
-                            "note": f"COMPATIBILITY.md: {status}",
-                            "quote": line.strip(),
-                            "origin": "upstream",
-                            "verified": True,
-                        }
-                    )
 
     def _apply_curated_titles(self):
         for ct in self.curated.get("titles", []):

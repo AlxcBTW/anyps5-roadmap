@@ -65,8 +65,8 @@ black is still Presents.
 A stage of **Menus or higher** is what people screenshot and repeat, so a mined one never
 counts on its own:
 
-- `best_stage` holds only verified stages: curated entries, the maintainers'
-  `COMPATIBILITY.md` (`upstream`), and mined stages below Menus. `best_stage.verified` is
+- `best_stage` holds only verified stages: curated entries, the two archived reports of the removed
+  `COMPATIBILITY.md` (curated, see `ARCHIVE_URL`), and mined stages below Menus. `best_stage.verified` is
   `false` only for that last kind.
 - A mined stage of Menus or higher that nobody has reviewed becomes `unverified_claim`
   (`{stage, url, quote}`) when it is above the best verified stage. It is never sorted or
