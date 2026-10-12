@@ -62,9 +62,9 @@ The **rank** orders blockers by score.
 What the fix PRs of a blocker say: fix in review (one is open), partly fixed (one is merged with a
 note), fix closed unmerged, no fix yet, or fixed.
 
-**In review**, **Next up**, **Recently fixed**:
-The roadmap board. In review: open blockers with an open fix PR. Next up: ranked blockers without
-one, best first. Recently fixed: blockers resolved in the window, newest first.
+**Fix in review**, **No open fix**, **Fixed**:
+The status filters of the blocker list. Fix in review: open blockers with an open fix PR. No open fix:
+open blockers without one, best ranked first. Fixed: blockers resolved in the window.
 
 **Snapshot**:
 One build of the map from GitHub data, named by when it ran. The **window** is how far back a snapshot

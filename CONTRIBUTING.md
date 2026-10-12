@@ -118,10 +118,10 @@ then from `web/sample/`. To look at your own build: `ROADMAP_DATA=../build/site 
 | File | What it does |
 |---|---|
 | `web/src/data/model.ts` | `roadmap.json` → what the views show: the ranking by game, fix status, the stage ladder, correction links |
-| `web/src/data/lists.ts` | The roadmap board's lanes, and the filters and sort columns of the lists |
+| `web/src/data/lists.ts` | The filters and sort orders of the game list and the blocker list |
 | `web/src/data/feed.ts` | `feed.json` → the Changes view and the dates of recent fixes |
 | `web/src/lib/router.ts` | Hash routes, the drawer over the view it was opened from, the classic page's anchors |
-| `web/src/views/` | One file per view (Roadmap, Blockers, Games, Coverage, Changes, Data) and the two drawers |
+| `web/src/views/` | One file per view (Home with the game list, Blockers, Changes, About, Coverage) and the two drawers |
 | `web/src/styles/` | Design tokens (`tokens.css`) and layout (`app.css`) |
 | `web/src/test/fixture-roadmap.json` | The fixture build of `tests/fixtures`, which the tests read |
 
@@ -132,14 +132,17 @@ tests/fixtures/curated.json --out build/fixture-site`, then copy `build/fixture-
 
 ### Design
 
-The map has a settled design: monochrome oklch neutrals, Geist, Geist Mono for IDs and table numbers,
-Geist Pixel for headline numbers, one type scale (12, 13, 15, 17 and 22 px), ink rather than an accent
-color for emphasis, and green only where something is implemented or fixed. The landing view answers
-three questions with numbers and labels: how far games get, what is being fixed, what comes next.
-Everything dense lives on the other views, and details open in the drawer. A change should look like
-it was always there.
+The map has a settled design: oklch neutrals with ink for emphasis, one blue accent that only means
+"you can act here" (focus rings, the one primary button), green only where something is implemented or
+fixed, Geist for text, Geist Mono for IDs, Geist Pixel for the few headline numbers, and one type scale
+(12, 13, 15, 16, 17, 18 and 22 px plus the display size). The front page answers one question first:
+how far does each game get? A short hero with four numbers and the search, then the game list with its
+stage filter and the one blocker that stops each game. The ranking, the changes and the method sit
+one level down (Blockers, Changes, About), and details open in the drawer. Motion is limited to the
+drawer and press feedback, on transform and opacity only. A change should look like it was always
+there.
 
-Before asking for review, check it in light and dark mode, at 1440 px and at 390 px (nothing may
+Before asking for review, check it in light and dark mode, at 1440, 768 and 320 px (nothing may
 scroll sideways), with the keyboard only (Tab, Enter, Escape, the arrow keys in a list, `/` for
 search), and `classic.html` with JavaScript off.
 
