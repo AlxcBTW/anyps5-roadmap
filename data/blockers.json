@@ -451,7 +451,12 @@
     {"title": "PPSA36082", "claim": "Ingame", "claim_url": "https://github.com/boykopovar/AnyPS5/pull/1202#issuecomment-6081737193",
      "verdict": "suppressed",
      "quote": "in Hades II (PPSA36082) gameplay on Linux / RTX 4090, ShaderMemory::Regions + TakeRecentRegions were about 18% of the draw thread (bit-by-bit run scan, every stage of every draw).",
-     "reason": "Gameplay tied to an unmerged DRAFT perf change; no main-only run shown."}
+     "reason": "Gameplay tied to an unmerged DRAFT perf change; no main-only run shown."},
+    {"title": "PPSA22520", "claim": "Playable", "claim_url": "https://github.com/boykopovar/AnyPS5/discussions/966",
+     "verdict": "confirmed", "stage": "Playable", "os": "Windows", "gpu": "NVIDIA", "build": "main", "date": "2026-10-10",
+     "url": "https://github.com/boykopovar/AnyPS5/discussions/966",
+     "quote": "In game and playable at 60 FPS.",
+     "reason": "Reported on Windows 11, RTX 4070 SUPER, main at 2ba993a87; all eleven pull requests the report lists are merged."}
   ],
   "titles": [
     {
