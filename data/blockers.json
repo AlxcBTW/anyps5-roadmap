@@ -321,7 +321,8 @@
   ],
   "not_blockers": [
     {"issue": 2749, "reason": "Title report for Stray (PPSA02100); its stop is #2548."},
-    {"issue": 3251, "reason": "Names vkQuake (PPSA99010), whose catalog build does not import shm_unlink; its stop is pr-1482."}
+    {"issue": 3251, "reason": "Names vkQuake (PPSA99010), whose catalog build does not import shm_unlink; its stop is pr-1482."},
+    {"issue": 4664, "reason": "Title report for ccleste (PPSA59322), the same stall that #4536 fixed (merged 2026-10-12 18:31Z, 21c27e60); measured on main 9aa5fd29, before #4536. It stays open upstream; the stop is pr-4536."}
   ],
   "stage_reviews_note": "Hand review of every mined stage of Menus or higher (2026-10-10). claim_url is the source the miner quoted; it is dropped for that title. confirmed/downgraded add a curated stage from url. Only main or main plus PRs that are merged now counts; branches with open PRs, local stand-ins or hacks do not.",
   "stage_reviews": [
@@ -619,16 +620,22 @@
     },
     {
       "id": "PPSA59322", "name": "ccleste", "kind": "homebrew",
+      "evidence": [
+        {"stage": "Menus", "os": "Windows", "gpu": "NVIDIA", "build": "main", "date": "2026-10-12", "url": "https://github.com/boykopovar/AnyPS5/issues/4664#issuecomment-6131506152", "note": "main cf4557e5 (with #4536), RTX 4080, 60 s: title screen (logo, credits, PS5 PORT, falling snow) in the frames saved every 300 presents"}
+      ],
       "blockers": [
         {"id": "3165", "why": "first stop on main 0f863c10"},
-        {"id": "pr-4536", "why": "stall after Vulkan device ready on main 0ef9dc92; no frame in 90 s"}
+        {"id": "pr-4536", "why": "stall after Vulkan device ready on main 0ef9dc92 and 9aa5fd29; fixed by #4536 (21c27e60), swapchain created on main cf4557e5"}
       ]
     },
     {
       "id": "PPSA76677", "name": "RommPS", "kind": "homebrew",
+      "evidence": [
+        {"stage": "Presents", "os": "Windows", "gpu": "NVIDIA", "build": "main", "date": "2026-10-12", "url": "https://github.com/boykopovar/AnyPS5/issues/4664#issuecomment-6131506152", "note": "main cf4557e5 (with #4536), RTX 4080, 60 s: draws its own \"RomM Sync isn't running\" screen; its payload loader on port 9021 refuses the connection"}
+      ],
       "blockers": [
         {"id": "3165", "why": "first stop on main 0f863c10"},
-        {"id": "pr-4536", "why": "stall after Vulkan device ready on main 0ef9dc92; no frame in 90 s"}
+        {"id": "pr-4536", "why": "stall after Vulkan device ready on main 0ef9dc92 and 9aa5fd29; fixed by #4536 (21c27e60), swapchain created on main cf4557e5"}
       ]
     },
     {
