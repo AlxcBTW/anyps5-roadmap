@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { sortRows } from "../lib/sort";
 import { fixture } from "../test/fixture";
-import { blockerAccessors, filterBlockers, filterGames, gameAccessors, gameList, onePerGame, stageCounts } from "./lists";
+import { blockerAccessors, filterBlockers, filterGames, gameAccessors, gameList, onePerGame, stageCounts, tagCounts } from "./lists";
 import { buildModel } from "./model";
 
 const model = buildModel(fixture);
@@ -56,6 +56,20 @@ describe("game filters", () => {
     expect(gameList(games, { stage: b.stage!, q: "" }).map((g) => g.name)).not.toContain(a.name);
     const n = stageCounts(onePerGame(games));
     expect([...n].filter(([k]) => k !== "all").reduce((sum, [, v]) => sum + v, 0)).toBe(n.get("all"));
+  });
+
+  it("filters by tag together with the stage and the search", () => {
+    expect(ids(gameList(model.games, { stage: "all", tag: "Adventure", q: "" })).sort()).toEqual(["PPSA02100", "PPSA02929"]);
+    expect(ids(gameList(model.games, { stage: "Presents", tag: "Adventure", q: "" }))).toEqual(["PPSA02100"]);
+    expect(ids(gameList(model.games, { stage: "all", tag: "Adventure", q: "sarah" }))).toEqual(["PPSA02929"]);
+    expect(gameList(model.games, { stage: "all", tag: "Racing", q: "" })).toEqual([]);
+  });
+
+  it("counts games per tag once, by name", () => {
+    const [sarah] = model.games.filter((g) => g.id === "PPSA02929");
+    const region = { ...sarah, id: "PPSA00000" }; // a second title ID of the same game
+    const n = tagCounts([...model.games, region]);
+    expect([n.get("Adventure"), n.get("2D"), n.get("Puzzle"), n.get("Racing")]).toEqual([2, 1, 1, undefined]);
   });
 
   it("sorts by stage without ever using an unverified claim", () => {

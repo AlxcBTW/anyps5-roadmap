@@ -1,9 +1,10 @@
-import { gameReport, sourceLabel } from "../data/model";
+import { Fragment } from "react";
+import { gameReport, sourceLabel, tagSourceLabel } from "../data/model";
 import { useData } from "../data/load";
 import type { Evidence } from "../data/schema";
 import { fmtDate, plural } from "../lib/format";
 import { viewHref, type Location } from "../lib/router";
-import { External, ItemLink, StageMeter, ViewLink } from "../components/ui";
+import { External, GameTags, ItemLink, StageMeter, ViewLink } from "../components/ui";
 import { BlockerRef } from "./BlockerDetail";
 
 const VERDICTS = { confirmed: "Confirmed", downgraded: "Downgraded", suppressed: "Suppressed" } as const;
@@ -35,6 +36,8 @@ export function GameDetail({ id, loc }: { id: string; loc: Location }) {
   const resolved = t.resolved_blockers.map((b) => model.blocker(b)).filter((r) => !!r);
   const evidence = t.evidence ?? [];
   const meaning = model.stages.find((s) => s.name === g.stage)?.meaning;
+  // a game's tags can come from any of its title IDs, so their sources do too
+  const tagSources = [...new Set([t, ...regions.map((r) => r.title)].flatMap((x) => x.tag_sources ?? []))];
 
   return (
     <article className="detail">
@@ -47,6 +50,22 @@ export function GameDetail({ id, loc }: { id: string; loc: Location }) {
         <h2 id="drawer-title" tabIndex={-1}>
           {g.name}
         </h2>
+        {g.tags.length > 0 && (
+          <div className="detail-game-tags">
+            <GameTags tags={g.tags} list />
+            {tagSources.length > 0 && (
+              <p className="tag-sources">
+                Tags from{" "}
+                {tagSources.map((url, i) => (
+                  <Fragment key={url}>
+                    {i > 0 && (i === tagSources.length - 1 ? " and " : ", ")}
+                    <External href={url}>{tagSourceLabel(url)}</External>
+                  </Fragment>
+                ))}
+              </p>
+            )}
+          </div>
+        )}
       </header>
 
       <section className="stage-box" aria-label="Stage">

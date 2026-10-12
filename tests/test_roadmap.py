@@ -236,6 +236,56 @@ class Ranking(unittest.TestCase):
         self.assertEqual([s["blocker"] for s in model.titles["PPSA01746"]["chain"]], ["10"])
         self.assertNotIn("PPSA01746", model.blockers["11"]["titles"])
 
+    def test_tags_follow_the_title_id_in_list_order(self):
+        stray = self.t["PPSA02100"]
+        self.assertEqual(stray["tags"], ["Puzzle", "Adventure"])
+        self.assertEqual(stray["tag_sources"], ["https://www.wikidata.org/wiki/Q96247255"])
+        self.assertEqual(self.t["PPSA01746"]["tags"], [])
+        # an entry for a title the snapshot does not list adds no title
+        self.assertNotIn("PPSA99000", self.t)
+
+    def test_tags_survive_a_new_snapshot(self):
+        """Tags live in the curated file and follow the title ID, so a re-mine keeps them even when the
+        mined name changes or the title is gone for a while."""
+        raw = json.loads((FIX / "raw.json").read_text(encoding="utf-8"))
+        for item in raw["issues"] + raw["prs"]:
+            for key in ("title", "body"):
+                item[key] = (item.get(key) or "").replace("Stray (PPSA02100", "STRAY (PPSA02100")
+        curated = r.load_curated(FIX / "curated.json")
+        model = r.Model(raw, curated, "example/AnyPS5", NOW)
+        self.assertEqual(model.titles["PPSA02100"]["name"], "STRAY")
+        self.assertEqual(model.titles["PPSA02100"]["tags"], ["Puzzle", "Adventure"])
+        raw["issues"] = [i for i in raw["issues"] if "PPSA02100" not in (i.get("body") or "") + i["title"]]
+        raw["prs"] = [p for p in raw["prs"] if "PPSA02100" not in (p.get("body") or "")]
+        self.assertNotIn("PPSA02100", r.Model(raw, curated, "example/AnyPS5", NOW).titles)
+        self.assertEqual(len(curated["title_tags"]), 3)  # the entry waits for the title to come back
+
+    def test_a_build_publishes_tags_and_their_list(self):
+        import contextlib
+        import io
+        import tempfile
+
+        from anyps5_roadmap.config import TAGS
+
+        with tempfile.TemporaryDirectory() as d:
+            args = [
+                "--offline",
+                "--no-network",
+                "--cache",
+                str(FIX / "raw.json"),
+                "--curated",
+                str(FIX / "curated.json"),
+            ]
+            with contextlib.redirect_stdout(io.StringIO()):
+                self.assertEqual(r.main([*args, "--out", d]), 0)
+            doc = json.loads((Path(d) / "roadmap.json").read_text(encoding="utf-8"))
+        self.assertEqual([t["name"] for t in doc["tags"]], TAGS)
+        self.assertEqual({t["group"] for t in doc["tags"]}, {"Dimension", "Genre", "Kind"})
+        sarah = next(t for t in doc["titles"] if t["id"] == "PPSA02929")
+        self.assertEqual(sarah["tags"], ["2D", "Platformer", "Adventure"])
+        self.assertEqual(len(sarah["tag_sources"]), 2)
+        self.assertEqual(doc["stats"]["titles_with_tags"], 2)
+
     def test_closed_issues_drop_out_of_the_open_chain(self):
         stray = self.t["PPSA02100"]
         self.assertEqual([s["blocker"] for s in stray["open_chain"]], ["10"])
@@ -438,6 +488,40 @@ class Ranking(unittest.TestCase):
         ):
             self.assertIn(needle, joined)
         self.assertEqual(r.validate_curated(r.load_curated(FIX / "curated.json")), [])
+
+    def test_tag_validation(self):
+        good = {
+            "title": "PPSA02100",
+            "name": "Stray",
+            "tags": ["Adventure"],
+            "sources": ["https://www.wikidata.org/wiki/Q96247255"],
+        }
+        self.assertEqual(r.validate_curated({"title_tags": [good]}), [])
+        bad = [
+            {**good, "title": "PPSA123"},
+            {**good, "title": "PPSA02929", "name": ""},
+            {**good, "title": "PPSA01746", "tags": ["Metroidvania", "Adventure", "Adventure"]},
+            {**good, "title": "PPSA21564", "tags": ["2D", "3D"]},
+            {**good, "title": "PPSA99000", "tags": ["App", "Puzzle"]},
+            {**good, "title": "PPSA99001", "tags": []},
+            {**good, "title": "PPSA99002", "sources": []},
+            {**good, "title": "PPSA99003", "sources": ["http://example.com/readme"]},
+            good,
+        ]
+        joined = "\n".join(r.validate_curated({"title_tags": [good, *bad]}))
+        for needle in (
+            "PPSA02100 has more than one entry",
+            "title must be a PS5 title ID",
+            "needs the name the sources were matched on",
+            "tag 'Metroidvania' is not one of",
+            "tag 'Adventure' is listed twice",
+            "2D and 3D exclude each other",
+            "App means not a game",
+            "needs a list of tags",
+            "needs sources",
+            "must be an https link",
+        ):
+            self.assertIn(needle, joined)
 
     def test_invalid_json_names_line_and_column(self):
         import tempfile

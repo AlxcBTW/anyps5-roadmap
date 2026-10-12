@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { fixture } from "../test/fixture";
-import { blockerReport, buildModel, gameReport, ref, sourceLabel, statusRef } from "./model";
+import type { RoadmapDoc } from "./schema";
+import { blockerReport, buildModel, gameReport, ref, sourceLabel, statusRef, tagSourceLabel } from "./model";
 
 const model = buildModel(fixture);
 const query = (url: string) => Object.fromEntries(new URL(url).searchParams);
@@ -29,6 +30,38 @@ describe("ranking", () => {
     expect(ref({ id: "2548", issue: 2548 })).toBe("#2548");
     expect(ref({ id: "pr-2106", issue: null })).toBe("PR #2106");
     expect(ref({ id: "1578~atoll", issue: null })).toBe("1578~atoll");
+  });
+});
+
+describe("tags", () => {
+  it("gives every game its tags in the order of the tag list, and the list itself", () => {
+    expect(model.tags.map((t) => t.name).slice(0, 3)).toEqual(["2D", "3D", "Shooter"]);
+    expect(model.tags.at(-1)).toMatchObject({ name: "App", group: "Kind" });
+    expect(model.game("PPSA02100")!.tags).toEqual(["Puzzle", "Adventure"]);
+    expect(model.game("PPSA02929")!.tags).toEqual(["2D", "Platformer", "Adventure"]);
+    expect(model.game("PPSA01746")!.tags).toEqual([]);
+  });
+
+  it("shares a game's tags between its title IDs and finds the game by them", () => {
+    const stray = fixture.titles.find((t) => t.id === "PPSA02100")!;
+    const doc: RoadmapDoc = { ...fixture, titles: [...fixture.titles, { ...stray, id: "PPSA02101", tags: [], tag_sources: [] }] };
+    const m = buildModel(doc);
+    expect(m.game("PPSA02101")!.tags).toEqual(["Puzzle", "Adventure"]);
+    expect(m.game("PPSA02101")!.search).toContain("puzzle");
+  });
+
+  it("reads without tags in an older roadmap.json", () => {
+    const old = { ...fixture, tags: undefined, titles: fixture.titles.map((t) => ({ ...t, tags: undefined })) };
+    const m = buildModel(old);
+    expect(m.tags).toEqual([]);
+    expect(m.games.every((g) => g.tags.length === 0)).toBe(true);
+  });
+
+  it("names a tag source by its site", () => {
+    expect(tagSourceLabel("https://www.wikidata.org/wiki/Q96247255")).toBe("Wikidata");
+    expect(tagSourceLabel("https://store.playstation.com/en-us/concept/10000176")).toBe("PlayStation Store");
+    expect(tagSourceLabel("https://steamspy.com/app/296870")).toBe("SteamSpy");
+    expect(tagSourceLabel("https://github.com/ZiZc3/VLC")).toBe("the homebrew’s README");
   });
 });
 

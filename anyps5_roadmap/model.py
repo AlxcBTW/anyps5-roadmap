@@ -6,7 +6,7 @@ import datetime as dt
 import re
 from collections import Counter, defaultdict
 
-from .config import STAGES, VERIFY_FROM
+from .config import STAGES, TAGS, VERIFY_FROM
 from .mine import (
     ENGINE_RULES,
     GPU_RULES,
@@ -289,6 +289,8 @@ class Model:
                 "paths": None,
                 "chain": [],
                 "open_chain": [],
+                "tags": [],
+                "tag_sources": [],
             }
         return self.titles[tid]
 
@@ -547,6 +549,7 @@ class Model:
                     }
                 )
         self._apply_stage_reviews()
+        self._apply_title_tags()
         for t in self.titles.values():
             if not t["name"] and t["names"]:
                 top = t["names"].most_common()
@@ -556,6 +559,15 @@ class Model:
                 t["engine"] = t["engines"].most_common(1)[0][0]
             if not t["kind"] and t["kinds"]:
                 t["kind"] = t["kinds"].most_common(1)[0][0]
+
+    def _apply_title_tags(self):
+        """What kind of game a title is (data/blockers.json title_tags), keyed by title ID. Tags describe a title
+        the map already lists; they never add one, and a title that leaves the window keeps its entry for later."""
+        for entry in self.curated.get("title_tags", []):
+            t = self.titles.get(entry["title"])
+            if t is not None:
+                t["tags"] = [tag for tag in TAGS if tag in entry["tags"]]
+                t["tag_sources"] = list(entry["sources"])
 
     # -- blockers -----------------------------------------------------------
     def _issue_prs(self, number: int) -> list[dict]:

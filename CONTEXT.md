@@ -18,6 +18,12 @@ All title IDs that share a name, counted once. The map counts games, not title I
 counts.
 _Avoid_: title, when counting
 
+**Tag**:
+What kind of game a title is, from a fixed list: 2D or 3D, a genre such as Shooter or Platformer, or App
+for anything that is not a game. Every tag has a public source; a game without tags is unknown, not
+untyped.
+_Avoid_: category, genre (2D, 3D and App are not genres)
+
 **Stage**:
 How far a title gets on AnyPS5 `main`, lowest to highest: Converts, Loads, Starts, First draw,
 Presents, Menus, Ingame, Playable.

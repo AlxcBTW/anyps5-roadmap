@@ -54,6 +54,40 @@ describe("Games", () => {
     expect(screen.getByRole("status").textContent).toBe("2 games at Presents");
   });
 
+  it("filters by a tag, counts the stages within it and clears it with the other filters", () => {
+    go("#/games");
+    render(<Harness view="games" />);
+    const menu = screen.getByRole("combobox", { name: "Tag" });
+    expect([...menu.querySelectorAll("option")].map((o) => o.textContent)).toEqual([
+      "All",
+      "2D (1)",
+      "Platformer (1)",
+      "Puzzle (1)",
+      "Adventure (2)",
+    ]);
+    expect([...menu.querySelectorAll("optgroup")].map((g) => g.label)).toEqual(["Dimension", "Genre"]);
+    fireEvent.change(menu, { target: { value: "Adventure" } });
+    expect(location.hash).toBe("#/games?tag=Adventure");
+    expect(rowNames()).toEqual(["Dreaming Sarah", "Stray"]);
+    expect(screen.getByRole("status").textContent).toBe("2 games tagged Adventure");
+    // the stage chips count only games with that tag
+    expect(screen.getAllByRole("radio").map((r) => r.parentElement!.textContent)).toEqual(["All2", "Menus1", "Presents1"]);
+    fireEvent.click(screen.getByRole("radio", { name: /Menus/ }));
+    expect(screen.getByRole("status").textContent).toBe("1 game tagged Adventure at Menus");
+    go("#/games?tag=Adventure&stage=Converts");
+    expect(screen.getByText("No games tagged Adventure at Converts")).toBeTruthy();
+    expect(screen.getByText("Pick another tag or stage, or clear the filters.")).toBeTruthy();
+    fireEvent.click(screen.getByRole("button", { name: "Clear filters" }));
+    expect(location.hash).toBe("#/games");
+  });
+
+  it("shows a game's tags in its row", () => {
+    go("#/games");
+    render(<Harness view="games" />);
+    const row = [...document.querySelectorAll("[data-row-link]")].find((r) => r.querySelector(".row-title")!.textContent === "Stray")!;
+    expect(row.querySelector(".game-tags")!.textContent).toBe("Tags: Puzzle, Adventure");
+  });
+
   it("sorts from the sort menu", () => {
     go("#/games");
     render(<Harness view="games" />);

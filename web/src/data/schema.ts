@@ -93,6 +93,8 @@ export interface Title {
   name: string | null;
   engine: string | null;
   kind: "retail" | "homebrew" | null;
+  tags?: string[]; // what kind of game it is, from RoadmapDoc.tags; empty when no source names one
+  tag_sources?: string[]; // the public pages the tags come from
   curated: boolean;
   best_stage: Evidence | null;
   unverified_claim: Claim | null;
@@ -109,6 +111,13 @@ export interface Title {
 export interface Stage {
   name: string;
   rank: number;
+  meaning: string;
+}
+
+/** One entry of the fixed tag list, in display order. */
+export interface Tag {
+  name: string; // "2D", "Shooter", "App"
+  group: "Dimension" | "Genre" | "Kind";
   meaning: string;
 }
 
@@ -140,6 +149,7 @@ export interface RoadmapDoc {
   project?: { repo: string; corrections?: string };
   window?: { days: number; since: string | null };
   stages: Stage[];
+  tags?: Tag[];
   stats: Record<string, unknown> & {
     issues_scanned?: number;
     prs_scanned?: number;

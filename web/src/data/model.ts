@@ -2,7 +2,7 @@
 // (render_html.py): games are counted by name, since one game can have several title IDs (regions),
 // and the ranking counts games, not title IDs.
 
-import type { Area, Blocker, ChainStep, Claim, Evidence, PullRequest, RoadmapDoc, Stage, Title } from "./schema";
+import type { Area, Blocker, ChainStep, Claim, Evidence, PullRequest, RoadmapDoc, Stage, Tag, Title } from "./schema";
 
 export const AREA_NAMES: Record<Area, string> = {
   shader: "Shader recompiler",
@@ -50,6 +50,7 @@ export interface GameRow {
   claim: Claim | null;
   claimReports: number;
   steps: ChainStep[]; // open stops on the map, first stop first
+  tags: string[]; // the game's tags over all of its title IDs, in the order of the tag list
   firstStop: BlockerRow | null;
   lastReport: string | null;
   search: string;
@@ -83,6 +84,7 @@ export interface Model {
   repo: string; // upstream, e.g. boykopovar/AnyPS5
   project: string; // this repository; corrections are filed here
   stages: Stage[];
+  tags: Tag[]; // the fixed tag list, in display order
   stageRank: (stage: string | null | undefined) => number;
   blockers: BlockerRow[]; // ranked, then not linked to a game, then resolved
   blocker: (id: string) => BlockerRow | undefined;
@@ -183,11 +185,21 @@ export function buildModel(doc: RoadmapDoc): Model {
 
   // games: titles with a stage, a stop or a claim; one row per title ID
   const listed = doc.titles.filter((t) => t.best_stage || t.open_blockers?.length || t.unverified_claim);
+  // tags describe a game, so every title ID of a name carries the tags of all of them
+  const tagList = doc.tags ?? [];
+  const tagsOf = new Map<string, Set<string>>();
+  for (const t of listed) {
+    const set = tagsOf.get(t.name || t.id) ?? new Set<string>();
+    for (const tag of t.tags ?? []) set.add(tag);
+    tagsOf.set(t.name || t.id, set);
+  }
   const games: GameRow[] = listed.map((t) => {
     const stage = t.best_stage?.stage ?? null;
     const steps = (t.open_blockers ?? []).filter((s) => byId.has(s.id));
     const conf = t.confidence;
-    const words: (string | null | undefined)[] = [t.name, t.id, t.engine, t.kind];
+    const own = tagsOf.get(t.name || t.id)!;
+    const tags = tagList.map((x) => x.name).filter((x) => own.has(x));
+    const words: (string | null | undefined)[] = [t.name, t.id, t.engine, t.kind, ...tags];
     for (const s of steps) {
       const r = rows.get(s.id);
       if (r) words.push(r.title, r.ref, r.ref.replace("PR ", ""), r.blocker.signature);
@@ -203,6 +215,7 @@ export function buildModel(doc: RoadmapDoc): Model {
       claim: t.unverified_claim?.url ? t.unverified_claim : null,
       claimReports: conf?.claim?.reports_on_main ?? 0,
       steps,
+      tags,
       firstStop: steps.length ? (rows.get(steps[0].id) ?? null) : null,
       lastReport: t.last_evidence?.date ?? null,
       search: lower(words),
@@ -267,6 +280,7 @@ export function buildModel(doc: RoadmapDoc): Model {
     repo: doc.upstream.repo,
     project: doc.project?.repo || "AlxcBTW/anyps5-roadmap",
     stages,
+    tags: tagList,
     stageRank,
     blockers,
     blocker: (id) => rows.get(id),
@@ -343,4 +357,14 @@ export function sourceLabel(url: string, repo: string): string {
     if (n && /^\d+$/.test(n)) return `${parts[3]}#${n}`;
   }
   return url.split("//")[1]?.split("/")[0] ?? url;
+}
+
+/** How a tag source reads: the site it is on, or the homebrew's own README. */
+export function tagSourceLabel(url: string): string {
+  const host = url.split("//")[1]?.split("/")[0] ?? "";
+  if (host.endsWith("wikidata.org")) return "Wikidata";
+  if (host === "store.playstation.com") return "PlayStation Store";
+  if (host.endsWith("steamspy.com")) return "SteamSpy";
+  if (host === "github.com") return "the homebrew’s README";
+  return host || url;
 }

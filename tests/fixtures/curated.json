@@ -21,5 +21,11 @@
      "blockers": [{"id": "pr-30"}, {"id": "10", "scope": ["Windows/AMD"]}],
      "evidence": [{"stage": "Presents", "os": "Windows", "gpu": "NVIDIA", "build": "main", "date": "2026-10-09",
                    "url": "https://github.com/example/AnyPS5/pull/30", "note": "black frames"}]}
+  ],
+  "title_tags": [
+    {"title": "PPSA02100", "name": "Stray", "tags": ["Puzzle", "Adventure"], "sources": ["https://www.wikidata.org/wiki/Q96247255"]},
+    {"title": "PPSA02929", "name": "Dreaming Sarah", "tags": ["2D", "Platformer", "Adventure"],
+     "sources": ["https://www.wikidata.org/wiki/Q120751003", "https://steamspy.com/app/296870"]},
+    {"title": "PPSA99000", "name": "ProsperoStore", "tags": ["App"], "sources": ["https://github.com/blackbearreloaded/ProsperoStore"]}
   ]
 }

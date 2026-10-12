@@ -20,7 +20,7 @@ import render_html
 
 from .assemble import assemble
 from .collect import collect
-from .config import CACHE, CURATED, PROGRESS_URL, ROOT, STAGES, UPSTREAM, WINDOW_DAYS
+from .config import CACHE, CURATED, PROGRESS_URL, ROOT, STAGES, TAGS, UPSTREAM, WINDOW_DAYS
 from .coverage import build_coverage
 from .feed import publish as publish_feed
 from .model import Model
@@ -94,6 +94,45 @@ def validate_curated(data: dict) -> list[str]:
     for i, nb in enumerate(data.get("not_blockers", [])):
         if not isinstance(nb.get("issue"), int):
             errors.append(f"{_where('not_blockers', i, nb, 'issue')}: issue must be an upstream issue number")
+    errors += validate_title_tags(data.get("title_tags", []))
+    return errors
+
+
+def validate_title_tags(entries: list) -> list[str]:
+    """title_tags: one entry per title ID, tags from the fixed list, and the public sources they come from."""
+    errors: list[str] = []
+    seen = Counter(str(e.get("title")) for e in entries if isinstance(e, dict))
+    for dupe in sorted(t for t, c in seen.items() if c > 1):
+        errors.append(f"title_tags: {dupe} has more than one entry; put all of its tags in one")
+    for i, e in enumerate(entries):
+        if not isinstance(e, dict):
+            errors.append(f"title_tags[{i}]: must be an object")
+            continue
+        at = _where("title_tags", i, e, "title")
+        if not TITLE_ID.fullmatch(str(e.get("title", ""))):
+            errors.append(f"{at}: title must be a PS5 title ID, PPSA plus five digits")
+        if not e.get("name"):
+            errors.append(f"{at}: needs the name the sources were matched on")
+        tags = e.get("tags")
+        if not isinstance(tags, list) or not tags:
+            errors.append(f"{at}: needs a list of tags; a title without a source gets no entry")
+            tags = []
+        for tag in tags:
+            if tag not in TAGS:
+                errors.append(f"{at}: tag {tag!r} is not one of {', '.join(TAGS)}")
+        for dupe in sorted(t for t, c in Counter(map(str, tags)).items() if c > 1):
+            errors.append(f"{at}: tag {dupe!r} is listed twice")
+        if "2D" in tags and "3D" in tags:
+            errors.append(f"{at}: 2D and 3D exclude each other; when sources disagree, use neither")
+        if "App" in tags and len(tags) > 1:
+            errors.append(f"{at}: App means not a game, so it takes no other tag")
+        sources = e.get("sources")
+        if not isinstance(sources, list) or not sources:
+            errors.append(f"{at}: needs sources, the public links its tags come from")
+            sources = []
+        for url in sources:
+            if not str(url).startswith("https://"):
+                errors.append(f"{at}: source {url!r} must be an https link")
     return errors
 
 
@@ -122,7 +161,7 @@ def validate_command(path: Path) -> int:
             for line in str(e).splitlines()[1:] or [str(e)]:
                 print(f"::error file={path.as_posix()}::{line.strip().removeprefix('- ')}")
         return 1
-    counts = {k: len(data.get(k, [])) for k in ("blockers", "titles", "stage_reviews", "not_blockers")}
+    counts = {k: len(data.get(k, [])) for k in ("blockers", "titles", "stage_reviews", "not_blockers", "title_tags")}
     print(f"{path}: valid ({', '.join(f'{n} {k}' for k, n in counts.items())})")
     return 0
 

@@ -560,6 +560,16 @@ a {
   gap: var(--s-3);
   margin-bottom: var(--s-4);
 }
+.section-tools {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: var(--s-3);
+}
+/* as wide as the chosen tag, not the longest one (where the browser can) */
+.tag-select select {
+  field-sizing: content;
+}
 .section h2,
 .section-head h2 {
   font-size: var(--text-title);
@@ -1086,6 +1096,32 @@ details.detail-sec[open] > summary::after {
   margin-inline-end: 8px;
   border: 1px dashed var(--line-control);
   background: transparent;
+}
+
+/* what kind of game it is: quiet text chips in a row and under the drawer title */
+.game-tags {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+.game-tag {
+  min-height: 20px;
+  padding: 0 6px;
+  font-weight: 450;
+}
+.detail-game-tags {
+  display: grid;
+  gap: var(--s-2);
+  margin-top: 4px;
+}
+.detail-game-tags .game-tag {
+  min-height: 22px;
+  padding: 0 8px;
+}
+.tag-sources {
+  color: var(--text-3);
+  font-size: var(--text-small);
+  line-height: 1.45;
 }
 
 .claim {
@@ -1686,6 +1722,30 @@ a.change-text {
   .rows-head {
     display: none;
   }
+  /* the tag and sort menus share one row under the heading */
+  .section-head:has(.section-tools > :nth-child(2)) {
+    flex-wrap: wrap;
+  }
+  .section-tools:has(> :nth-child(2)) {
+    flex: 1 1 100%;
+    flex-wrap: nowrap;
+  }
+  .section-tools:has(> :nth-child(2)) .select {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+  /* the sort keeps its width; the tag menu gives way, since the result line repeats the tag */
+  .section-tools:has(> :nth-child(2)) .tag-select {
+    flex: 0 1 auto;
+  }
+  .section-tools:has(> :nth-child(2)) .sort-select {
+    flex: 0 0 auto;
+  }
+  .section-tools:has(> :nth-child(2)) .select select {
+    width: 100%;
+    min-width: 0;
+    text-overflow: ellipsis;
+  }
   .rows {
     position: relative;
   }
@@ -1696,23 +1756,36 @@ a.change-text {
     top: 0;
     border-top: 1px solid var(--line);
   }
+  /* the name sits beside the stage; its ID, engine and tags take the full width below, then the stop */
   .game-row {
     grid-template-columns: minmax(0, 1fr) auto;
     grid-template-areas:
       "game stage"
+      "meta meta"
       "stop stop";
-    row-gap: var(--s-2);
+    row-gap: 4px;
     column-gap: var(--s-3);
   }
   .g-game {
+    display: contents;
+  }
+  .g-game > .row-title {
     grid-area: game;
     min-width: 0;
+  }
+  .g-game > .row-meta {
+    grid-area: meta;
+    margin-top: 0;
+  }
+  .g-game > .row-meta:empty {
+    display: none;
   }
   .g-stage {
     grid-area: stage;
   }
   .g-stop {
     grid-area: stop;
+    margin-top: 4px;
     display: -webkit-box;
     -webkit-box-orient: vertical;
     -webkit-line-clamp: 2;

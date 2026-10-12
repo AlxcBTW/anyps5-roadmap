@@ -72,6 +72,21 @@ export function About({ loc }: { loc: Location }) {
         </p>
       </section>
 
+      {model.tags.length > 0 && (
+        <section className="section prose" aria-labelledby="h-tags">
+          <h2 id="h-tags">Tags</h2>
+          <p>
+            A tag describes a title: 2D or 3D, a genre such as Shooter or Platformer, or App for anything that is not a
+            game. Filter the game list by one with the Tag menu.
+          </p>
+          <p>
+            A tag is shown only when a public source names it, and each game links its sources. They are the genres on
+            Wikidata and the PlayStation Store, the user tags on SteamSpy, and for homebrew its own README. A title that
+            no source describes has no tags.
+          </p>
+        </section>
+      )}
+
       <section className="section prose" aria-labelledby="h-ranking">
         <h2 id="h-ranking">Blockers and the ranking</h2>
         <p>

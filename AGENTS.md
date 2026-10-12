@@ -100,6 +100,39 @@ integration stacks or hacks.
 `{"issue": 2749, "reason": "…"}` keeps a mined issue out of the ranking, e.g. a title
 report whose real stop is another issue.
 
+### Tags (`title_tags[]`)
+
+What kind of game a title is, for the tag filter on the page. One entry per title ID:
+
+| Field | Meaning |
+|---|---|
+| `title` | PPSA ID. Tags follow the ID: a re-mine that renames the title keeps them, and an entry for a title outside the window waits until it is back. |
+| `name` | The name the sources were matched on. |
+| `tags` | From the fixed list (`TAG_HELP` in `anyps5_roadmap/config.py`): `2D`, `3D`; `Shooter`, `Platformer`, `Racing`, `Sports`, `Fighting`, `Puzzle`, `Horror`, `RPG`, `Simulation`, `Strategy`, `Action`, `Adventure`; `App` for anything that is not a game (player, emulator, client, store, tool, demo). `App` takes no other tag; `2D` and `3D` exclude each other, so when sources disagree, use neither. |
+| `sources` | The public pages the tags come from. |
+
+A tag needs a source that names it. No source, no entry; never tag a game from what you know about it.
+
+- **Match conservatively.** The source's name must equal the title's name, ignoring case, punctuation,
+  ™ and ®, a leading "The" and a "PS4 & PS5" suffix, and its platform must include PS5. Where the title
+  ID's own name is known (its PlayStation Store product, or `https://prosperopatches.com/PPSA…`), it must
+  name the same game, an edition suffix aside. A mined name that belongs to another game ("Retried" on
+  the ID of Dragon Quest III HD-2D Remake) gets nothing until the name is fixed.
+- **Wikidata**, genre (P136): platformer → Platformer; 2D platform game → 2D, Platformer; Metroidvania →
+  2D, Platformer, Action, Adventure; first- or third-person shooter → Shooter; action-adventure → Action,
+  Adventure; action RPG and soulslike → Action, RPG; tactical RPG → RPG, Strategy; survival,
+  psychological, body or cosmic horror → Horror; management or flight simulation → Simulation; pool →
+  Sports. Themes (science fiction, fantasy), roguelike, survival, sandbox, stealth, casual and party
+  give nothing.
+- **PlayStation Store**, the genres of the product with this title ID, else of the item's store concept:
+  Driving/Racing → Racing, Role Playing Games → RPG, Sport → Sports, Simulator → Simulation, the others by
+  name. Unique, Family, Arcade, Casual and Party give nothing.
+- **SteamSpy**, user tags of the item's Steam app (Wikidata P1733) with at least a third of the votes of
+  its top tag, for 2D, 3D, Shooter and Platformer only (2D Platformer, FPS and Third-Person Shooter
+  count). Its broader tags are votes on mood (Horror on a puzzle game) and are not used.
+- **Homebrew**: the README, or the repository description, of the homebrew itself. "VLC media player" is
+  App and "a native puzzle collection" is Puzzle; a port whose README names no genre gets nothing.
+
 ## Ranking
 
 For every title the chain is split into its OS/GPU paths. Per blocker:

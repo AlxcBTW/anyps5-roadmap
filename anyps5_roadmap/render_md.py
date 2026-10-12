@@ -183,6 +183,9 @@ def render_llms(doc: dict) -> str:
         "and do not rank or sort titles by it. Only main, or main plus PRs that are merged, counts as reaching a stage.",
         "- `stage_reviews` on a title lists the hand verdicts (confirmed, downgraded, suppressed) with the quote they rest on.",
         "- A title's `open_blockers` are ordered: the first entry is where it stops now. `scope` limits a step to an OS/GPU path.",
+        "- `tags` on a title say what kind of game it is, from the fixed list in the top-level `tags` (2D, 3D, genres, and "
+        "App for anything that is not a game); `tag_sources` link the Wikidata item, PlayStation Store page, SteamSpy page or "
+        "homebrew README they come from. An empty list means no source was found, not that the title has no kind.",
         "- `confidence` on a title counts reports, it does not verify them: `reports_on_main` is the number of distinct GitHub "
         "accounts whose own text puts the title at its best stage (or higher) on main; `claim.reports_on_main` and "
         "`claim.reports_on_branches` do the same for the unverified claim on main and on PR branches or patched builds.",
@@ -199,7 +202,7 @@ def render_llms(doc: dict) -> str:
         "",
         "## Data",
         "",
-        f"- [roadmap.json](roadmap.json): full data, `schema_version` {doc['schema_version']}. Keys: stages, scoring, stats, ranking "
+        f"- [roadmap.json](roadmap.json): full data, `schema_version` {doc['schema_version']}. Keys: stages, tags, scoring, stats, ranking "
         "(blocker ids, best first), blockers, titles, coverage (isa, hle, pm4, registers), focus (areas, help_wanted), gaps, sources.",
         "- [feed.json](feed.json): what each snapshot changed, as a JSON Feed 1.1, newest first; the last 50 snapshots "
         "that changed something. An item lists blockers resolved, blockers entering, leaving or moving in the ranking "

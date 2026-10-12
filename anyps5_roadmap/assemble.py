@@ -15,6 +15,9 @@ from .config import (
     SCHEMA_VERSION,
     STAGE_HELP,
     STAGES,
+    TAG_GROUPS,
+    TAG_HELP,
+    TAGS,
     WINDOW_DAYS,
 )
 
@@ -94,6 +97,8 @@ def assemble(model: Model, coverage: dict, raw: dict, upstream: Upstream, now: d
                 "name": t["name"],
                 "engine": t["engine"],
                 "kind": t["kind"],
+                "tags": t["tags"],
+                "tag_sources": t["tag_sources"],
                 "curated": t["curated"],
                 "best_stage": best,
                 "unverified_claim": model.unverified_claim(t),
@@ -128,6 +133,7 @@ def assemble(model: Model, coverage: dict, raw: dict, upstream: Upstream, now: d
         },
         "window": {"days": WINDOW_DAYS, "since": raw.get("cutoff")},
         "stages": [{"name": s, "rank": i, "meaning": STAGE_HELP[s]} for i, s in enumerate(STAGES)],
+        "tags": [{"name": tag, "group": TAG_GROUPS.get(tag, "Genre"), "meaning": TAG_HELP[tag]} for tag in TAGS],
         "scoring": {
             "formula": "3*one_fix_away + 2*frontier + total",
             "frontier": "titles for which this is the earliest open blocker on at least one OS/GPU path",
@@ -143,6 +149,7 @@ def assemble(model: Model, coverage: dict, raw: dict, upstream: Upstream, now: d
             "titles_with_open_blockers": sum(1 for t in titles if t["open_blockers"]),
             "titles_with_stage": sum(1 for t in titles if t["best_stage"]),
             "titles_with_unverified_claim": sum(1 for t in titles if t["unverified_claim"]),
+            "titles_with_tags": sum(1 for t in titles if t["tags"]),
             "stage_reviews": sum(len(t["stage_reviews"]) for t in titles),
             "blockers_open": sum(1 for b in blockers if b["status"] == "open"),
             "blockers_ranked": sum(1 for b in blockers if b["status"] == "open" and b["score"] > 0),
@@ -172,6 +179,7 @@ def assemble(model: Model, coverage: dict, raw: dict, upstream: Upstream, now: d
             "issues_and_prs": f"https://github.com/{model.repo} via gh api graphql (open + closed in the last {WINDOW_DAYS} days)",
             "dependencies": f"/repos/{model.repo}/issues/{{n}}/dependencies/blocked_by",
             "curated": "data/blockers.json",
+            "tags": "data/blockers.json title_tags: Wikidata genres, PlayStation Store genres, SteamSpy user tags and homebrew READMEs, linked per title in tag_sources",
             "progress": PROGRESS_URL,
             "pm4": f"{PM4_HEADER} (raw, main) + {PM4_SOURCE} at {upstream.ref}",
             "compatibility": ARCHIVE_URL,

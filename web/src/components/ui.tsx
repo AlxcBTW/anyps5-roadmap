@@ -1,7 +1,7 @@
 // Small pieces every view uses. Real links and buttons throughout, so keyboard, middle-click and
 // screen readers work without extra code.
 
-import { useEffect, useId, useRef, type AnchorHTMLAttributes, type MouseEvent, type ReactNode } from "react";
+import { Fragment, useEffect, useId, useRef, type AnchorHTMLAttributes, type MouseEvent, type ReactNode } from "react";
 import { statusRef, type BlockerRow } from "../data/model";
 import { itemHref, navigate, openItem, setFocusOnOpen, setOpener, type Item, type Location } from "../lib/router";
 import type { Dir, Sort } from "../lib/sort";
@@ -58,6 +58,33 @@ export function StageMeter({ rank, total }: { rank: number; total: number }) {
     <span className="meter" aria-hidden="true">
       {Array.from({ length: total }, (_, i) => (
         <i key={i} className={i <= rank ? "on" : undefined} />
+      ))}
+    </span>
+  );
+}
+
+/** What kind of game it is, as quiet text chips. Inside a row link they stay spans, so the link reads as one line. */
+export function GameTags({ tags, list = false }: { tags: string[]; list?: boolean }) {
+  if (!tags.length) return null;
+  if (list) {
+    return (
+      <ul className="game-tags" role="list" aria-label="Tags">
+        {tags.map((t) => (
+          <li key={t} className="tag game-tag">
+            {t}
+          </li>
+        ))}
+      </ul>
+    );
+  }
+  return (
+    <span className="game-tags">
+      <span className="sr-only">Tags: </span>
+      {tags.map((t, i) => (
+        <Fragment key={t}>
+          {i > 0 && <span className="sr-only">, </span>}
+          <span className="tag game-tag">{t}</span>
+        </Fragment>
       ))}
     </span>
   );

@@ -34,3 +34,25 @@ STAGE_HELP = {
     "Ingame": "Gameplay is reached.",
     "Playable": "Playable from start to finish with minor issues.",
 }
+
+# What kind of game a title is (data/blockers.json title_tags): a fixed list, in display order
+TAG_HELP = {
+    "2D": "Played in two dimensions.",
+    "3D": "Played in three dimensions.",
+    "Shooter": "Shooting is the core of play, first or third person.",
+    "Platformer": "Running and jumping between platforms.",
+    "Racing": "Driving or racing.",
+    "Sports": "A real sport, such as hockey, football or pool.",
+    "Fighting": "Head-to-head fights.",
+    "Puzzle": "Puzzles and logic.",
+    "Horror": "Horror and survival horror.",
+    "RPG": "Role-playing: a character grows through levels, skills or gear.",
+    "Simulation": "Simulates a real activity or system.",
+    "Strategy": "Planning and tactics, in real time or turn by turn.",
+    # the broad genres last, so a row leads with the tags that tell games apart
+    "Action": "Real-time combat and reflexes.",
+    "Adventure": "Exploration and story.",
+    "App": "Not a game: a media player, emulator, streaming client, store or tool.",
+}
+TAGS = list(TAG_HELP)
+TAG_GROUPS = {"2D": "Dimension", "3D": "Dimension", "App": "Kind"}  # every other tag is a genre

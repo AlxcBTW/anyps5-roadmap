@@ -59,14 +59,16 @@ export const blockerNatural: Record<BlockerSort, Dir> = {
 
 export interface GameQuery {
   stage: string; // "all", a stage name, or "none"
+  tag?: string; // a tag name; empty or missing for every game
   q: string;
 }
 
-export function filterGames(rows: readonly GameRow[], { stage, q }: GameQuery): GameRow[] {
+export function filterGames(rows: readonly GameRow[], { stage, tag = "", q }: GameQuery): GameRow[] {
   const term = q.trim().toLowerCase();
   return rows.filter(
     (g) =>
       (stage === "all" || (stage === "none" ? g.stage == null : g.stage === stage)) &&
+      (!tag || g.tags.includes(tag)) &&
       (!term || g.search.includes(term)),
   );
 }
@@ -82,6 +84,13 @@ export function stageCounts(rows: readonly GameRow[]): Map<string, number> {
   return new Map([...names].map(([k, s]) => [k, s.size]));
 }
 
+/** Games per tag, by name: a game counts once for each of its tags. */
+export function tagCounts(rows: readonly GameRow[]): Map<string, number> {
+  const names = new Map<string, Set<string>>();
+  for (const g of rows) for (const t of g.tags) names.set(t, (names.get(t) ?? new Set()).add(g.name));
+  return new Map([...names].map(([k, s]) => [k, s.size]));
+}
+
 /** One row per game: the first title ID of each name in the given order, so a sorted list keeps its best. */
 export function onePerGame(rows: readonly GameRow[]): GameRow[] {
   const seen = new Set<string>();
@@ -90,12 +99,13 @@ export function onePerGame(rows: readonly GameRow[]): GameRow[] {
 
 /**
  * The game list: one row per game, its best title ID (rows come highest stage first, as model.games
- * does). The stage filter reads that row, like the stage chips and the ladder; the search reads every
- * title ID of the game, so a region's PPSA ID still finds it.
+ * does). The stage filter reads that row, like the stage chips and the ladder; the tag filter reads the
+ * game's tags, which every title ID of it shares; the search reads every title ID of the game, so a
+ * region's PPSA ID still finds it.
  */
-export function gameList(rows: readonly GameRow[], { stage, q }: GameQuery): GameRow[] {
+export function gameList(rows: readonly GameRow[], { stage, tag = "", q }: GameQuery): GameRow[] {
   const hit = new Set(filterGames(rows, { stage: "all", q }).map((g) => g.name));
-  return filterGames(onePerGame(rows), { stage, q: "" }).filter((g) => hit.has(g.name));
+  return filterGames(onePerGame(rows), { stage, tag, q: "" }).filter((g) => hit.has(g.name));
 }
 
 export const GAME_SORTS = ["name", "stage", "stop", "chain", "report"] as const;

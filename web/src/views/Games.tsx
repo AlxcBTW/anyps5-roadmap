@@ -3,16 +3,22 @@
 // live in the drawer and are never shown as a stage or sorted on.
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { GAME_SORTS, gameAccessors, gameList, onePerGame, stageCounts, type GameSort } from "../data/lists";
+import { GAME_SORTS, filterGames, gameAccessors, gameList, onePerGame, stageCounts, tagCounts, type GameSort } from "../data/lists";
 import { useData } from "../data/load";
 import type { GameRow } from "../data/model";
 import { plural } from "../lib/format";
 import { setParams, type Location } from "../lib/router";
 import { formatSort, parseSort, sortRows, type Dir, type Sort } from "../lib/sort";
-import { Chips, Empty, ItemLink, SortSelect, StageMeter, StatusPill } from "../components/ui";
+import { Chips, Empty, GameTags, ItemLink, SortSelect, StageMeter, StatusPill } from "../components/ui";
 import { ListKeys } from "./listKeys";
 
 const DEFAULT: Sort<GameSort> = { key: "stage", dir: "desc" };
+// the groups of the tag menu; Kind holds only App, so the menu says what it means
+const TAG_GROUPS = [
+  ["Dimension", "Dimension"],
+  ["Genre", "Genre"],
+  ["Kind", "Not a game"],
+] as const;
 const FIRST_PAGE = 30;
 
 const SORT_OPTIONS: { key: GameSort; label: string; dir: Dir }[] = [
@@ -26,15 +32,20 @@ export function GameList({ loc }: { loc: Location }) {
   const { model } = useData();
   const p = loc.under.params;
   const stage = p.get("stage") ?? "all";
+  const tag = p.get("tag") ?? "";
   const q = p.get("q") ?? "";
   const sort = parseSort(p.get("sort"), GAME_SORTS, DEFAULT);
-  const counts = useMemo(() => stageCounts(onePerGame(model.games)), [model]);
+  // each filter counts within the other, so a number always says what choosing it shows
+  const games = useMemo(() => onePerGame(model.games), [model]);
+  const counts = useMemo(() => stageCounts(filterGames(games, { stage: "all", tag, q: "" })), [games, tag]);
+  const tags = useMemo(() => tagCounts(filterGames(games, { stage, q: "" })), [games, stage]);
+  const tagged = useMemo(() => games.some((g) => g.tags.length), [games]);
   const rows = useMemo(
-    () => sortRows(gameList(model.games, { stage, q }), gameAccessors, sort),
-    [model, stage, q, sort],
+    () => sortRows(gameList(model.games, { stage, tag, q }), gameAccessors, sort),
+    [model, stage, tag, q, sort],
   );
   const [expanded, setExpanded] = useState(false);
-  const filtered = !!q.trim() || stage !== "all";
+  const filtered = !!q.trim() || stage !== "all" || !!tag;
   const shown = expanded || filtered ? rows : rows.slice(0, FIRST_PAGE);
   const list = useRef<HTMLUListElement>(null);
   const focusAt = useRef<number | null>(null);
@@ -56,12 +67,35 @@ export function GameList({ loc }: { loc: Location }) {
     <section className="section games" aria-labelledby="h-games">
       <div className="section-head">
         <h2 id="h-games">Games</h2>
-        <SortSelect options={SORT_OPTIONS} sort={sort} onChange={(s) => set({ sort: s.key === DEFAULT.key && s.dir === DEFAULT.dir ? null : formatSort(s) })} />
+        <div className="section-tools">
+          {tagged && (
+            <label className="select tag-select">
+              <span>Tag</span>
+              <select value={tag} onChange={(e) => set({ tag: e.target.value || null })}>
+                <option value="">All</option>
+                {TAG_GROUPS.map(([group, label]) => {
+                  const options = model.tags.filter((t) => t.group === group && (tags.get(t.name) || t.name === tag));
+                  return options.length ? (
+                    <optgroup key={group} label={label}>
+                      {options.map((t) => (
+                        <option key={t.name} value={t.name}>
+                          {t.name} ({tags.get(t.name) ?? 0})
+                        </option>
+                      ))}
+                    </optgroup>
+                  ) : null;
+                })}
+                {tag && !model.tags.some((t) => t.name === tag) && <option value={tag}>{tag} (0)</option>}
+              </select>
+            </label>
+          )}
+          <SortSelect options={SORT_OPTIONS} sort={sort} onChange={(s) => set({ sort: s.key === DEFAULT.key && s.dir === DEFAULT.dir ? null : formatSort(s) })} />
+        </div>
       </div>
       <Chips legend="Stage" value={stage} onChange={(v) => set({ stage: v === "all" ? null : v })} chips={chips} />
       <div className="list-meta">
         <p className="result" role="status">
-          {resultLine(rows.length, stage, q)}
+          {resultLine(rows.length, stage, tag, q)}
         </p>
         <details className="explain">
           <summary>What the stages mean</summary>
@@ -109,18 +143,22 @@ export function GameList({ loc }: { loc: Location }) {
         </ListKeys>
       ) : (
         <Empty
-          title={`No games match${q ? ` “${q}”` : ""}${stage !== "all" ? ` at ${stage === "none" ? "no stage" : stage}` : ""}`}
-          hint="Try a game name, a PPSA ID, an engine such as Unity, an issue number or part of an error line."
-          onClear={() => set({ q: null, stage: null })}
+          title={`No games${tag ? ` tagged ${tag}` : ""}${stage !== "all" ? ` at ${stage === "none" ? "no stage" : stage}` : ""}${q ? ` match “${q}”` : ""}`}
+          hint={
+            q || (stage === "all" && !tag)
+              ? "Try a game name, a PPSA ID, an engine such as Unity, an issue number or part of an error line."
+              : "Pick another tag or stage, or clear the filters."
+          }
+          onClear={() => set({ q: null, stage: null, tag: null })}
         />
       )}
     </section>
   );
 }
 
-function resultLine(n: number, stage: string, q: string): string {
+function resultLine(n: number, stage: string, tag: string, q: string): string {
   const where = stage === "all" ? "" : stage === "none" ? " without a stage" : ` at ${stage}`;
-  return `${plural(n, "game")}${where}${q.trim() ? ` matching “${q.trim()}”` : ""}`;
+  return `${plural(n, "game")}${tag ? ` tagged ${tag}` : ""}${where}${q.trim() ? ` matching “${q.trim()}”` : ""}`;
 }
 
 function GameRowLink({ g, loc, total }: { g: GameRow; loc: Location; total: number }) {
@@ -138,6 +176,7 @@ function GameRowLink({ g, loc, total }: { g: GameRow; loc: Location; total: numb
         <span className="row-meta">
           {g.named && <span className="mono">{g.id}</span>}
           {g.title.engine && <span>{g.title.engine}</span>}
+          <GameTags tags={g.tags} />
         </span>
       </span>
       <span className="g-stage">

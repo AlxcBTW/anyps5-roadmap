@@ -1,6 +1,6 @@
 {
  "schema_version": 1,
- "generated_at": "2026-10-11T04:56:51Z",
+ "generated_at": "2026-10-12T22:44:00Z",
  "fetched_at": "2026-10-10T12:00:00Z",
  "upstream": {
   "repo": "boykopovar/AnyPS5",
@@ -62,6 +62,83 @@
    "meaning": "Playable from start to finish with minor issues."
   }
  ],
+ "tags": [
+  {
+   "name": "2D",
+   "group": "Dimension",
+   "meaning": "Played in two dimensions."
+  },
+  {
+   "name": "3D",
+   "group": "Dimension",
+   "meaning": "Played in three dimensions."
+  },
+  {
+   "name": "Shooter",
+   "group": "Genre",
+   "meaning": "Shooting is the core of play, first or third person."
+  },
+  {
+   "name": "Platformer",
+   "group": "Genre",
+   "meaning": "Running and jumping between platforms."
+  },
+  {
+   "name": "Racing",
+   "group": "Genre",
+   "meaning": "Driving or racing."
+  },
+  {
+   "name": "Sports",
+   "group": "Genre",
+   "meaning": "A real sport, such as hockey, football or pool."
+  },
+  {
+   "name": "Fighting",
+   "group": "Genre",
+   "meaning": "Head-to-head fights."
+  },
+  {
+   "name": "Puzzle",
+   "group": "Genre",
+   "meaning": "Puzzles and logic."
+  },
+  {
+   "name": "Horror",
+   "group": "Genre",
+   "meaning": "Horror and survival horror."
+  },
+  {
+   "name": "RPG",
+   "group": "Genre",
+   "meaning": "Role-playing: a character grows through levels, skills or gear."
+  },
+  {
+   "name": "Simulation",
+   "group": "Genre",
+   "meaning": "Simulates a real activity or system."
+  },
+  {
+   "name": "Strategy",
+   "group": "Genre",
+   "meaning": "Planning and tactics, in real time or turn by turn."
+  },
+  {
+   "name": "Action",
+   "group": "Genre",
+   "meaning": "Real-time combat and reflexes."
+  },
+  {
+   "name": "Adventure",
+   "group": "Genre",
+   "meaning": "Exploration and story."
+  },
+  {
+   "name": "App",
+   "group": "Kind",
+   "meaning": "Not a game: a media player, emulator, streaming client, store or tool."
+  }
+ ],
  "scoring": {
   "formula": "3*one_fix_away + 2*frontier + total",
   "frontier": "titles for which this is the earliest open blocker on at least one OS/GPU path",
@@ -77,6 +154,7 @@
   "titles_with_open_blockers": 11,
   "titles_with_stage": 11,
   "titles_with_unverified_claim": 1,
+  "titles_with_tags": 2,
   "stage_reviews": 1,
   "blockers_open": 7,
   "blockers_ranked": 5,
@@ -451,6 +529,8 @@
    "name": "Kena: Bridge of Spirits",
    "engine": "Unreal Engine 4",
    "kind": "retail",
+   "tags": [],
+   "tag_sources": [],
    "curated": false,
    "best_stage": null,
    "unverified_claim": {
@@ -520,6 +600,13 @@
    "name": "Stray",
    "engine": "Unreal Engine 4",
    "kind": null,
+   "tags": [
+    "Puzzle",
+    "Adventure"
+   ],
+   "tag_sources": [
+    "https://www.wikidata.org/wiki/Q96247255"
+   ],
    "curated": false,
    "best_stage": {
     "stage": "Presents",
@@ -603,6 +690,15 @@
    "name": "Dreaming Sarah",
    "engine": null,
    "kind": null,
+   "tags": [
+    "2D",
+    "Platformer",
+    "Adventure"
+   ],
+   "tag_sources": [
+    "https://www.wikidata.org/wiki/Q120751003",
+    "https://steamspy.com/app/296870"
+   ],
    "curated": false,
    "best_stage": {
     "stage": "Menus",
@@ -670,6 +766,8 @@
    "name": "Astro Bot",
    "engine": null,
    "kind": null,
+   "tags": [],
+   "tag_sources": [],
    "curated": false,
    "best_stage": null,
    "unverified_claim": null,
@@ -699,6 +797,8 @@
    "name": "Taxi Chaos 2",
    "engine": null,
    "kind": "retail",
+   "tags": [],
+   "tag_sources": [],
    "curated": true,
    "best_stage": {
     "os": "Windows",
@@ -765,6 +865,8 @@
    "name": null,
    "engine": null,
    "kind": "homebrew",
+   "tags": [],
+   "tag_sources": [],
    "curated": false,
    "best_stage": {
     "stage": "Converts",
@@ -831,6 +933,8 @@
    "name": null,
    "engine": null,
    "kind": "homebrew",
+   "tags": [],
+   "tag_sources": [],
    "curated": false,
    "best_stage": {
     "stage": "Converts",
@@ -897,6 +1001,8 @@
    "name": null,
    "engine": null,
    "kind": "homebrew",
+   "tags": [],
+   "tag_sources": [],
    "curated": false,
    "best_stage": {
     "stage": "Converts",
@@ -963,6 +1069,8 @@
    "name": null,
    "engine": null,
    "kind": "homebrew",
+   "tags": [],
+   "tag_sources": [],
    "curated": false,
    "best_stage": {
     "stage": "Converts",
@@ -1029,6 +1137,8 @@
    "name": null,
    "engine": null,
    "kind": "homebrew",
+   "tags": [],
+   "tag_sources": [],
    "curated": false,
    "best_stage": {
     "stage": "Converts",
@@ -1095,6 +1205,8 @@
    "name": null,
    "engine": null,
    "kind": "homebrew",
+   "tags": [],
+   "tag_sources": [],
    "curated": false,
    "best_stage": {
     "stage": "Converts",
@@ -1161,6 +1273,8 @@
    "name": null,
    "engine": null,
    "kind": "homebrew",
+   "tags": [],
+   "tag_sources": [],
    "curated": false,
    "best_stage": {
     "stage": "Converts",
@@ -1227,6 +1341,8 @@
    "name": null,
    "engine": null,
    "kind": "homebrew",
+   "tags": [],
+   "tag_sources": [],
    "curated": false,
    "best_stage": {
     "stage": "Converts",
@@ -1293,6 +1409,8 @@
    "name": "DOOM",
    "engine": null,
    "kind": null,
+   "tags": [],
+   "tag_sources": [],
    "curated": false,
    "best_stage": null,
    "unverified_claim": null,
@@ -1408,8 +1526,9 @@
   "issues_and_prs": "https://github.com/boykopovar/AnyPS5 via gh api graphql (open + closed in the last 60 days)",
   "dependencies": "/repos/boykopovar/AnyPS5/issues/{n}/dependencies/blocked_by",
   "curated": "data/blockers.json",
+  "tags": "data/blockers.json title_tags: Wikidata genres, PlayStation Store genres, SteamSpy user tags and homebrew READMEs, linked per title in tag_sources",
   "progress": "https://boykopovar.github.io/AnyPS5/progress.json",
   "pm4": "core/libs/prx/libSceAgcDriver/Execution/include/Pm4Opcodes.hpp (raw, main) + core/libs/prx/libSceAgcDriver/Execution/src/Pm4.cpp at origin/main",
-  "compatibility": "https://github.com/boykopovar/AnyPS5/blob/main/docs/user/COMPATIBILITY.md"
+  "compatibility": "https://github.com/boykopovar/AnyPS5/discussions/2475#discussioncomment-18886410"
  }
 }
