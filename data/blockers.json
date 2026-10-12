@@ -52,6 +52,17 @@
       "sources": ["https://github.com/boykopovar/AnyPS5/pull/2054"]
     },
     {
+      "id": "pr-4536",
+      "issue": null,
+      "title": "libkernel: sceKernelDebugOutText blocks on a guest stderr moved by dup2, and every host stderr write waits",
+      "signature": null,
+      "area": "libkernel",
+      "fix_prs": [{"number": 4536}],
+      "next": "Review and merge #4536, which carries the second commit of the closed #1870.",
+      "notes": "Stall, no error line. The last line is Vulkan device ready and no swapchain is created. main never had the second commit of #1870; #2478 added dup2 without it.",
+      "sources": ["https://github.com/boykopovar/AnyPS5/pull/4536", "https://github.com/boykopovar/AnyPS5/pull/1870"]
+    },
+    {
       "id": "pr-425",
       "issue": null,
       "title": "Depth surface sampled as a cube texture",
@@ -301,6 +312,11 @@
   ],
   "stage_reviews_note": "Hand review of every mined stage of Menus or higher (2026-10-10). claim_url is the source the miner quoted; it is dropped for that title. confirmed/downgraded add a curated stage from url. Only main or main plus PRs that are merged now counts; branches with open PRs, local stand-ins or hacks do not.",
   "stage_reviews": [
+    {"title": "PPSA59322", "claim": "Presents", "claim_url": "https://github.com/boykopovar/AnyPS5/pull/1732#issuecomment-6095296573",
+     "verdict": "downgraded", "stage": "Starts", "os": "Windows", "gpu": "NVIDIA", "build": "main", "date": "2026-10-12",
+     "url": "https://github.com/boykopovar/AnyPS5/pull/4536",
+     "quote": "On `main`, neither saves a frame in 90 s.",
+     "reason": "The 60 FPS run was TheAggie's local build; main never had the second commit of #1870 that #4536 carries."},
     {"title": "PPSA01325", "claim": "Menus", "claim_url": "https://github.com/boykopovar/AnyPS5/pull/2156",
      "verdict": "downgraded", "stage": "Starts", "os": "Windows", "gpu": "NVIDIA", "build": "main", "date": "2026-10-09",
      "url": "https://github.com/boykopovar/AnyPS5/pull/2156",
@@ -564,11 +580,17 @@
     },
     {
       "id": "PPSA59322", "name": "ccleste", "kind": "homebrew",
-      "blockers": [{"id": "3165", "why": "first stop on main 0f863c10"}]
+      "blockers": [
+        {"id": "3165", "why": "first stop on main 0f863c10"},
+        {"id": "pr-4536", "why": "stall after Vulkan device ready on main 0ef9dc92; no frame in 90 s"}
+      ]
     },
     {
       "id": "PPSA76677", "name": "RommPS", "kind": "homebrew",
-      "blockers": [{"id": "3165", "why": "first stop on main 0f863c10"}]
+      "blockers": [
+        {"id": "3165", "why": "first stop on main 0f863c10"},
+        {"id": "pr-4536", "why": "stall after Vulkan device ready on main 0ef9dc92; no frame in 90 s"}
+      ]
     },
     {
       "id": "PPSA99002", "name": "ProsperoLight", "kind": "homebrew",
