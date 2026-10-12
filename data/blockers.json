@@ -136,7 +136,7 @@
         {"repo": "AlxcBTW/AnyPS5", "number": 12, "note": "reads P10 of a flat input as the provoking vertex"},
         {"number": 4030, "note": "merged 2026-10-12 (acb13d1b): reads P10 of a flat input as the provoking vertex; the hardware answer for P10/P20 is still open here"}
       ],
-      "next": "Settle what PS5 hardware returns for P10/P20 here (CouchRiv measured 0 on gfx1036); #4030 covers the provoking-vertex case on main.",
+      "next": "Settle what PS5 hardware returns for P10/P20 here (CouchRiv measured 0 on gfx1036). #4030 covers the provoking-vertex case: nine titles no longer stop at it on main 2a5eca11; P10 under the first provoking vertex stays a throw that the shader prebuild catches.",
       "help_wanted": "Hardware answer needed (tools/hw-oracle on a PS5-class GPU).",
       "sources": ["https://github.com/boykopovar/AnyPS5/issues/1413#issuecomment-6095663977", "https://github.com/boykopovar/AnyPS5/issues/3581", "https://github.com/boykopovar/AnyPS5/pull/4030#issuecomment-6123261683"]
     },
@@ -518,16 +518,22 @@
     },
     {
       "id": "PPSA99050", "name": "Homebrew UI Lab", "engine": "Mesa (OpenGL)", "kind": "homebrew",
-      "blockers": [{"id": "1413", "why": "every UI shape gets alpha 0"}],
+      "blockers": [],
+      "excluded": [{"id": "1413", "why": "no provoking-vertex stop on main 2a5eca11 (after #4030) in a 60 s run"}],
       "evidence": [
+        {"stage": "Menus", "os": "Windows", "gpu": "NVIDIA", "build": "main 2a5eca11", "date": "2026-10-12",
+         "url": "https://github.com/boykopovar/AnyPS5/issues/3581#issuecomment-6129427574", "note": "Runs 60 s; full home screen"},
         {"stage": "Menus", "os": "Windows", "gpu": "NVIDIA", "build": "main + AlxcBTW#12", "date": "2026-10-10",
          "url": "https://github.com/boykopovar/AnyPS5/issues/1413#issuecomment-6095663977", "note": "Full home screen renders"}
       ]
     },
     {
       "id": "PPSA39410", "name": "VITA5", "engine": "Mesa (OpenGL)", "kind": "homebrew",
-      "blockers": [{"id": "1413", "why": "flat inputs read as deltas"}],
+      "blockers": [],
+      "excluded": [{"id": "1413", "why": "no provoking-vertex stop on main 2a5eca11 (after #4030) in a 60 s run"}],
       "evidence": [
+        {"stage": "Menus", "os": "Windows", "gpu": "NVIDIA", "build": "main 2a5eca11", "date": "2026-10-12",
+         "url": "https://github.com/boykopovar/AnyPS5/issues/3581#issuecomment-6129427574", "note": "Runs 60 s; Dock your PS Vita screen"},
         {"stage": "Menus", "os": "Windows", "gpu": "NVIDIA", "build": "main + AlxcBTW#12", "date": "2026-10-10",
          "url": "https://github.com/boykopovar/AnyPS5/issues/1413#issuecomment-6095663977", "note": "Complete UI renders"}
       ]
@@ -535,10 +541,12 @@
     {
       "id": "PPSA99005", "name": "ps5-opengl showcase", "engine": "Mesa (OpenGL)", "kind": "homebrew",
       "blockers": [
-        {"id": "2631", "why": "first stop on main ce4263b1, at its first draw"},
-        {"id": "1413", "why": "flat P10 check"}
+        {"id": "2631", "why": "first stop on main ce4263b1, at its first draw"}
       ],
+      "excluded": [{"id": "1413", "why": "no provoking-vertex stop on main 2a5eca11 (after #4030) in a 60 s run"}],
       "evidence": [
+        {"stage": "Presents", "os": "Windows", "gpu": "NVIDIA", "build": "main 2a5eca11", "date": "2026-10-12",
+         "url": "https://github.com/boykopovar/AnyPS5/issues/3581#issuecomment-6129427574", "note": "Runs 60 s; text overlay over a black scene; 988 draw-rejected status=-12 lines in its own log, not looked into"},
         {"stage": "First draw", "os": "Windows", "gpu": "NVIDIA", "build": "main + AlxcBTW#12", "date": "2026-10-10",
          "url": "https://github.com/boykopovar/AnyPS5/issues/1413#issuecomment-6095663977", "note": "Gets past the P10 check, then ends on its own 2 s retirement wait"}
       ]
@@ -570,10 +578,12 @@
       "blockers": [
         {"id": "pr-1482", "why": "first stop on main ccf9ff90, after #2945"},
         {"id": "pr-1841", "why": "getcontext, setcontext and makecontext are absent imports"},
-        {"id": "2631", "why": "first stop on main a11c8f7f, 19 s after the store UI starts"},
-        {"id": "1413", "why": "first stop on main 3d8ffeb2 (#3512 merged), 34 s in"}
+        {"id": "2631", "why": "first stop on main a11c8f7f, 19 s after the store UI starts"}
       ],
+      "excluded": [{"id": "1413", "why": "no provoking-vertex stop on main 2a5eca11 (after #4030) in a 60 s run; the stop on main 3d8ffeb2 is gone"}],
       "evidence": [
+        {"stage": "Menus", "os": "Windows", "gpu": "NVIDIA", "build": "main 2a5eca11", "date": "2026-10-12",
+         "url": "https://github.com/boykopovar/AnyPS5/issues/3581#issuecomment-6129427574", "note": "Runs 60 s; Discover page, offline catalog message"},
         {"stage": "Starts", "os": "Windows", "gpu": "NVIDIA", "build": "main 3d8ffeb2", "date": "2026-10-12",
          "url": "https://github.com/boykopovar/AnyPS5/pull/4030#issuecomment-6123261683", "note": "Stops at the provoking-vertex line after 34 s"},
         {"stage": "Starts", "os": "Windows", "gpu": "NVIDIA", "build": "main a11c8f7f", "date": "2026-10-11",
@@ -681,24 +691,33 @@
     },
     {
       "id": "PPSA17641", "name": "SymphonyStation5", "kind": "homebrew",
-      "blockers": [{"id": "1413", "why": "first stop on main 3d8ffeb2, 27 s in"}],
+      "blockers": [],
+      "excluded": [{"id": "1413", "why": "no provoking-vertex stop on main 2a5eca11 (after #4030) in a 60 s run; the stop on main 3d8ffeb2 is gone"}],
       "evidence": [
+        {"stage": "Menus", "os": "Windows", "gpu": "NVIDIA", "build": "main 2a5eca11", "date": "2026-10-12",
+         "url": "https://github.com/boykopovar/AnyPS5/issues/3581#issuecomment-6129427574", "note": "Runs 60 s; login form"},
         {"stage": "Starts", "os": "Windows", "gpu": "NVIDIA", "build": "main 3d8ffeb2", "date": "2026-10-12",
          "url": "https://github.com/boykopovar/AnyPS5/pull/4030#issuecomment-6123261683", "note": "Stops at the provoking-vertex line after 27 s"}
       ]
     },
     {
       "id": "PPSA74126", "name": "Stremio Plus", "kind": "homebrew",
-      "blockers": [{"id": "1413", "why": "first stop on main 3d8ffeb2, after getsid (#3493, merged)"}],
+      "blockers": [],
+      "excluded": [{"id": "1413", "why": "no provoking-vertex stop on main 2a5eca11 (after #4030) in a 60 s run; the stop on main 3d8ffeb2 is gone"}],
       "evidence": [
+        {"stage": "Presents", "os": "Windows", "gpu": "NVIDIA", "build": "main 2a5eca11", "date": "2026-10-12",
+         "url": "https://github.com/boykopovar/AnyPS5/issues/3581#issuecomment-6129427574", "note": "Runs 60 s; draws its App storage is unavailable screen"},
         {"stage": "Starts", "os": "Windows", "gpu": "NVIDIA", "build": "main 3d8ffeb2", "date": "2026-10-12",
          "url": "https://github.com/boykopovar/AnyPS5/pull/4030#issuecomment-6123261683", "note": "Stops at the provoking-vertex line"}
       ]
     },
     {
       "id": "PPSA99930", "name": "Forwarder Manager", "kind": "homebrew",
-      "blockers": [{"id": "1413", "why": "first stop on main 3d8ffeb2, 31 s in"}],
+      "blockers": [],
+      "excluded": [{"id": "1413", "why": "no provoking-vertex stop on main 2a5eca11 (after #4030) in a 60 s run; the stop on main 3d8ffeb2 is gone"}],
       "evidence": [
+        {"stage": "Presents", "os": "Windows", "gpu": "NVIDIA", "build": "main 2a5eca11", "date": "2026-10-12",
+         "url": "https://github.com/boykopovar/AnyPS5/issues/3581#issuecomment-6129427574", "note": "Runs 60 s; draws its No access to /data/homebrew screen"},
         {"stage": "Starts", "os": "Windows", "gpu": "NVIDIA", "build": "main 3d8ffeb2", "date": "2026-10-12",
          "url": "https://github.com/boykopovar/AnyPS5/pull/4030#issuecomment-6123261683", "note": "Stops at the provoking-vertex line after 31 s"}
       ]
@@ -706,13 +725,18 @@
     {
       "id": "PPSA99003", "name": "ProsperoTV", "kind": "homebrew",
       "blockers": [
-        {"id": "3521", "why": "first stop on main 3d8ffeb2: poll on a pipe read end"},
-        {"id": "1413", "why": "next stop with the poll fix applied"}
-      ]
+        {"id": "3521", "why": "first stop on main 3d8ffeb2 and 2a5eca11: poll on a pipe read end"}
+      ],
+      "excluded": [{"id": "1413", "why": "with #3649 on main d592d54e poll is its only stop and it reaches Vulkan device ready (boykopovar/AnyPS5#3649, comment 6127378678)"}]
     },
     {
       "id": "PPSA99051", "name": "Surround Sound Studio", "kind": "homebrew",
-      "blockers": [{"id": "1413", "why": "first stop on main a11c8f7f, per #3581"}]
+      "blockers": [],
+      "excluded": [{"id": "1413", "why": "no provoking-vertex stop on main 2a5eca11 (after #4030) in a 60 s run; the earlier sceAudioOutSysGetHdmiMonitorInfo stop is gone too"}],
+      "evidence": [
+        {"stage": "Menus", "os": "Windows", "gpu": "NVIDIA", "build": "main 2a5eca11", "date": "2026-10-12",
+         "url": "https://github.com/boykopovar/AnyPS5/issues/3581#issuecomment-6129427574", "note": "Runs 60 s; Passthrough page"}
+      ]
     },
     {"id": "PPSA22520", "name": "Animal Well"},
     {"id": "PPSA29141", "name": "LEGO Party!", "engine": "Unity"}
