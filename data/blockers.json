@@ -255,8 +255,29 @@
       "id": "3249",
       "issue": 3249,
       "area": "libc",
-      "next": "Submit localeconv again; the intake rule closed #3245 and its resubmission #3310.",
-      "sources": ["https://github.com/boykopovar/AnyPS5/issues/3249", "https://github.com/boykopovar/AnyPS5/issues/3249#issuecomment-6107237599"]
+      "related_prs": [{"number": 545}],
+      "next": "Check the struct layout of localeconv at runtime: callers in PPSA99902 read decimal_point at offset 0, #545 puts it at 0x48.",
+      "sources": ["https://github.com/boykopovar/AnyPS5/issues/3249", "https://github.com/boykopovar/AnyPS5/issues/3249#issuecomment-6107237599", "https://github.com/boykopovar/AnyPS5/issues/3249#issuecomment-6115108315", "https://github.com/boykopovar/AnyPS5/pull/545"]
+    },
+    {
+      "id": "3734",
+      "issue": 3734,
+      "title": "libScePosixForWebKit: getservbyname is absent",
+      "signature": "FAIL: unresolved ELF import H1bArJPagV0 from libScePosixForWebKit.prx",
+      "area": "prx",
+      "fix_prs": [{"number": 3798}],
+      "next": "Land #3798.",
+      "sources": ["https://github.com/boykopovar/AnyPS5/issues/3734", "https://github.com/boykopovar/AnyPS5/pull/3798#issuecomment-6115637954", "https://github.com/boykopovar/AnyPS5/issues/1578#issuecomment-6120048127"]
+    },
+    {
+      "id": "pr-3700",
+      "issue": null,
+      "title": "sysctl: MIB 1.37 (kern.arandom) is unsupported",
+      "signature": "sysctl_nid_postfix: unsupported MIB 1.37",
+      "area": "libkernel",
+      "fix_prs": [{"number": 3700}],
+      "next": "Land #3700.",
+      "sources": ["https://github.com/boykopovar/AnyPS5/pull/3700", "https://github.com/boykopovar/AnyPS5/pull/3798#issuecomment-6115637954"]
     },
     {
       "id": "pr-1841",
@@ -531,8 +552,10 @@
       "id": "PPSA99010", "name": "vkQuake", "kind": "homebrew",
       "blockers": [
         {"id": "3165", "why": "first stop on main 0f863c10"},
-        {"id": "pr-1482", "why": "stop on main 9c5d67fb with #2967"},
-        {"id": "3249", "why": "localeconv is an absent import"}
+        {"id": "pr-1482", "why": "stop on main 9c5d67fb with #2967"}
+      ],
+      "excluded": [
+        {"id": "3249", "why": "localeconv is on main since #545; vkQuake exits cleanly for lack of game data in the 2ccbd376 catalog run"}
       ]
     },
     {
@@ -609,9 +632,13 @@
     {
       "id": "PPSA99600", "name": "Cloud Play", "kind": "homebrew",
       "blockers": [
-        {"id": "3249", "why": "first stop on main"},
+        {"id": "3734", "why": "first stop on main 3d8ffeb2 and 2ccbd376"},
+        {"id": "pr-3700", "why": "next stop with #3798 applied"},
         {"id": "pr-1482", "why": "_umtx_op is an absent import"},
         {"id": "pr-1841", "why": "getcontext, setcontext and makecontext are absent imports"}
+      ],
+      "excluded": [
+        {"id": "3249", "why": "localeconv is on main since #545; the title loads past it"}
       ]
     },
     {"id": "PPSA22520", "name": "Animal Well"},
