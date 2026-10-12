@@ -7,9 +7,9 @@ from collections import Counter, defaultdict
 from typing import TYPE_CHECKING
 
 from .config import (
+    ARCHIVE_URL,
     PM4_HEADER,
     PM4_SOURCE,
-    ARCHIVE_URL,
     PROGRESS_URL,
     PROJECT_REPO,
     SCHEMA_VERSION,
