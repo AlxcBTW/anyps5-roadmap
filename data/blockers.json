@@ -132,10 +132,13 @@
       "title": "v_interp_mov P10/P20 of a flat input without pass-through",
       "signature": null,
       "area": "shader",
-      "fix_prs": [{"repo": "AlxcBTW/AnyPS5", "number": 12, "note": "reads P10 of a flat input as the provoking vertex"}],
-      "next": "Settle what PS5 hardware returns for P10/P20 here, then land the matching recompiler rule.",
+      "fix_prs": [
+        {"repo": "AlxcBTW/AnyPS5", "number": 12, "note": "reads P10 of a flat input as the provoking vertex"},
+        {"number": 4030, "note": "merged 2026-10-12 (acb13d1b): reads P10 of a flat input as the provoking vertex; the hardware answer for P10/P20 is still open here"}
+      ],
+      "next": "Settle what PS5 hardware returns for P10/P20 here (CouchRiv measured 0 on gfx1036); #4030 covers the provoking-vertex case on main.",
       "help_wanted": "Hardware answer needed (tools/hw-oracle on a PS5-class GPU).",
-      "sources": ["https://github.com/boykopovar/AnyPS5/issues/1413#issuecomment-6095663977"]
+      "sources": ["https://github.com/boykopovar/AnyPS5/issues/1413#issuecomment-6095663977", "https://github.com/boykopovar/AnyPS5/issues/3581", "https://github.com/boykopovar/AnyPS5/pull/4030#issuecomment-6123261683"]
     },
     {
       "id": "2631",
@@ -269,6 +272,16 @@
       "related_prs": [{"number": 545}],
       "next": "Check the struct layout of localeconv at runtime: callers in PPSA99902 read decimal_point at offset 0, #545 puts it at 0x48.",
       "sources": ["https://github.com/boykopovar/AnyPS5/issues/3249", "https://github.com/boykopovar/AnyPS5/issues/3249#issuecomment-6107237599", "https://github.com/boykopovar/AnyPS5/issues/3249#issuecomment-6115108315", "https://github.com/boykopovar/AnyPS5/pull/545"]
+    },
+    {
+      "id": "3521",
+      "issue": 3521,
+      "title": "libkernel: poll throws for descriptors that are not sockets",
+      "signature": "poll: descriptor 3 is not a socket",
+      "area": "libkernel",
+      "fix_prs": [{"number": 3649}],
+      "next": "Land #3649, which carries screamm's poll branch.",
+      "sources": ["https://github.com/boykopovar/AnyPS5/issues/3521", "https://github.com/boykopovar/AnyPS5/pull/3649"]
     },
     {
       "id": "3734",
@@ -557,9 +570,12 @@
       "blockers": [
         {"id": "pr-1482", "why": "first stop on main ccf9ff90, after #2945"},
         {"id": "pr-1841", "why": "getcontext, setcontext and makecontext are absent imports"},
-        {"id": "2631", "why": "first stop on main a11c8f7f, 19 s after the store UI starts"}
+        {"id": "2631", "why": "first stop on main a11c8f7f, 19 s after the store UI starts"},
+        {"id": "1413", "why": "first stop on main 3d8ffeb2 (#3512 merged), 34 s in"}
       ],
       "evidence": [
+        {"stage": "Starts", "os": "Windows", "gpu": "NVIDIA", "build": "main 3d8ffeb2", "date": "2026-10-12",
+         "url": "https://github.com/boykopovar/AnyPS5/pull/4030#issuecomment-6123261683", "note": "Stops at the provoking-vertex line after 34 s"},
         {"stage": "Starts", "os": "Windows", "gpu": "NVIDIA", "build": "main a11c8f7f", "date": "2026-10-11",
          "url": "https://github.com/boykopovar/AnyPS5/pull/3512#issuecomment-6109421521", "note": "Store UI starts, then aborts after 19 s in v_fma_mixlo/mixhi_f16"}
       ]
@@ -662,6 +678,41 @@
       "excluded": [
         {"id": "3249", "why": "localeconv is on main since #545; the title loads past it"}
       ]
+    },
+    {
+      "id": "PPSA17641", "name": "SymphonyStation5", "kind": "homebrew",
+      "blockers": [{"id": "1413", "why": "first stop on main 3d8ffeb2, 27 s in"}],
+      "evidence": [
+        {"stage": "Starts", "os": "Windows", "gpu": "NVIDIA", "build": "main 3d8ffeb2", "date": "2026-10-12",
+         "url": "https://github.com/boykopovar/AnyPS5/pull/4030#issuecomment-6123261683", "note": "Stops at the provoking-vertex line after 27 s"}
+      ]
+    },
+    {
+      "id": "PPSA74126", "name": "Stremio Plus", "kind": "homebrew",
+      "blockers": [{"id": "1413", "why": "first stop on main 3d8ffeb2, after getsid (#3493, merged)"}],
+      "evidence": [
+        {"stage": "Starts", "os": "Windows", "gpu": "NVIDIA", "build": "main 3d8ffeb2", "date": "2026-10-12",
+         "url": "https://github.com/boykopovar/AnyPS5/pull/4030#issuecomment-6123261683", "note": "Stops at the provoking-vertex line"}
+      ]
+    },
+    {
+      "id": "PPSA99930", "name": "Forwarder Manager", "kind": "homebrew",
+      "blockers": [{"id": "1413", "why": "first stop on main 3d8ffeb2, 31 s in"}],
+      "evidence": [
+        {"stage": "Starts", "os": "Windows", "gpu": "NVIDIA", "build": "main 3d8ffeb2", "date": "2026-10-12",
+         "url": "https://github.com/boykopovar/AnyPS5/pull/4030#issuecomment-6123261683", "note": "Stops at the provoking-vertex line after 31 s"}
+      ]
+    },
+    {
+      "id": "PPSA99003", "name": "ProsperoTV", "kind": "homebrew",
+      "blockers": [
+        {"id": "3521", "why": "first stop on main 3d8ffeb2: poll on a pipe read end"},
+        {"id": "1413", "why": "next stop with the poll fix applied"}
+      ]
+    },
+    {
+      "id": "PPSA99051", "name": "Surround Sound Studio", "kind": "homebrew",
+      "blockers": [{"id": "1413", "why": "first stop on main a11c8f7f, per #3581"}]
     },
     {"id": "PPSA22520", "name": "Animal Well"},
     {"id": "PPSA29141", "name": "LEGO Party!", "engine": "Unity"}
