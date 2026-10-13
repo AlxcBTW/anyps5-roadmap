@@ -77,6 +77,32 @@ class Extraction(unittest.TestCase):
         )
         self.assertEqual(r.stage_in("PPSA05684 crashed right after loading its first level.", 0)[0], "Menus")
 
+    def test_stage_keywords_skip_negated_claims_and_cpu_checks(self):
+        # a negated claim verb reaches back past "by themselves": the controls do not establish gameplay
+        self.assertIsNone(
+            r.stage_in(
+                "PPSA99902 controls reach 60 s without a fatal diagnostic; they do not by themselves establish late startup or gameplay.",
+                0,
+            )
+        )
+        # the negation can follow the keyword
+        self.assertIsNone(
+            r.stage_in(
+                "PPSA99902: PS5 hardware/render equivalence and a title hitting these cases have not been measured.", 0
+            )
+        )
+        self.assertEqual(
+            r.stage_in("Demon's Souls (PPSA01342) reached the main menu; gameplay is not validated.", 17)[0], "Menus"
+        )
+        # a sentence about a CPU-only check or a test suite is not a title run
+        self.assertIsNone(r.stage_in("PPSA99902 full 870-test suite: 865 pass, the title renders.", 0))
+        self.assertIsNone(r.stage_in("CPU offsets for PPSA99902 render targets match addrlib in the unit tests.", 0))
+        # "render" as a noun is not a title that renders; the verb still counts
+        self.assertIsNone(r.stage_in("Palworld (PPSA23126) clears the DCC keys of its render targets every frame.", 0))
+        self.assertEqual(r.stage_in("PPSA01234 renders the opening video", 0)[0], "Presents")
+        # real evidence next to a test mention in another sentence stays
+        self.assertEqual(r.stage_in("The unit tests pass. PPSA01234 reaches the title screen on main.", 24)[0], "Menus")
+
     def test_os_names_map_distros_and_macs(self):
         linux = [
             "SteamOS",
