@@ -11,6 +11,7 @@ HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE.parent))
 
 from anyps5_roadmap import collect as c  # noqa: E402
+from anyps5_roadmap.github import GhError  # noqa: E402
 
 NOW = dt.datetime(2026, 10, 10, 12, 0, tzinfo=dt.UTC)
 CUTOFF = "2026-08-11T12:00:00Z"
@@ -39,12 +40,35 @@ class FakeGitHub:
             },
             21: {"updatedAt": "2026-10-07T11:00:00Z", "comments": [], "reviews": [], "threads": []},
         }
+        self.discussions = {}
         self.queries = []
+        self.page = 100  # nodes per listing page
+        self.remaining = 4000
+        self.thread_error = None  # raised by the next thread queries instead of answering
+        self.max_aliases = None  # a thread query with more aliases times out (HTTP 499)
+        self.drain_to = None  # the budget reported from the first thread query on
+
+    def listing_page(self, nodes, variables, key):
+        """One page of a listing as GitHub answers it: newest update first, cursor = offset."""
+        nodes = sorted(nodes, key=lambda n: n["updatedAt"], reverse=True)
+        start = int(variables.get("cursor") or 0)
+        page = nodes[start : start + self.page]
+        info = {"hasNextPage": start + self.page < len(nodes), "endCursor": str(start + self.page)}
+        return {"repository": {key: {"pageInfo": info, "nodes": page}}}
+
+    def discussion_node(self, n):
+        d = self.discussions[n]
+        return {
+            "number": n, "title": f"Discussion {n}", "body": "report", "url": f"https://x/discussions/{n}",
+            "createdAt": "2026-10-01T10:00:00Z", "updatedAt": d["updatedAt"], "closed": d.get("closed", False),
+            "closedAt": None, "author": {"login": "zoe"}, "category": {"name": d.get("category", "Game bring-up")},
+            "comments": {"totalCount": len(d["comments"])},
+        }  # fmt: skip
 
     def issue_node(self, n):
         d = self.issues[n]
         return {
-            "number": n, "title": f"Issue {n}", "body": "", "url": f"https://x/issues/{n}", "state": "OPEN",
+            "number": n, "title": f"Issue {n}", "body": "", "url": f"https://x/issues/{n}", "state": d.get("state", "OPEN"),
             "stateReason": None, "createdAt": "2026-10-01T10:00:00Z", "updatedAt": d["updatedAt"], "closedAt": None,
             "author": {"login": "zoe"}, "assignees": {"nodes": []}, "labels": {"nodes": []},
             "comments": {"totalCount": len(d["comments"])}, "timelineItems": {"filteredCount": d["xrefs"]},
@@ -54,7 +78,7 @@ class FakeGitHub:
     def pr_node(self, n):
         d = self.prs[n]
         return {
-            "number": n, "title": f"PR {n}", "body": "", "url": f"https://x/pull/{n}", "state": "OPEN", "merged": False,
+            "number": n, "title": f"PR {n}", "body": "", "url": f"https://x/pull/{n}", "state": d.get("state", "OPEN"), "merged": False,
             "mergedAt": None, "closedAt": None, "createdAt": "2026-10-01T10:00:00Z", "updatedAt": d["updatedAt"],
             "isDraft": False, "author": {"login": "dave"}, "labels": {"nodes": []},
             "closingIssuesReferences": {"nodes": [{"number": 7, "repository": {"nameWithOwner": "o/r"}}]},
@@ -64,18 +88,26 @@ class FakeGitHub:
 
     def __call__(self, query, variables):
         self.queries.append(query)
-        rl = {"cost": 1, "remaining": 4000}
+        if self.drain_to is not None and "(first: 100" not in query:
+            self.remaining = self.drain_to
+        rl = {"cost": 1, "remaining": self.remaining, "resetAt": "2026-10-10T13:00:00Z"}
+        states = variables.get("states")
         if "issues(first: 100" in query:
-            nodes = [self.issue_node(n) for n in self.issues] if variables["states"] == ["OPEN"] else []
-            return {"repository": {"issues": {"pageInfo": {"hasNextPage": False}, "nodes": nodes}}, "rateLimit": rl}
+            nodes = [self.issue_node(n) for n, d in self.issues.items() if d.get("state", "OPEN") in states]
+            return {**self.listing_page(nodes, variables, "issues"), "rateLimit": rl}
         if "pullRequests(first: 100" in query:
-            nodes = [self.pr_node(n) for n in self.prs] if variables["states"] == ["OPEN"] else []
-            return {
-                "repository": {"pullRequests": {"pageInfo": {"hasNextPage": False}, "nodes": nodes}},
-                "rateLimit": rl,
-            }
+            nodes = [self.pr_node(n) for n, d in self.prs.items() if d.get("state", "OPEN") in states]
+            return {**self.listing_page(nodes, variables, "pullRequests"), "rateLimit": rl}
+        if "discussions(first: 100" in query:
+            nodes = [self.discussion_node(n) for n in self.discussions]
+            return {**self.listing_page(nodes, variables, "discussions"), "rateLimit": rl}
+        if self.thread_error:
+            raise self.thread_error
+        found = re.findall(r"\b([ipd])(\d+): ", query)
+        if self.max_aliases is not None and len(found) > self.max_aliases:
+            raise GhError("gh: HTTP 499", 499)
         repo = {}
-        for kind, n in re.findall(r"\b([ip])(\d+): ", query):
+        for kind, n in re.findall(r"\b([ipd])(\d+): ", query):
             n = int(n)
             if kind == "i":
                 d = self.issues[n]
@@ -90,6 +122,13 @@ class FakeGitHub:
                     "updatedAt": d["updatedAt"],
                     "comments": {"pageInfo": {"hasNextPage": False}, "nodes": d["comments"]},
                     "timelineItems": {"pageInfo": {"hasNextPage": False}, "nodes": [xref] * d["xrefs"]},
+                }
+            elif kind == "d":
+                d = self.discussions[n]
+                repo[f"d{n}"] = {
+                    "number": n,
+                    "updatedAt": d["updatedAt"],
+                    "comments": {"pageInfo": {"hasNextPage": False}, "nodes": d["comments"]},
                 }
             else:
                 d = self.prs[n]
@@ -119,7 +158,8 @@ class Collect(unittest.TestCase):
         self.tmp.cleanup()
 
     def deep(self, fake):
-        return [q for q in fake.queries if "issues(first: 100" not in q and "pullRequests(first: 100" not in q]
+        listings = ("issues(first: 100", "pullRequests(first: 100", "discussions(first: 100")
+        return [q for q in fake.queries if not any(m in q for m in listings)]
 
     def test_first_run_reads_only_threads_with_text_and_sizes_each_connection(self):
         fake = FakeGitHub()
@@ -133,7 +173,7 @@ class Collect(unittest.TestCase):
         self.assertNotIn("p21:", q)
         self.assertIn("comments(first: 2)", q)  # sized to the listing's count
         self.assertIn("reviewThreads(first: 1)", q)
-        self.assertIn("rateLimit { cost remaining }", q)
+        self.assertIn("rateLimit { cost remaining resetAt }", q)
         self.assertEqual(raw["api"]["graphql_cost"], len(fake.queries))
         self.assertEqual(raw["api"]["threads_read"], 2)
         self.assertEqual(raw["api"]["threads_without_text"], 2)

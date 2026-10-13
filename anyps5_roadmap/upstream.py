@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import datetime as dt
+import json
 import subprocess
 import urllib.error
 import urllib.request
@@ -14,6 +16,51 @@ def http_get(url: str, timeout: int = 60) -> bytes:
     req = urllib.request.Request(url, headers={"User-Agent": "anyps5-roadmap"})
     with urllib.request.urlopen(req, timeout=timeout) as resp:
         return resp.read()
+
+
+USER_AGENT = "anyps5-roadmap (+https://github.com/AlxcBTW/anyps5-roadmap)"
+
+
+def fetch_cached(url: str, path: Path, timeout: int = 60, log=print, opener=urllib.request.urlopen) -> bytes | None:
+    """GET `url` into the file `path`, revalidating with the ETag and Last-Modified kept in
+    `<path>.meta.json`. A 304 or a network error returns the cached bytes (None when there are
+    none); a 200 rewrites the file and the sidecar. `opener` is urlopen, replaceable in tests."""
+    meta_path = path.with_name(path.name + ".meta.json")
+    cached = path.read_bytes() if path.exists() else None
+    headers = {"User-Agent": USER_AGENT}
+    if cached is not None:
+        try:
+            meta = json.loads(meta_path.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError):
+            meta = {}
+        if meta.get("etag"):
+            headers["If-None-Match"] = meta["etag"]
+        if meta.get("last_modified"):
+            headers["If-Modified-Since"] = meta["last_modified"]
+    try:
+        with opener(urllib.request.Request(url, headers=headers), timeout=timeout) as resp:
+            if getattr(resp, "status", 200) == 304 and cached is not None:
+                return cached
+            data = resp.read()
+            etag, modified = resp.headers.get("ETag"), resp.headers.get("Last-Modified")
+    except urllib.error.HTTPError as e:
+        if e.code == 304 and cached is not None:
+            return cached
+        log(f"  fetch failed for {url}: HTTP {e.code}; {'using the cached copy' if cached is not None else 'no copy'}")
+        return cached
+    except (urllib.error.URLError, TimeoutError, OSError) as e:
+        log(f"  fetch failed for {url}: {e}; {'using the cached copy' if cached is not None else 'no copy'}")
+        return cached
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_bytes(data)
+    meta = {
+        "etag": etag,
+        "last_modified": modified,
+        "fetched_at": dt.datetime.now(dt.UTC).strftime("%Y-%m-%dT%H:%M:%SZ"),
+        "url": url,
+    }
+    meta_path.write_text(json.dumps(meta), encoding="utf-8")
+    return data
 
 
 class Upstream:
