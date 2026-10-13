@@ -87,7 +87,7 @@ timelineItems(itemTypes: [CROSS_REFERENCED_EVENT]) { filteredCount }
 """
 
 DISCUSSION_FIELDS = """
-number title body url createdAt updatedAt closed closedAt
+number title body url createdAt updatedAt lastEditedAt closed closedAt
 author { login }
 category { name }
 comments { totalCount }
@@ -220,6 +220,7 @@ def _flatten_pr(node: dict) -> dict:
 
 def _flatten_discussion(node: dict) -> dict:
     node["author"] = _login(node)
+    node["editedAt"] = node.pop("lastEditedAt", None)
     node["category"] = (node.pop("category", None) or {}).get("name")
     node["comment_count"] = (node.pop("comments", None) or {}).get("totalCount", 0)
     return node
@@ -649,6 +650,7 @@ def collect(
             "url": d["url"],
             "createdAt": d["createdAt"],
             "updatedAt": d["updatedAt"],
+            "editedAt": d.get("editedAt"),
             "closed": bool(d.get("closed")),
             "category": d.get("category"),
             "author": d.get("author"),

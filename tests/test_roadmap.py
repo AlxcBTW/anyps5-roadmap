@@ -700,5 +700,121 @@ class UnblocksLines(unittest.TestCase):
         self.assertEqual(kind(10, 64), "mentions")
 
 
+FORM = """### Existing thread
+
+- [x] I searched this category for the title ID and no thread exists for this title on any platform.
+
+### Title
+
+Astro's Playroom (PPSA01325)
+
+### Content version tested
+
+01.905.000
+
+### AnyPS5 commit
+
+`main` e152ba8f6 with nothing on top. Last updated 2026-10-13.
+
+### System tested
+
+Arch Linux, GCC 16.2.1, RTX 5080 (NVIDIA 615.78.08), 31 GiB RAM
+
+### Furthest point
+
+In game
+
+### What is shown
+
+The first level, `cpuplaza_mini_04`.
+
+### Current blocker
+
+Frame rate in the level.
+"""
+
+
+class BringUpForm(unittest.TestCase):
+    url = "https://github.com/example/AnyPS5/discussions/90"
+
+    def test_the_form_fields_are_read_from_their_sections(self):
+        form = mine.bring_up_form(FORM)
+        self.assertEqual(form["title"], "Astro's Playroom (PPSA01325)")
+        self.assertEqual(form["commit"], "`main` e152ba8f6 with nothing on top. Last updated 2026-10-13.")
+        self.assertEqual(form["system"], "Arch Linux, GCC 16.2.1, RTX 5080 (NVIDIA 615.78.08), 31 GiB RAM")
+        self.assertEqual((form["point"], form["stage"]), ("In game", "Ingame"))
+
+    def test_a_text_without_the_form_or_with_another_furthest_point_is_none(self):
+        self.assertIsNone(mine.bring_up_form("PPSA01325 reaches the menu on main."))
+        self.assertIsNone(mine.bring_up_form(FORM.replace("\nIn game\n", "\nPlayable\n")))
+        self.assertIsNone(mine.bring_up_form(FORM.replace("### Title\n", "### Game\n")))
+        self.assertEqual(mine.bring_up_form(FORM.replace("\nIn game\n", "\n**menu**\n"))["stage"], "Menus")
+
+    def model(self, body: str, kind: str = "discussion", edited: str | None = "2026-10-09T08:00:00Z") -> r.Model:
+        raw = json.loads((FIX / "raw.json").read_text(encoding="utf-8"))
+        item = {
+            "number": 90,
+            "title": "Astro's Playroom (PPSA01325)",
+            "body": body,
+            "url": self.url if kind == "discussion" else "https://github.com/example/AnyPS5/issues/90",
+            "createdAt": "2026-10-02T08:00:00Z",
+            "updatedAt": "2026-10-09T08:00:00Z",
+            "editedAt": edited,
+            "closed": False,
+            "state": "OPEN",
+            "category": "Game bring-up",
+            "author": "zoe",
+            "comments": [],
+        }
+        if kind == "discussion":
+            raw["discussions"] = [item]
+        else:
+            raw["issues"].append(dict(raw["issues"][0], **item, labels=[], xrefs=[]))
+        return r.Model(raw, r.load_curated(FIX / "curated.json"), "example/AnyPS5", NOW)
+
+    def form_evidence(self, model: r.Model, tid: str = "PPSA01325") -> list[dict]:
+        return [
+            e for e in model.titles.get(tid, {"evidence": []})["evidence"] if "Furthest point" in (e["quote"] or "")
+        ]
+
+    def test_a_form_credits_its_stage_to_the_title_on_main(self):
+        (ev,) = self.form_evidence(self.model(FORM))
+        self.assertEqual(
+            (ev["stage"], ev["build"], ev["build_kind"], ev["commit"]), ("Ingame", "main", "main", "e152ba8f6")
+        )
+        self.assertEqual((ev["os"], ev["gpu"]), ("Linux", "NVIDIA"))
+        self.assertEqual((ev["url"], ev["note"], ev["origin"], ev["verified"]), (self.url, "“In game”", "mined", False))
+        self.assertEqual(
+            ev["quote"],
+            "Furthest point: In game. AnyPS5 commit: main e152ba8f6 with nothing on top. Last updated 2026-10-13.",
+        )
+        self.assertEqual((ev["author"], ev["part"]), ("zoe", "body"))
+
+    def test_the_last_edit_dates_a_form_and_the_creation_is_the_fallback(self):
+        self.assertEqual(self.form_evidence(self.model(FORM))[0]["date"], "2026-10-09T08:00:00Z")
+        self.assertEqual(self.form_evidence(self.model(FORM, edited=None))[0]["date"], "2026-10-02T08:00:00Z")
+
+    def test_does_not_convert_is_no_evidence(self):
+        self.assertEqual(len(self.form_evidence(self.model(FORM))), 1)
+        self.assertEqual(self.form_evidence(self.model(FORM.replace("\nIn game\n", "\nDoes not convert\n"))), [])
+
+    def test_a_form_that_names_a_pull_request_is_not_main(self):
+        body = FORM.replace("`main` e152ba8f6 with nothing on top.", "`main` abc1234 plus #1202.")
+        (ev,) = self.form_evidence(self.model(body))
+        self.assertEqual((ev["build"], ev["build_kind"]), ("main + #1202", "prs"))
+
+    def test_an_issue_with_the_same_text_has_no_form_evidence(self):
+        self.assertEqual(len(self.form_evidence(self.model(FORM))), 1)
+        issue = self.model(FORM, kind="issue")
+        self.assertIn("PPSA01325", issue.titles)  # the issue is mined, only its form is not read
+        self.assertEqual(self.form_evidence(issue), [])
+
+    def test_a_title_field_with_two_ids_or_a_placeholder_credits_no_title(self):
+        self.assertEqual(len(self.form_evidence(self.model(FORM))), 1)
+        two = self.model(FORM.replace("(PPSA01325)", "(PPSA01325, PPSA01326)"))
+        self.assertEqual(self.form_evidence(two) + self.form_evidence(two, "PPSA01326"), [])
+        self.assertEqual(self.form_evidence(self.model(FORM.replace("PPSA01325", "PPSA00000")), "PPSA00000"), [])
+
+
 if __name__ == "__main__":
     unittest.main()

@@ -61,7 +61,8 @@ class FakeGitHub:
         return {
             "number": n, "title": f"Discussion {n}", "body": "report", "url": f"https://x/discussions/{n}",
             "createdAt": "2026-10-01T10:00:00Z", "updatedAt": d["updatedAt"], "closed": d.get("closed", False),
-            "closedAt": None, "author": {"login": "zoe"}, "category": {"name": d.get("category", "Game bring-up")},
+            "lastEditedAt": d.get("editedAt"), "closedAt": None, "author": {"login": "zoe"},
+            "category": {"name": d.get("category", "Game bring-up")},
             "comments": {"totalCount": len(d["comments"])},
         }  # fmt: skip
 

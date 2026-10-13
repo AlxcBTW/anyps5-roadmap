@@ -359,7 +359,8 @@ def link_stats(model: Model) -> dict:
 KNOWN_GAPS = [
     "Title names, engines and stages are mined with keyword rules per line; negation and context are handled only roughly.",
     "Mined chain order is a heuristic: the latest recorded stop first, then issues by creation date.",
-    "Read: issue, PR and discussion bodies, their comments and discussion replies, PR reviews and review-thread "
+    "Read: issue, PR and discussion bodies (a Game bring-up form's \"Furthest point\" as that title's stage), their "
+    "comments and discussion replies, PR reviews and review-thread "
     "comments (up to 100 threads and 50 comments per thread), and timeline cross-references. Not read: commit "
     "messages, diffs, attached logs and screenshots (images, gists, uploaded files), edit history, and bot comments.",
     "Issues and PRs closed more than 60 days ago are not read, even when they hold the last report on a title.",

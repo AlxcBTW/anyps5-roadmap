@@ -23,6 +23,7 @@ from .mine import (
     TRACKER_TITLES,
     blank,
     block_stop,
+    bring_up_form,
     build_detail,
     carried_refs,
     classify,
@@ -629,12 +630,46 @@ class Model:
                 }
             )
 
+    def _mine_bring_up_form(self, src: dict, date: str):
+        """A Game bring-up form puts the stage under "Furthest point", lines away from the title ID, so
+        the line-based mining misses it. The first post is edited as the title progresses: `date` is its last edit."""
+        form = bring_up_form(src["text"])
+        if not form or not form["stage"]:
+            return
+        ids = [i for i in dict.fromkeys(TITLE_RE.findall(form["title"])) if i not in PLACEHOLDER_IDS]
+        if len(ids) != 1:
+            return
+        t = self.title(ids[0])
+        if any(e["url"] == src["url"] and e["stage"] == form["stage"] for e in t["evidence"]):
+            return
+        runs = run_text(src["text"])
+        t["evidence"].append(
+            {
+                "stage": form["stage"],
+                "os": classify(OS_RULES, form["system"]) or classify(OS_RULES, runs),
+                "gpu": classify(GPU_RULES, form["system"]) or classify(GPU_RULES, runs),
+                **self._build(form["commit"], src),
+                "url": src["url"],
+                "date": date,
+                "note": f"“{form['point']}”",
+                "quote": clip(
+                    " ".join(strip_md(f"Furthest point: {form['point']}. AnyPS5 commit: {form['commit']}").split()), 280
+                ),
+                "origin": "mined",
+                "verified": False,
+                "author": src.get("author"),
+                "part": src["part"],
+            }
+        )
+
     def _mine_discussions(self):
         """Discussions (a "Game bring-up" thread per title, say) are read for titles, stages and stops like
         PR text, but never become blockers."""
         for d in self.raw.get("discussions", []):
             for src in self._sources(d, "discussion"):
                 self._mine_text(src, None)
+                if src["part"] == "body":
+                    self._mine_bring_up_form(src, d.get("editedAt") or src["date"])
 
     def _apply_curated_titles(self):
         for ct in self.curated.get("titles", []):
