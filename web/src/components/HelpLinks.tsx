@@ -12,7 +12,7 @@ export function HelpLinks() {
       <h2 id="h-help">Help move a game forward</h2>
       <ul className="help-list">
         <li>
-          <a href={`https://github.com/${model.project}/issues/new/choose`}>Report a wrong stage or blocker</a>
+          <External href={`https://github.com/${model.project}/issues/new/choose`}>Report a wrong stage or blocker</External>
           <span>Each game and blocker panel also has a prefilled form.</span>
         </li>
         <li>

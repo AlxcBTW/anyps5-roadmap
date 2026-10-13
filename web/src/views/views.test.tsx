@@ -150,6 +150,7 @@ describe("Game drawer", () => {
     expect(box.querySelector(".off-main-head")!.textContent).toBe("Off mainIngame");
     expect(box.querySelector(".off-main-needs")!.textContent).toBe("With open PR #32 and local patches.");
     expect(box.querySelector(".off-main-needs a")!.getAttribute("href")).toBe("https://github.com/boykopovar/AnyPS5/pull/32");
+    expect(box.querySelector(".off-main-needs a")!.getAttribute("target")).toBe("_blank");
     expect(box.textContent).toContain("1 report off main");
     expect(box.textContent).toContain("counts once it runs on main");
   });

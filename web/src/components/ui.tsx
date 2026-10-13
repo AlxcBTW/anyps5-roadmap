@@ -232,9 +232,9 @@ export function Empty({ title, hint, onClear }: { title: string; hint: string; o
   );
 }
 
-export function External({ href, children, ...rest }: { href: string; children: ReactNode } & Omit<AnchorHTMLAttributes<HTMLAnchorElement>, "href" | "rel">) {
+export function External({ href, children, ...rest }: { href: string; children: ReactNode } & Omit<AnchorHTMLAttributes<HTMLAnchorElement>, "href" | "rel" | "target">) {
   return (
-    <a {...rest} href={href} rel="noreferrer">
+    <a {...rest} href={href} target="_blank" rel="noreferrer">
       {children}
     </a>
   );

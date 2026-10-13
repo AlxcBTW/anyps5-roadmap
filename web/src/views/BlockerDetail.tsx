@@ -126,9 +126,9 @@ export function BlockerDetail({ id, loc }: { id: string; loc: Location }) {
         <External href={b.url} className="btn btn-primary">
           Open {row.ref} on GitHub
         </External>
-        <a className="report" href={blockerReport(model, row)}>
+        <External className="report" href={blockerReport(model, row)}>
           Report a correction<span className="sr-only"> for {row.ref}</span>
-        </a>
+        </External>
         {b.last_activity && <span className="muted small">Last activity {fmtDate(b.last_activity)}</span>}
       </footer>
     </article>
