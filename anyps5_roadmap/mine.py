@@ -141,6 +141,29 @@ NEGATION = re.compile(
     r"\b(?:never|not|no|nothing|without|cannot|can't|doesn't|does not|didn't|fails? to|before|instead of|until)\b[^.;]{0,30}$",
     re.I,
 )
+# "they do not by themselves establish late startup or gameplay": a negated claim verb reaches further than
+# the plain negation window
+NEGATED_CLAIM = re.compile(
+    r"\b(?:not|cannot|can't|doesn't|didn't|isn't|aren't)\b[^.;]{0,50}?"
+    r"\b(?:establish(?:es)?|prove[sn]?|demonstrates?|confirms?|imply|implies|indicates?|claims?)\b[^.;]{0,50}$",
+    re.I,
+)
+# "PS5 hardware/render equivalence and a title hitting these cases have not been measured": the keyword is
+# followed by its own negation
+NEGATED_AFTER = re.compile(
+    r"^[^.;]{0,100}?\b(?:(?:have|has|had|is|are|was|were) not|haven't|hasn't|isn't|aren't|wasn't|weren't)"
+    r"(?: yet)?(?: been)? (?:measured|tested|verified|established|confirmed|checked|shown|reached|"
+    r"observed|validated|demonstrated)\b",
+    re.I,
+)
+# a sentence about a CPU-only check or a test suite is not a title run: "CPU offsets disagree with addrlib",
+# "full 870-test suite: 865 pass"
+CPU_TEST = re.compile(
+    r"\bCPU[- ]?(?:only|side|tests?|offsets?|reference|model|path)\b|\bunit[- ]tests?\b|\btest[- ]suite\b|"
+    r"\b\d+-tests?\b|\bsynthetic (?:test|config|case)",
+    re.I,
+)
+SENTENCE_END = re.compile(r"[.;!?](?:\s|$)")
 # "loads story mode until …", "right after loading its first level": the title got to the
 # loading step, not into the stage the keyword names
 LOADING_CONTEXT = re.compile(r"\b(?:loads?|loading|into the|towards?)\b[^.;]{0,30}$", re.I)
@@ -200,7 +223,7 @@ STAGE_RULES = [
         "Presents",
         re.compile(
             r"\bloading screen\b|\bblack (?:screen|frames?)\b|\bboots? to black\b|\bintro\b|\bcutscenes?\b|"
-            r"\bintro (?:video|movie)\b|\bsplash\b|\brenders?\b|\bdraws? (?:its|the) (?:full |complete )?(?:ui|screen|frame)|"
+            r"\bintro (?:video|movie)\b|\bsplash\b|(?<!/)\brenders?\b(?!\s+(?:target|pass|equivalence|path|queue|thread|state|graph|backend|api|test|offset)s?\b)|\bdraws? (?:its|the) (?:full |complete )?(?:ui|screen|frame)|"
             r"\b\d+ ?fps\b|\bpresents\b",
             re.I,
         ),
@@ -580,13 +603,26 @@ def carried_refs(text: str, default_repo: str) -> list[tuple[str, int]]:
     return [(m.group("repo") or default_repo, int(m.group("num"))) for m in CARRIES_RE.finditer(text or "")]
 
 
+def sentence_of(line: str, pos: int) -> str:
+    """The sentence of a line that holds the offset `pos`."""
+    start = 0
+    for m in SENTENCE_END.finditer(line, 0, pos):
+        start = m.end()
+    end = SENTENCE_END.search(line, pos)
+    return line[start : end.start() if end else len(line)]
+
+
 def stage_in(line: str, title_pos: int) -> tuple[str, str] | None:
     """Highest stage keyword in a line that is not negated; returns (stage, phrase)."""
     best = None
     for stage, rx in STAGE_RULES:
         for m in rx.finditer(line):
             before = line[max(0, m.start() - 40) : m.start()]
-            if NEGATION.search(before):
+            if NEGATION.search(before) or NEGATED_CLAIM.search(line[max(0, m.start() - 110) : m.start()]):
+                continue
+            if NEGATED_AFTER.search(line[m.end() :]):
+                continue
+            if CPU_TEST.search(sentence_of(line, m.start())):
                 continue
             if abs(m.start() - title_pos) > 220:
                 continue
