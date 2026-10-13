@@ -797,6 +797,8 @@
     {"id": "PPSA28002", "name": "Ninja Gaiden: Ragebound", "name_sources": ["https://prosperopatches.com/PPSA28002", "https://github.com/andshrew/PlayStation-Titles/blob/main/PS5_Titles_by_Name.tsv"]},
     {"id": "PPSA28038", "name": "Halo: Campaign Evolved", "name_sources": ["https://prosperopatches.com/PPSA28038", "https://github.com/andshrew/PlayStation-Titles/blob/main/PS5_Titles_by_Name.tsv"]},
     {"id": "PPSA34502", "name": "Call of Duty: Black Ops II", "name_sources": ["https://prosperopatches.com/PPSA34502", "https://github.com/andshrew/PlayStation-Titles/blob/main/PS5_Titles_by_Name.tsv"]},
+    {"id": "PPSA77711", "name": "Stremio", "kind": "homebrew", "name_sources": ["https://github.com/blackbearreloaded/ps5-homebrew-catalog/blob/main/apps/PPSA77711.json", "https://github.com/Sp9nky/unofficial-stremio-ps5-port"]},
+    {"id": "PPSA99310", "name": "Mario 64", "kind": "homebrew", "name_sources": ["https://github.com/blackbearreloaded/ps5-homebrew-catalog/blob/main/apps/PPSA99310.json", "https://github.com/griches/PS5_Ghostship"]},
     {
       "id": "PPSA16827", "name": "Harmony's Odyssey", "engine": "Unity", "kind": "retail",
       "name_sources": ["https://store.playstation.com/en-hk/product/HP7621-PPSA16827_00-HARMONYPS5ASIA00"],
