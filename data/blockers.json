@@ -472,6 +472,12 @@
       ]
     },
     {
+      "id": "PPSA06399", "name": "PAC-MAN WORLD Re-PAC", "kind": "retail",
+      "evidence": [
+        {"stage": "Ingame", "os": "Windows", "gpu": "AMD", "build": "main", "date": "2026-10-13", "url": "https://github.com/boykopovar/AnyPS5/discussions/3443#discussioncomment-18901719", "note": "main ff8fe4d, RX 5700 XT: boots to the title screen, loads the save data and plays a level with audio; no local changes or environment variables"}
+      ]
+    },
+    {
       "id": "PPSA99666", "name": "DOOM Shareware (homebrew)", "kind": "homebrew",
       "evidence": [
         {"stage": "Ingame", "os": "Windows", "build": "main", "url": "https://github.com/boykopovar/AnyPS5/discussions/2475#discussioncomment-18886410", "note": "Archived report from the removed docs/user/COMPATIBILITY.md: E1M1 and later maps, weapon switching, save/load, audio"},
