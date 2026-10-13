@@ -351,6 +351,8 @@ def link_stats(model: Model) -> dict:
         "xref": sum(1 for v in vias if "xref" in v),
         "text": sum(1 for v in vias if "text" in v),
         "text_only": sum(1 for v in vias if v == {"text"}),
+        "unblocks": sum(1 for v in vias if "unblocks" in v),
+        "fixes": sum(1 for per_issue in model.links.values() for k in per_issue.values() if k == "fixes"),
     }
 
 

@@ -51,6 +51,7 @@ from .mine import (
     stop_title,
     strip_md,
     title_context,
+    unblocking_refs,
     upstream_refs,
 )
 
@@ -225,6 +226,9 @@ class Model:
             for r, n in closing_refs(text, self.repo):
                 if r == self.repo:
                     self._add_link(n, pk, "fixes", "text")
+            for r, n in unblocking_refs(text, self.repo):
+                if r == self.repo and n != p["number"]:
+                    self._add_link(n, pk, "fixes", "unblocks")
             for r, n in refs_in(text, self.repo):
                 if r == self.repo and n != p["number"]:
                     self._add_link(n, pk, "mentions", "text")
