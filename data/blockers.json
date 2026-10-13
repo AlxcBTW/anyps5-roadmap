@@ -513,7 +513,14 @@
       "id": "PPSA99007", "name": "Yamagi Quake II", "kind": "homebrew",
       "blockers": [{"id": "pr-2106", "why": "next import stop"}, {"id": "pr-1872", "why": "first stop on main b8a083b2"}]
     },
-    {"id": "PPSA69420", "name": "ScreenTester5", "kind": "homebrew", "blockers": [{"id": "pr-1872", "why": "first stop on main b8a083b2"}]},
+    {
+      "id": "PPSA69420", "name": "ScreenTester5", "kind": "homebrew",
+      "evidence": [
+        {"stage": "Menus", "os": "Windows", "gpu": "AMD", "build": "main", "date": "2026-10-13",
+         "url": "https://github.com/boykopovar/AnyPS5/issues/1578#issuecomment-6147459438", "note": "main 6cd05284, Radeon 860M, 60 s with pad pulses: help overlay; Cross turns the screen white and Square green, one present per press"}
+      ],
+      "blockers": [{"id": "pr-1872", "why": "first stop on main b8a083b2"}]
+    },
     {"id": "PPSA99039", "name": "EVO Player", "kind": "homebrew", "blockers": [{"id": "pr-1872", "why": "first stop on main b8a083b2"}]},
     {
       "id": "PPSA99177", "name": "PS5VR", "kind": "homebrew",
@@ -654,6 +661,10 @@
     },
     {
       "id": "PPSA97510", "name": "PSXS5", "kind": "homebrew",
+      "evidence": [
+        {"stage": "Menus", "os": "Windows", "gpu": "AMD", "build": "main", "date": "2026-10-13",
+         "url": "https://github.com/boykopovar/AnyPS5/issues/4478#issuecomment-6147457790", "note": "main 6cd05284, Radeon 860M, 60 s with pad pulses: empty library screen at 60 FPS; a press shows the Sorted by Recently played toast"}
+      ],
       "blockers": [
         {"id": "3501", "why": "first stop on main a11c8f7f"},
         {"id": "3165", "why": "next stop once reallocf is in"}
@@ -661,6 +672,10 @@
     },
     {
       "id": "PPSA98510", "name": "SwanStationPS5", "kind": "homebrew",
+      "evidence": [
+        {"stage": "Menus", "os": "Windows", "gpu": "AMD", "build": "main", "date": "2026-10-13",
+         "url": "https://github.com/boykopovar/AnyPS5/issues/4478#issuecomment-6147458326", "note": "main 6cd05284, Radeon 860M, 60 s with pad pulses: empty library screen; a press shows the Sorted by Recently played toast"}
+      ],
       "blockers": [
         {"id": "3501", "why": "first stop on main a11c8f7f"},
         {"id": "3165", "why": "next stop once reallocf is in"}
@@ -676,7 +691,18 @@
     },
     {
       "id": "PPSA99008", "name": "ProsperoEden", "kind": "homebrew",
+      "evidence": [
+        {"stage": "Menus", "os": "Windows", "gpu": "AMD", "build": "main", "date": "2026-10-13",
+         "url": "https://github.com/boykopovar/AnyPS5/discussions/4852#discussioncomment-18902743", "note": "main 6cd05284, Radeon 860M, 60 s with pad pulses: home screen with Library/Settings/About tabs; D-pad right moves the highlighted tab"}
+      ],
       "blockers": [{"id": "2136", "why": "first stop on main 6c9cb3a5, at 0x214dcda (SDK link stub, syscall number 9); with the stubs trapped, the next stop is the import 5G2ONUzRgjY"}]
+    },
+    {
+      "id": "PPSA99305", "name": "Dusklight", "kind": "homebrew",
+      "evidence": [
+        {"stage": "Menus", "os": "Windows", "gpu": "AMD", "build": "main", "date": "2026-10-13",
+         "url": "https://github.com/boykopovar/AnyPS5/pull/3651#issuecomment-6147458953", "note": "main 6cd05284 with #3651 and #5036 merged, Radeon 860M, 60 s with pad pulses: title menu; D-pad down moves the selection; no disc image"}
+      ]
     },
     {
       "id": "PPSA99011", "name": "PS5 FSR4 Showcase", "kind": "homebrew",
