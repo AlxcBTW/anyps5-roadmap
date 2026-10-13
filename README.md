@@ -8,6 +8,8 @@ ranked by how many games a fix would move, plus how much of the PS5's system lib
 implements.
 
 **Live: <https://alxcbtw.github.io/anyps5-roadmap/>**, rebuilt every hour and after every merge.
+Between those, a check every five minutes rebuilds it once an upstream issue or PR changed, at most
+every 15 minutes; a check that finds nothing new costs no API quota (`.github/workflows/update-check.yml`).
 
 A community project, not an official AnyPS5 page. Every stage and link on it comes from public GitHub
 data and links its source.

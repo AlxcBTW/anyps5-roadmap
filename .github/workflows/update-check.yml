@@ -1,0 +1,80 @@
+name: Update check
+
+# Every five minutes, asks upstream with a conditional request whether any issue or PR changed; a
+# 304 answer does not count against the rate limit. When something changed and the last Pages
+# deployment is at least 15 minutes old, runs the Roadmap workflow. The hourly cron there stays as
+# the fallback and the only reader of discussions. Off unless the repository variable
+# ROADMAP_SCHEDULE is "on".
+
+on:
+  schedule:
+    - cron: '*/5 * * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: update-check
+  cancel-in-progress: false
+
+jobs:
+  check:
+    if: vars.ROADMAP_SCHEDULE == 'on'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      deployments: read
+    outputs:
+      build: ${{ steps.check.outputs.build }}
+    steps:
+      - uses: actions/cache/restore@v6
+        with:
+          path: .update-check
+          key: update-check-${{ github.run_id }}
+          restore-keys: update-check-
+
+      - id: check
+        env:
+          GH_TOKEN: ${{ github.token }}
+          UPSTREAM: boykopovar/AnyPS5
+          MIN_GAP_SECONDS: 900
+        run: |
+          mkdir -p .update-check
+          etag=$(cat .update-check/etag 2>/dev/null || true)
+          conditional=()
+          [ -n "$etag" ] && conditional=(-H "If-None-Match: $etag")
+          status=$(curl -sS -o /dev/null -D headers.txt -w '%{http_code}' \
+            -H "Authorization: Bearer $GH_TOKEN" -H 'Accept: application/vnd.github+json' "${conditional[@]}" \
+            "https://api.github.com/repos/$UPSTREAM/issues?state=all&sort=updated&direction=desc&per_page=1")
+          build=false
+          if [ "$status" = 200 ]; then
+            last=$(gh api "repos/$GITHUB_REPOSITORY/deployments?environment=github-pages&per_page=1" --jq '.[0].created_at // ""')
+            age=$(( $(date +%s) - $(date -d "${last:-1970-01-01T00:00:00Z}" +%s) ))
+            if [ "$age" -ge "$MIN_GAP_SECONDS" ]; then
+              build=true
+              grep -i '^etag:' headers.txt | cut -d' ' -f2- | tr -d '\r' > .update-check/etag
+            fi
+            echo "Upstream changed; last deployment ${age} s ago; build: $build" >> "$GITHUB_STEP_SUMMARY"
+          elif [ "$status" = 304 ]; then
+            echo "Upstream unchanged" >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "::warning::The upstream check answered HTTP $status"
+          fi
+          echo "build=$build" >> "$GITHUB_OUTPUT"
+
+      - if: steps.check.outputs.build == 'true'
+        uses: actions/cache/save@v6
+        with:
+          path: .update-check
+          key: update-check-${{ github.run_id }}
+
+  build:
+    needs: check
+    if: needs.check.outputs.build == 'true'
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    uses: ./.github/workflows/roadmap.yml

@@ -4,7 +4,7 @@ name: Roadmap
 # web app from web/ as its front page:
 # hourly (while the repository variable ROADMAP_SCHEDULE is "on"), on every push to
 # main that touches the data or the generator, so merged corrections go live at
-# once, and on manual dispatch.
+# once, on manual dispatch, and from update-check.yml when upstream changed.
 #
 # The API cache (data/cache) is kept between runs with actions/cache: threads whose
 # updatedAt did not change are not fetched again, and CI builds PR previews from
@@ -24,6 +24,7 @@ on:
       - 'AGENTS.md'
       - '.github/workflows/roadmap.yml'
   workflow_dispatch:
+  workflow_call:
 
 permissions:
   contents: read
