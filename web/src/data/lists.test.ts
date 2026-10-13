@@ -64,4 +64,30 @@ describe("game filters", () => {
     expect(rows[0].id).toBe("dreaming-sarah");
     expect(rows.at(-1)!.id).toBe("kena-bridge-of-spirits"); // claims Ingame, but has no stage
   });
+
+  it("leaves a search or a tag in the list's order: furthest stage first", () => {
+    // Stray is at Starts, Kena has no stage; both run on Unreal Engine 4
+    expect(ids(gameList(model.games, { stage: "all", q: "unreal" }))).toEqual(["stray", "kena-bridge-of-spirits"]);
+    expect(ids(gameList(model.games, { stage: "all", tag: "Adventure", q: "" }))).toEqual(["dreaming-sarah", "stray"]);
+  });
+
+  it("puts games with no stage before the first stage when the earliest come first", () => {
+    const rows = sortRows(model.games, gameAccessors, { key: "stage", dir: "asc" });
+    const ranks = rows.map((g) => g.stageRank);
+    expect(ranks).toEqual([...ranks].sort((a, z) => a - z));
+    expect(ranks[0]).toBe(-1);
+    expect(rows.at(-1)!.id).toBe("dreaming-sarah");
+  });
+
+  it("matches every word of a search in any order, whatever the case or accents", () => {
+    expect(ids(gameList(model.games, { stage: "all", q: "spirits KÉNA" }))).toEqual(["kena-bridge-of-spirits"]);
+    expect(ids(gameList(model.games, { stage: "all", q: "kena stray" }))).toEqual([]);
+    expect(ids(filterBlockers(model.blockers, { status: "open", area: "", q: "stall direct" }))).toEqual(["pr-30"]);
+  });
+
+  it("takes a quoted part of a search as written", () => {
+    expect(ids(filterBlockers(model.blockers, { status: "open", area: "", q: '"memory stall"' }))).toEqual(["pr-30"]);
+    expect(ids(filterBlockers(model.blockers, { status: "open", area: "", q: '"stall memory"' }))).toEqual([]);
+    expect(ids(filterBlockers(model.blockers, { status: "open", area: "", q: '"memory stall" windows' }))).toEqual(["pr-30"]);
+  });
 });

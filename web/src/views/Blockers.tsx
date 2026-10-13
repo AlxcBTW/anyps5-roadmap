@@ -37,16 +37,18 @@ export function Blockers({ loc }: { loc: Location }) {
   const q = p.get("q") ?? "";
   const sort = parseSort(p.get("sort"), BLOCKER_SORTS, DEFAULT);
 
+  const openTotal = useMemo(() => model.blockers.filter(BLOCKER_FILTERS.open.test).length, [model]);
+  // each filter counts within the other and the search, so a number always says what choosing it shows
   const counts = useMemo(() => {
     const n = {} as Record<BlockerFilter, number>;
-    for (const k of Object.keys(BLOCKER_FILTERS) as BlockerFilter[]) n[k] = model.blockers.filter(BLOCKER_FILTERS[k].test).length;
+    for (const k of Object.keys(BLOCKER_FILTERS) as BlockerFilter[]) n[k] = filterBlockers(model.blockers, { status: k, area, q }).length;
     return n;
-  }, [model]);
+  }, [model, area, q]);
   const areas = useMemo(() => {
     const n = new Map<string, number>();
-    for (const r of model.blockers) if (BLOCKER_FILTERS[status].test(r)) n.set(r.area, (n.get(r.area) ?? 0) + 1);
+    for (const r of filterBlockers(model.blockers, { status, area: "", q })) n.set(r.area, (n.get(r.area) ?? 0) + 1);
     return [...n].sort((a, z) => z[1] - a[1] || a[0].localeCompare(z[0]));
-  }, [model, status]);
+  }, [model, status, q]);
   const rows = useMemo(
     () => sortRows(filterBlockers(model.blockers, { status, area, q }), blockerAccessors, sort),
     [model, status, area, q, sort],
@@ -55,7 +57,7 @@ export function Blockers({ loc }: { loc: Location }) {
 
   return (
     <div className="view">
-      <ViewHead title="Blockers" count={String(counts.open)}>
+      <ViewHead title="Blockers" count={String(openTotal)}>
         Open issues in AnyPS5 that stop games, ranked by how many games a fix would move.
       </ViewHead>
 
@@ -80,7 +82,7 @@ export function Blockers({ loc }: { loc: Location }) {
         value={status}
         onChange={(v) => set({ status: v === "open" ? null : v })}
         chips={(Object.keys(BLOCKER_FILTERS) as BlockerFilter[])
-          .filter((k) => counts[k] || k === status)
+          .filter((k) => counts[k] || k === status || k === "open")
           .map((k) => ({ value: k, label: BLOCKER_FILTERS[k].label, count: counts[k] }))}
       />
       <div className="list-meta">

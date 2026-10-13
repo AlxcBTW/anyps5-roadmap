@@ -37,10 +37,10 @@ export function GameList({ loc }: { loc: Location }) {
   const tag = p.get("tag") ?? "";
   const q = p.get("q") ?? "";
   const sort = parseSort(p.get("sort"), GAME_SORTS, DEFAULT);
-  // each filter counts within the other, so a number always says what choosing it shows
+  // each filter counts within the others and the search, so a number always says what choosing it shows
   const games = model.games;
-  const counts = useMemo(() => stageCounts(filterGames(games, { stage: "all", tag, q: "" })), [games, tag]);
-  const tags = useMemo(() => tagCounts(filterGames(games, { stage, q: "" })), [games, stage]);
+  const counts = useMemo(() => stageCounts(filterGames(games, { stage: "all", tag, q })), [games, tag, q]);
+  const tags = useMemo(() => tagCounts(filterGames(games, { stage, q })), [games, stage, q]);
   const tagged = useMemo(() => games.some((g) => g.tags.length), [games]);
   const rows = useMemo(
     () => sortRows(gameList(model.games, { stage, tag, q }), gameAccessors, sort),
@@ -63,7 +63,7 @@ export function GameList({ loc }: { loc: Location }) {
     { value: "all", label: "All", count: counts.get("all") },
     ...[...model.stages].reverse().map((s) => ({ value: s.name, label: s.name, count: counts.get(s.name) ?? 0 })),
     { value: "none", label: "No stage yet", count: counts.get("none") ?? 0 },
-  ].filter((c) => c.count || c.value === stage);
+  ].filter((c) => c.count || c.value === stage || c.value === "all");
 
   return (
     <section className="section games" aria-labelledby="h-games">
