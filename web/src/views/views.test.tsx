@@ -55,6 +55,15 @@ describe("Games", () => {
     expect(screen.getByRole("status").textContent).toBe("1 game at Presents");
   });
 
+  it("orders a search by stage and counts the stage chips within it", () => {
+    go("#/games?q=unreal");
+    render(<Harness view="games" />);
+    expect(rowNames()).toEqual(["Stray", "Kena: Bridge of Spirits"]);
+    expect(screen.getAllByRole("radio").map((r) => r.parentElement!.textContent)).toEqual(["All2", "Starts1", "No stage yet1"]);
+    fireEvent.change(screen.getByRole("combobox", { name: "Sort" }), { target: { value: "stage:asc" } });
+    expect(rowNames()).toEqual(["Kena: Bridge of Spirits", "Stray"]);
+  });
+
   it("filters by a tag, counts the stages within it and clears it with the other filters", () => {
     go("#/games");
     render(<Harness view="games" />);
@@ -181,6 +190,28 @@ describe("Blockers", () => {
     fireEvent.click(document.querySelector<HTMLAnchorElement>("[data-row-link]")!);
     expect(location.hash).toBe("#/blockers/10");
     expect((history.state as { under?: string }).under).toBe("#/blockers?status=review");
+  });
+
+  it("counts the status chips and the areas within the search", () => {
+    go("#/blockers?q=pthread");
+    render(<Harness view="blockers" />);
+    const chip = (name: RegExp) => screen.getByRole("radio", { name }).parentElement!.textContent;
+    expect(chip(/^Open/)).toBe(`Open${rowNames().length}`);
+    expect(rowNames().length).toBeLessThan(data.model.blockers.filter((b) => b.open).length);
+    const areas = [...screen.getByRole("combobox", { name: "Area" }).querySelectorAll("option")].map((o) => o.textContent);
+    expect(areas).toEqual(["All areas", `libkernel (${rowNames().length})`]);
+    // the heading still counts every open blocker
+    expect(screen.getByRole("heading", { level: 1 }).textContent).toBe(`Blockers${data.model.blockers.filter((b) => b.open).length}`);
+  });
+
+  it("keeps the first chip when a search matches nothing", () => {
+    go("#/blockers?status=review&q=nothing-like-this");
+    render(<Harness view="blockers" />);
+    expect(screen.getAllByRole("radio").map((r) => r.parentElement!.textContent)).toEqual(["Open0", "Fix in review0"]);
+    cleanup();
+    go("#/games?stage=Presents&q=nothing-like-this");
+    render(<Harness view="games" />);
+    expect(screen.getAllByRole("radio").map((r) => r.parentElement!.textContent)).toEqual(["All0", "Presents0"]);
   });
 
   it("filters by area and search text together", () => {

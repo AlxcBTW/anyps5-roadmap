@@ -2,6 +2,7 @@
 // Pure functions over the model, so tests and views share them.
 
 import type { Accessors, Dir } from "../lib/sort";
+import { matchesTerms, searchTerms } from "../lib/text";
 import type { BlockerRow, GameRow } from "./model";
 
 // -- blockers -------------------------------------------------------------------
@@ -24,9 +25,9 @@ export interface BlockerQuery {
 }
 
 export function filterBlockers(rows: readonly BlockerRow[], { status, area, q }: BlockerQuery): BlockerRow[] {
-  const term = q.trim().toLowerCase();
+  const terms = searchTerms(q);
   const test = BLOCKER_FILTERS[status].test;
-  return rows.filter((r) => test(r) && (!area || r.area === area) && (!term || r.search.includes(term)));
+  return rows.filter((r) => test(r) && (!area || r.area === area) && matchesTerms(r.search, terms));
 }
 
 const FIX_ORDER = { review: 0, partial: 1, closed: 2, none: 3, resolved: 4 } as const;
@@ -64,12 +65,12 @@ export interface GameQuery {
 }
 
 export function filterGames(rows: readonly GameRow[], { stage, tag = "", q }: GameQuery): GameRow[] {
-  const term = q.trim().toLowerCase();
+  const terms = searchTerms(q);
   return rows.filter(
     (g) =>
       (stage === "all" || (stage === "none" ? g.stage == null : g.stage === stage)) &&
       (!tag || g.tags.includes(tag)) &&
-      (!term || g.search.includes(term)),
+      matchesTerms(g.search, terms),
   );
 }
 
@@ -100,7 +101,8 @@ export type GameSort = (typeof GAME_SORTS)[number];
 
 export const gameAccessors: Accessors<GameRow, GameSort> = {
   name: (g) => g.name,
-  stage: (g) => (g.stageRank < 0 ? null : g.stageRank),
+  // no stage ranks below the first stage, so it leads "Earliest first" and trails "Furthest first"
+  stage: (g) => g.stageRank,
   stop: (g) => g.firstStop?.rank ?? (g.firstStop ? 1e6 : null),
   chain: (g) => g.steps.length || null,
   report: (g) => g.lastReport,

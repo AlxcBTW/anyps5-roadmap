@@ -33,6 +33,18 @@ describe("ranking", () => {
   });
 });
 
+describe("game order", () => {
+  it("lists games furthest stage first, then by name the way the Name sort orders them", () => {
+    const doc = structuredClone(fixture) as RoadmapDoc;
+    const named: Record<string, string> = { ppsa99001: "Game 10", ppsa99002: "game 9", ppsa99003: "Éclair" };
+    for (const g of doc.games ?? []) if (named[g.id]) g.name = named[g.id];
+    const games = buildModel(doc).games;
+    const ranks = games.map((g) => g.stageRank);
+    expect(ranks).toEqual([...ranks].sort((a, z) => z - a));
+    expect(games.filter((g) => g.stage === "Converts").map((g) => g.name).slice(0, 3)).toEqual(["Éclair", "game 9", "Game 10"]);
+  });
+});
+
 describe("tags", () => {
   it("gives every game its tags in the order of the tag list, and the list itself", () => {
     expect(model.tags.map((t) => t.name).slice(0, 3)).toEqual(["2D", "3D", "Shooter"]);

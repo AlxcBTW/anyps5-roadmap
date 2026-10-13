@@ -12,6 +12,11 @@ export type Accessors<T, K extends string> = Record<K, (row: T) => SortValue>;
 
 const collator = new Intl.Collator("en", { numeric: true, sensitivity: "base" });
 
+/** Names in one order everywhere: digits by value, case and accents ignored. */
+export function compareText(a: string, z: string): number {
+  return collator.compare(a, z);
+}
+
 function compare(a: SortValue, z: SortValue): number {
   if (typeof a === "number" && typeof z === "number") return a - z;
   return collator.compare(String(a), String(z));

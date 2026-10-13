@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { formatSort, nextSort, parseSort, sortRows } from "./sort";
+import { compareText, formatSort, nextSort, parseSort, sortRows } from "./sort";
 
 type Row = { n: string; v: number | null };
 const rows: Row[] = [
@@ -20,6 +20,10 @@ describe("sortRows", () => {
     const names = [{ n: "PPSA10" }, { n: "ppsa9" }, { n: "Astro" }];
     const sorted = sortRows(names, { n: (r) => r.n }, { key: "n", dir: "asc" });
     expect(sorted.map((r) => r.n)).toEqual(["Astro", "ppsa9", "PPSA10"]);
+  });
+
+  it("offers the same text order outside a sort", () => {
+    expect(["PPSA10", "ppsa9", "Éclair", "Astro", "eclair 2"].sort(compareText)).toEqual(["Astro", "Éclair", "eclair 2", "ppsa9", "PPSA10"]);
   });
 
   it("does not change its input", () => {

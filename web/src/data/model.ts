@@ -2,6 +2,8 @@
 // `games`): all of its title IDs, region variants and other spellings of its name, evaluated together. The
 // ranking counts games, as the data does.
 
+import { compareText } from "../lib/sort";
+import { fold } from "../lib/text";
 import type { Area, Blocker, BranchStage, ChainStep, Claim, Confidence, Evidence, Game, PullRequest, RoadmapDoc, Stage, Tag } from "./schema";
 
 export const AREA_NAMES: Record<Area, string> = {
@@ -134,8 +136,8 @@ export function statusRef(row: Pick<BlockerRow, "id" | "fix">): string | null {
   return row.id === `pr-${pr.ref.replace(/^#/, "")}` ? null : pr.ref;
 }
 
-function lower(words: (string | null | undefined)[]): string {
-  return words.filter(Boolean).join(" ").toLowerCase();
+function folded(words: (string | null | undefined)[]): string {
+  return fold(words.filter(Boolean).join(" "));
 }
 
 export function buildModel(doc: RoadmapDoc): Model {
@@ -165,7 +167,7 @@ export function buildModel(doc: RoadmapDoc): Model {
       lastActivity: b.last_activity ?? null,
       search: "",
     };
-    r.search = lower([b.id, r.ref, r.ref.replace("PR ", ""), b.title, b.signature, r.area, ...b.prs.map((p) => p.ref)]);
+    r.search = folded([b.id, r.ref, r.ref.replace("PR ", ""), b.title, b.signature, r.area, ...b.prs.map((p) => p.ref)]);
     rows.set(b.id, r);
     return r;
   };
@@ -220,10 +222,10 @@ export function buildModel(doc: RoadmapDoc): Model {
       tags,
       firstStop: steps.length ? (rows.get(steps[0].id) ?? null) : null,
       lastReport: g.last_evidence?.date ?? null,
-      search: lower(words),
+      search: folded(words),
     };
   });
-  games.sort((a, z) => z.stageRank - a.stageRank || a.name.toLowerCase().localeCompare(z.name.toLowerCase()));
+  games.sort((a, z) => z.stageRank - a.stageRank || compareText(a.name, z.name));
   const gameById = new Map<string, GameRow>();
   for (const g of games) {
     gameById.set(g.id, g);
