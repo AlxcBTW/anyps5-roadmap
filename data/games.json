@@ -1,0 +1,15 @@
+{
+ "schema_version": 1,
+ "about": "Which title IDs are one game, where the automatic matching cannot tell. games[] joins title IDs into one game (name, aliases, image optional; sources required); distinct[] keeps title IDs apart. Everything else is matched by the build: one PlayStation Store concept, or names that agree once spelling, symbols, editions and short forms are set aside. See AGENTS.md, section Games.",
+ "games": [],
+ "distinct": [
+  {
+   "title_ids": ["PPSA99288", "PPSA99997"],
+   "reason": "Two homebrew apps: Nuvio Max'd (PPSA99288) is a separate native build with its own releases (HandshakeHackin/Nuvio-maxd-releases, per boykopovar/AnyPS5#4454), not the Nuvio PS5 app (PPSA99997).",
+   "sources": [
+    "https://github.com/boykopovar/AnyPS5/issues/4454",
+    "https://github.com/boykopovar/AnyPS5/issues/1578#issuecomment-6063010151"
+   ]
+  }
+ ]
+}

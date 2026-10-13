@@ -6,7 +6,9 @@ import datetime as dt
 import re
 from collections import Counter, defaultdict
 
-from .config import STAGES, TAGS, VERIFY_FROM
+from . import evaluate
+from .config import TAGS
+from .identity import PLACEHOLDER_IDS, CatalogEntry, Identity, TitleNames, resolve
 from .mine import (
     ENGINE_RULES,
     GPU_RULES,
@@ -21,15 +23,18 @@ from .mine import (
     TRACKER_TITLES,
     blank,
     block_stop,
-    build_of,
+    build_detail,
     carried_refs,
     classify,
     clean_name,
     clip,
     closing_refs,
-    code_blocks,
+    code_blocks_with_lead,
     compute_nid,
+    content_ids,
+    fork_build,
     is_bot,
+    is_quote,
     name_after,
     name_before,
     name_import,
@@ -46,6 +51,7 @@ from .mine import (
     stop_title,
     strip_md,
     title_context,
+    upstream_refs,
 )
 
 
@@ -76,8 +82,14 @@ class Model:
         repo: str,
         now: dt.datetime,
         progress: dict | None = None,
+        catalog: dict[str, CatalogEntry] | None = None,
+        games: dict | None = None,
     ):
+        """`catalog` is the parsed PlayStation title list and `games` data/games.json; both may be empty."""
         self.raw, self.curated, self.repo, self.now = raw, curated, repo, now
+        self.catalog = catalog or {}
+        self.games_curated = games or {}
+        self.placeholders: set[str] = set()
         self.issues = {i["number"]: i for i in raw["issues"]}
         self.prs: dict[str, dict] = {}
         self.links: dict[int, dict[str, str]] = defaultdict(dict)  # issue -> {pr key: fixes|mentions}
@@ -94,7 +106,10 @@ class Model:
         self._index_resubmissions()
         self._mine_issues()
         self._mine_prs()
+        self._mine_discussions()
+        self._mine_working_groups()
         self._apply_curated_titles()
+        self._resolve_games()
         self._build_blockers()
         self._build_chains()
         self._rank()
@@ -291,6 +306,8 @@ class Model:
                 "open_chain": [],
                 "tags": [],
                 "tag_sources": [],
+                "content_ids": {},
+                "game": None,
             }
         return self.titles[tid]
 
@@ -332,14 +349,25 @@ class Model:
         runs = run_text(text)
         src_os = classify(OS_RULES, runs)
         src_gpu = classify(GPU_RULES, runs)
+        for c in content_ids(text):
+            if c["title"] not in PLACEHOLDER_IDS:
+                self.title(c["title"])["content_ids"][c["content_id"]] = c["region"]
         for idx, line in enumerate(lines):
-            ids = list(dict.fromkeys(TITLE_RE.findall(line)))
+            ids = [i for i in dict.fromkeys(TITLE_RE.findall(line)) if i not in PLACEHOLDER_IDS]
+            self.placeholders.update(i for i in TITLE_RE.findall(line) if i in PLACEHOLDER_IDS)
             sig = (
                 signature_from(line, lines[idx + 1] if idx + 1 < len(lines) else "") if SIG_START.search(line) else None
             )
             if sig:
                 self.resolve_sig(sig)
             if not ids:
+                continue
+            if is_quote(line):
+                # a blockquote repeats someone else's words: the title is mentioned, nothing more
+                for tid in ids:
+                    self.title(tid)["mentions"].append(
+                        {"kind": src["kind"], "number": src["number"], "url": src["url"], "date": src["date"]}
+                    )
                 continue
             # what the line says itself: a restatement of the description is read for no title
             restated = restated_spans(line)
@@ -374,7 +402,7 @@ class Model:
                 if own and len(ids) <= LINE_TITLE_LIMIT:
                     os_ = classify(OS_RULES, own_line) or src_os
                     gpu = classify(GPU_RULES, own_line) or src_gpu
-                    build = build_of(own_line, src["kind"], src["number"])
+                    build = self._build(own_line, src)
                     st = stage_in(own_line, pos)
                     quote = clip(re.sub(r"\s+", " ", strip_md(line)).strip(), 280)
                     if st:
@@ -383,7 +411,7 @@ class Model:
                                 "stage": st[0],
                                 "os": os_,
                                 "gpu": gpu,
-                                "build": build,
+                                **build,
                                 "url": src["url"],
                                 "date": src["date"],
                                 "note": f"“{st[1]}”",
@@ -401,7 +429,7 @@ class Model:
                                 "stage": floor,
                                 "os": os_,
                                 "gpu": gpu,
-                                "build": build,
+                                **build,
                                 "url": src["url"],
                                 "date": src["date"],
                                 "note": "stops at: " + sig["display"],
@@ -420,7 +448,7 @@ class Model:
                                 "issue": src["number"] if src["kind"] == "issue" else None,
                                 "os": os_,
                                 "gpu": gpu,
-                                "build": build,
+                                "build": build["build"],
                             }
                         )
                 if info is None:
@@ -442,18 +470,19 @@ class Model:
         """A fenced log in a comment that names exactly one title: its last error line is
         where that title stopped, even when the ID and the error are on different lines."""
         text = src["text"]
-        ids = list(dict.fromkeys(TITLE_RE.findall(text)))
+        ids = [i for i in dict.fromkeys(TITLE_RE.findall(text)) if i not in PLACEHOLDER_IDS]
         if len(ids) != 1 or (info and info["tracker"]):
             return
-        blocks = code_blocks(text)
+        blocks = code_blocks_with_lead(text)
         if not blocks:
             return
         t = self.title(ids[0])
         seen = {s["sig"]["key"] for s in t["stops"] if s["url"] == src["url"]}
-        build = build_of(text, src["kind"], src["number"])
         runs = run_text(text)
         os_, gpu = classify(OS_RULES, runs), classify(GPU_RULES, runs)
-        for block in blocks:
+        for block, lead in blocks:
+            # what the logged run was built from: the paragraph that introduces the log, not the whole thread
+            build = self._build(lead, src)
             sig = block_stop(block)
             if not sig or sig["key"] in seen:
                 continue
@@ -464,7 +493,7 @@ class Model:
                     "stage": "Converts" if sig["family"] == "import" else "Starts",
                     "os": os_,
                     "gpu": gpu,
-                    "build": build,
+                    **build,
                     "url": src["url"],
                     "date": src["date"],
                     "note": "stops at: " + sig["display"] + " (log block)",
@@ -484,7 +513,7 @@ class Model:
                     "os": os_,
                     "gpu": gpu,
                     "via": "log block",
-                    "build": build,
+                    "build": build["build"],
                 }
             )
 
@@ -532,11 +561,83 @@ class Model:
             for src in self._sources(p, "pr"):
                 self._mine_text(src, None)
 
+    def _build(self, text: str, src: dict) -> dict:
+        """What a report ran on; a working group's thread is always a patched stack (mine.fork_build)."""
+        if src["kind"] == "fork":
+            return fork_build(text, src.get("recipe") or [], self.repo)
+        return build_detail(text, src["kind"], src["number"])
+
+    def _mine_working_groups(self):
+        """Working-group threads (config.WORKING_GROUPS) follow one title on a patched stack, so every report in
+        them is off main. Lines that name a title ID are read as everywhere else. In a thread whose title names
+        exactly one title ID, a line that names the title by name or by its initials ("Sword of the Sea", "SotS")
+        in a comment about no other title counts for it, outside quotes and fenced logs. The upstream PRs the
+        thread's opening post names are its recipe."""
+        for g in self.raw.get("working_groups", []):
+            ids = [i for i in dict.fromkeys(TITLE_RE.findall(g["title"])) if i not in PLACEHOLDER_IDS]
+            subject = ids[0] if len(ids) == 1 else None
+            recipe = upstream_refs(g.get("body") or "", self.repo)
+            name = name_before(g["title"], g["title"].find(subject)) if subject else None
+            words = re.findall(r"[\w']+", name or "")
+            spoken = [re.escape(name)] if name else []
+            if len(words) >= 3:
+                spoken.append(re.escape("".join(w[0] for w in words)))  # "SotS"
+            said = re.compile(r"(?<![\w])(?:" + "|".join(spoken) + r")(?![\w])", re.I) if spoken else None
+            for src in self._sources(g, "fork"):
+                src["recipe"] = recipe
+                self._mine_text(src, None)
+                if subject and said:
+                    self._mine_subject(src, subject, said)
+
+    def _mine_subject(self, src: dict, tid: str, said: re.Pattern):
+        text = src["text"]
+        if any(i != tid for i in TITLE_RE.findall(text)):
+            return  # the comment is about other titles too
+        t = self.title(tid)
+        t["mentions"].append({"kind": src["kind"], "number": src["number"], "url": src["url"], "date": src["date"]})
+        runs = run_text(text)
+        os_, gpu = classify(OS_RULES, runs), classify(GPU_RULES, runs)
+        fenced = False
+        for line in text.splitlines():
+            if re.match(r"\s*(`{3,}|~{3,})", line):
+                fenced = not fenced
+                continue
+            if fenced or is_quote(line) or TITLE_RE.search(line):
+                continue
+            named = said.search(line)
+            st = stage_in(line, named.start()) if named else None
+            if not st:
+                continue
+            t["evidence"].append(
+                {
+                    "stage": st[0],
+                    "os": classify(OS_RULES, line) or os_,
+                    "gpu": classify(GPU_RULES, line) or gpu,
+                    **self._build(line, src),
+                    "url": src["url"],
+                    "date": src["date"],
+                    "note": f"“{st[1]}”",
+                    "quote": clip(re.sub(r"\s+", " ", strip_md(line)).strip(), 280),
+                    "origin": "mined",
+                    "verified": False,
+                    "author": src.get("author"),
+                    "part": src["part"],
+                }
+            )
+
+    def _mine_discussions(self):
+        """Discussions (a "Game bring-up" thread per title, say) are read for titles, stages and stops like
+        PR text, but never become blockers."""
+        for d in self.raw.get("discussions", []):
+            for src in self._sources(d, "discussion"):
+                self._mine_text(src, None)
+
     def _apply_curated_titles(self):
         for ct in self.curated.get("titles", []):
             t = self.title(ct["id"])
             t["curated"] = True
-            for k in ("name", "engine", "kind", "paths"):
+            t["curated_name"] = ct.get("name")
+            for k in ("engine", "kind", "paths"):
                 if ct.get(k):
                     t[k] = ct[k]
             for ev in ct.get("evidence", []):
@@ -551,14 +652,40 @@ class Model:
         self._apply_stage_reviews()
         self._apply_title_tags()
         for t in self.titles.values():
-            if not t["name"] and t["names"]:
-                top = t["names"].most_common()
-                best = max(c for _, c in top)
-                t["name"] = max((n for n, c in top if c == best), key=len)
+            for e in t["evidence"]:
+                # only upstream PRs can be merged; an issue number or an unknown one is no PR to wait for
+                if e.get("prs"):
+                    e["prs"] = [n for n in e["prs"] if key_of(self.repo, n) in self.prs]
+            t["evidence"] = evaluate.dedupe(t["evidence"])
             if not t["engine"] and t["engines"]:
                 t["engine"] = t["engines"].most_common(1)[0][0]
             if not t["kind"] and t["kinds"]:
                 t["kind"] = t["kinds"].most_common(1)[0][0]
+
+    def _resolve_games(self):
+        """Which title IDs are one game (identity.py), and each title's own name: curated, else the
+        PlayStation title list's, else the most common mined one."""
+        self.identity: Identity = resolve(
+            {tid: TitleNames(t.get("curated_name"), t["names"]) for tid, t in self.titles.items()},
+            self.games_curated,
+            self.catalog,
+        )
+        for tid, t in self.titles.items():
+            own = self.identity.titles.get(tid, {})
+            t["name"], t["name_origin"] = own.get("name"), own.get("origin")
+            t["concept"], t["region"] = own.get("concept"), own.get("region")
+            t["content_id"] = own.get("content_id") or next(iter(t["content_ids"]), None)
+            if not t["region"] and t["content_ids"]:
+                t["region"] = next(iter(t["content_ids"].values()))
+            if own.get("concept") and not any(
+                ct["id"] == tid and ct.get("kind") for ct in self.curated.get("titles", [])
+            ):
+                t["kind"] = "retail"  # sold on the PlayStation Store
+            t["game"] = self.identity.of.get(tid)
+        self.gaps += [
+            f"{tid} is a placeholder title ID and names no title; reports that use it are skipped."
+            for tid in sorted(self.placeholders)
+        ]
 
     def _apply_title_tags(self):
         """What kind of game a title is (data/blockers.json title_tags), keyed by title ID. Tags describe a title
@@ -909,68 +1036,64 @@ class Model:
                     }
                 )
 
+    def merged(self, number: int) -> bool:
+        """Whether upstream PR `number` is merged now (unknown PRs, outside the window, are not)."""
+        return self.prs.get(key_of(self.repo, number), {}).get("state") == "merged"
+
     def best_stage(self, t: dict) -> dict | None:
-        """The best verified stage. Curated evidence wins; without it, upstream and mined
-        evidence count, but a mined stage of Menus or higher only counts once a person
-        has reviewed it (see unverified_claim)."""
-        pool = [e for e in t["evidence"] if e["origin"] == "curated"]
-        if not pool:
-            pool = [e for e in t["evidence"] if e["origin"] == "upstream" or STAGES.index(e["stage"]) < VERIFY_FROM]
-        if not pool:
-            return None
-        origin_rank = {"curated": 2, "upstream": 1, "mined": 0}
-        best = max(pool, key=lambda e: (STAGES.index(e["stage"]), origin_rank.get(e["origin"], 0), e.get("date") or ""))
-        return {**best, "verified": best["origin"] in ("curated", "upstream")}
+        """The best qualifying stage of a title or a game (see evaluate.py)."""
+        return evaluate.best_stage(t["evidence"], self.merged)
 
     def unverified_claim(self, t: dict) -> dict | None:
-        """The highest mined stage of Menus or higher that nobody has reviewed yet, when it
-        is above the best verified stage. Shown as a claim, never sorted or ranked on."""
+        return evaluate.unverified_claim(t["evidence"], self.best_stage(t), self.merged)
+
+    def branch_stage(self, t: dict) -> dict | None:
         best = self.best_stage(t)
-        floor = STAGES.index(best["stage"]) if best else -1
-        claims = [
-            e
-            for e in t["evidence"]
-            if e["origin"] == "mined" and STAGES.index(e["stage"]) >= VERIFY_FROM and STAGES.index(e["stage"]) > floor
-        ]
-        if not claims:
-            return None
-        c = max(claims, key=lambda e: (STAGES.index(e["stage"]), e.get("date") or ""))
-        return {"stage": c["stage"], "url": c["url"], "quote": c.get("quote") or c.get("note")}
+        return evaluate.branch_stage(
+            t["evidence"], self.merged, best, evaluate.unverified_claim(t["evidence"], best, self.merged)
+        )
 
     def confidence(self, t: dict) -> dict:
-        """How many independent people back the shown stage: distinct GitHub accounts whose own
-        text says the title reached it (or a higher stage) on main. Claims made on PR branches or
-        patched builds are counted apart. A count, not a verdict: curated reviews decide."""
+        return evaluate.confidence(t["evidence"], self.merged)
 
-        def authors(stage: str, on_main: bool) -> list[str]:
-            floor = STAGES.index(stage)
-            return sorted(
-                {
-                    e["author"]
-                    for e in t["evidence"]
-                    if e["origin"] == "mined"
-                    and e.get("author")
-                    and STAGES.index(e["stage"]) >= floor
-                    and (e.get("build") == "main") == on_main
-                }
+    def members(self, gid: str) -> list[dict]:
+        """The titles of a game, the one that leads first: the furthest, then one with a known stop, then the one
+        with the most reports, then the lowest ID. Its chain decides where the game stops first."""
+        game = self.identity.games[gid]
+        titles = [self.titles[t] for t in game.title_ids if t in self.titles]
+
+        def lead(t):
+            best = self.best_stage(t)
+            return (
+                evaluate.rank(best["stage"] if best else None),
+                bool(t["chain"]),
+                len(t["evidence"]),
+                [-ord(c) for c in t["id"]],
             )
 
-        best, claim = self.best_stage(t), self.unverified_claim(t)
-        out: dict = {"stage": best["stage"] if best else None, "reports_on_main": 0, "authors": []}
-        if best:
-            out["authors"] = authors(best["stage"], True)
-            out["reports_on_main"] = len(out["authors"])
-        if claim:
-            out["claim"] = {
-                "stage": claim["stage"],
-                "reports_on_main": len(authors(claim["stage"], True)),
-                "reports_on_branches": len(authors(claim["stage"], False)),
-            }
-        n = out["reports_on_main"]
-        out["label"] = f"{n} report{'s' if n != 1 else ''} on main" if n else None
-        return out
+        return sorted(titles, key=lead, reverse=True)
+
+    def game_chain(self, gid: str) -> list[dict]:
+        """A game's chain: the leading title's steps, then the steps only its other title IDs know, each step
+        with the title it comes from."""
+        chain, seen = [], set()
+        for t in self.members(gid):
+            for step in t["chain"]:
+                if step["blocker"] not in seen:
+                    seen.add(step["blocker"])
+                    chain.append({**step, "title": t["id"]})
+        return chain
+
+    def game_paths(self, gid: str) -> dict[str, list[dict]]:
+        """A game's chain per OS/GPU path (the paths of all of its title IDs)."""
+        names = list(dict.fromkeys(p for t in self.members(gid) for p in (t.get("paths") or [])))
+        return self.paths({"paths": names or None, "chain": self.game_chain(gid)})
 
     def _rank(self):
+        """Per blocker: the games that list it (any title ID of the game), that it stops first on a path of the
+        game's chain, and for which it is the only open stop on such a path. A game at Playable counts only
+        toward the total. The title IDs behind the counts are kept in `titles`, `frontier_titles` and
+        `one_fix_titles`."""
         for b in self.blockers.values():
             b.update(
                 {
@@ -980,35 +1103,47 @@ class Model:
                     "titles": [],
                     "frontier_titles": [],
                     "one_fix_titles": [],
+                    "games": [],
+                    "frontier_games": [],
+                    "one_fix_games": [],
                 }
             )
-        for tid, t in self.titles.items():
-            best = self.best_stage(t)
-            done = best is not None and best["stage"] == "Playable"
-            t["open_chain"] = [s for s in t["chain"] if self.blockers[s["blocker"]]["status"] == "open"]
-            listed = set()
-            for s in t["open_chain"]:
-                b = self.blockers[s["blocker"]]
-                if s["blocker"] not in listed:
-                    b["total"] += 1
-                    b["titles"].append(tid)
-                    listed.add(s["blocker"])
-            if done:
+        is_open = {bid for bid, b in self.blockers.items() if b["status"] == "open"}
+        for t in self.titles.values():
+            t["open_chain"] = [step for step in t["chain"] if step["blocker"] in is_open]
+        for gid in self.identity.games:
+            members = self.members(gid)
+            for t in members:
+                for step in t["open_chain"]:
+                    b = self.blockers[step["blocker"]]
+                    if t["id"] not in b["titles"]:
+                        b["titles"].append(t["id"])
+                    if gid not in b["games"]:
+                        b["games"].append(gid)
+            evidence = [e for t in members for e in t["evidence"]]
+            best = evaluate.best_stage(evidence, self.merged)
+            if best and best["stage"] == "Playable":
                 continue
             front, single = set(), set()
-            for chain in self.paths(t).values():
-                open_steps = [s["blocker"] for s in chain if self.blockers[s["blocker"]]["status"] == "open"]
+            for chain in self.game_paths(gid).values():
+                open_steps = [step for step in chain if step["blocker"] in is_open]
                 if open_steps:
-                    front.add(open_steps[0])
-                    if len(set(open_steps)) == 1:
-                        single.add(open_steps[0])
-            for bid in front:
-                self.blockers[bid]["frontier"] += 1
-                self.blockers[bid]["frontier_titles"].append(tid)
-            for bid in single:
-                self.blockers[bid]["one_fix_away"] += 1
-                self.blockers[bid]["one_fix_titles"].append(tid)
+                    front.add((open_steps[0]["blocker"], open_steps[0]["title"]))
+                    if len({step["blocker"] for step in open_steps}) == 1:
+                        single.add((open_steps[0]["blocker"], open_steps[0]["title"]))
+            for key, bids in (("frontier", front), ("one_fix", single)):
+                for bid, tid in bids:
+                    b = self.blockers[bid]
+                    if tid not in b[f"{key}_titles"]:
+                        b[f"{key}_titles"].append(tid)
+                    if gid not in b[f"{key}_games"]:
+                        b[f"{key}_games"].append(gid)
         for b in self.blockers.values():
+            b["total"], b["frontier"], b["one_fix_away"] = (
+                len(b["games"]),
+                len(b["frontier_games"]),
+                len(b["one_fix_games"]),
+            )
             b["score"] = 3 * b["one_fix_away"] + 2 * b["frontier"] + b["total"]
 
     def ranking(self) -> list[dict]:

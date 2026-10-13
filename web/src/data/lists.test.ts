@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { sortRows } from "../lib/sort";
 import { fixture } from "../test/fixture";
-import { blockerAccessors, filterBlockers, filterGames, gameAccessors, gameList, onePerGame, stageCounts, tagCounts } from "./lists";
+import { blockerAccessors, filterBlockers, filterGames, gameAccessors, gameList, stageCounts, tagCounts } from "./lists";
 import { buildModel } from "./model";
 
 const model = buildModel(fixture);
@@ -29,52 +29,39 @@ describe("blocker filters", () => {
 
 describe("game filters", () => {
   it("filters by stage, including no stage, and by search text", () => {
-    expect(ids(filterGames(model.games, { stage: "Presents", q: "" })).sort()).toEqual(["PPSA02100", "PPSA30279"]);
-    expect(ids(filterGames(model.games, { stage: "none", q: "" }))).toEqual(["PPSA01746"]);
-    expect(ids(filterGames(model.games, { stage: "all", q: "ppsa02929" }))).toEqual(["PPSA02929"]);
+    expect(ids(filterGames(model.games, { stage: "Presents", q: "" }))).toEqual(["taxi-chaos-2"]);
+    expect(ids(filterGames(model.games, { stage: "none", q: "" }))).toEqual(["kena-bridge-of-spirits"]);
+    expect(ids(filterGames(model.games, { stage: "all", q: "ppsa02929" }))).toEqual(["dreaming-sarah"]);
     // a game is found through the error line of a blocker that stops it
-    expect(ids(filterGames(model.games, { stage: "all", q: "color views of several" }))).toEqual(["PPSA01746"]);
+    expect(ids(filterGames(model.games, { stage: "all", q: "color views of several" }))).toEqual(["kena-bridge-of-spirits"]);
   });
 
-  it("counts games per stage chip, by name", () => {
+  it("counts games per stage chip", () => {
     const n = stageCounts(model.games);
-    expect([n.get("all"), n.get("Converts"), n.get("Presents"), n.get("none")]).toEqual([12, 8, 2, 1]);
+    expect([n.get("all"), n.get("Converts"), n.get("Starts"), n.get("Presents"), n.get("none")]).toEqual([12, 8, 1, 1, 1]);
   });
 
-  it("keeps one row per game, the first of its title IDs", () => {
-    const [a, b] = model.games;
-    const twin = { ...b, id: "PPSA00000", name: a.name };
-    expect(ids(onePerGame([a, twin, b]))).toEqual([a.id, b.id]);
-    expect(onePerGame(model.games)).toHaveLength(12);
-  });
-
-  it("lists a game once, at its best title ID, and finds it through any of its title IDs", () => {
-    const [a, b] = model.games; // a has the higher stage
-    const region = { ...b, name: a.name, search: "ppsa00000 region" };
-    const games = [a, region, ...model.games.slice(2)];
-    expect(ids(gameList(games, { stage: "all", q: "ppsa00000" }))).toEqual([a.id]);
-    expect(gameList(games, { stage: b.stage!, q: "" }).map((g) => g.name)).not.toContain(a.name);
-    const n = stageCounts(onePerGame(games));
-    expect([...n].filter(([k]) => k !== "all").reduce((sum, [, v]) => sum + v, 0)).toBe(n.get("all"));
+  it("finds a game through any of its title IDs and aliases", () => {
+    expect(ids(gameList(model.games, { stage: "all", q: "ppsa01802" }))).toEqual(["kena-bridge-of-spirits"]);
+    const games = model.games.map((g) => (g.id === "stray" ? { ...g, search: g.search + " the cat game" } : g));
+    expect(ids(gameList(games, { stage: "all", q: "the cat game" }))).toEqual(["stray"]);
   });
 
   it("filters by tag together with the stage and the search", () => {
-    expect(ids(gameList(model.games, { stage: "all", tag: "Adventure", q: "" })).sort()).toEqual(["PPSA02100", "PPSA02929"]);
-    expect(ids(gameList(model.games, { stage: "Presents", tag: "Adventure", q: "" }))).toEqual(["PPSA02100"]);
-    expect(ids(gameList(model.games, { stage: "all", tag: "Adventure", q: "sarah" }))).toEqual(["PPSA02929"]);
+    expect(ids(gameList(model.games, { stage: "all", tag: "Adventure", q: "" })).sort()).toEqual(["dreaming-sarah", "stray"]);
+    expect(ids(gameList(model.games, { stage: "Starts", tag: "Adventure", q: "" }))).toEqual(["stray"]);
+    expect(ids(gameList(model.games, { stage: "all", tag: "Adventure", q: "sarah" }))).toEqual(["dreaming-sarah"]);
     expect(gameList(model.games, { stage: "all", tag: "Racing", q: "" })).toEqual([]);
   });
 
-  it("counts games per tag once, by name", () => {
-    const [sarah] = model.games.filter((g) => g.id === "PPSA02929");
-    const region = { ...sarah, id: "PPSA00000" }; // a second title ID of the same game
-    const n = tagCounts([...model.games, region]);
+  it("counts games per tag", () => {
+    const n = tagCounts(model.games);
     expect([n.get("Adventure"), n.get("2D"), n.get("Puzzle"), n.get("Racing")]).toEqual([2, 1, 1, undefined]);
   });
 
   it("sorts by stage without ever using an unverified claim", () => {
     const rows = sortRows(model.games, gameAccessors, { key: "stage", dir: "desc" });
-    expect(rows[0].id).toBe("PPSA02929");
-    expect(rows.at(-1)!.id).toBe("PPSA01746"); // claims Ingame, but has no stage
+    expect(rows[0].id).toBe("dreaming-sarah");
+    expect(rows.at(-1)!.id).toBe("kena-bridge-of-spirits"); // claims Ingame, but has no stage
   });
 });

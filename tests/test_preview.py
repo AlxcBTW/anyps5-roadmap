@@ -46,9 +46,10 @@ class Preview(unittest.TestCase):
         text = preview.render(write_site(self.root / "a", doc), write_site(self.root / "b", doc), "fixtures")
         self.assertIn("No change to the ranking", text)
         self.assertIn("built from fixtures", text)
-        self.assertNotIn("Titles that change", text)
+        self.assertNotIn("Games that change", text)
+        self.assertNotIn("Game identity", text)
 
-    def test_a_curated_stage_review_shows_up_as_a_title_change(self):
+    def test_a_curated_stage_review_shows_up_as_a_game_change(self):
         base = build_doc(self.curated)
         changed = copy.deepcopy(self.curated)
         changed["stage_reviews"].append(
@@ -63,16 +64,28 @@ class Preview(unittest.TestCase):
         )
         head = build_doc(changed)
         text = preview.render(write_site(self.root / "a", base), write_site(self.root / "b", head))
-        self.assertIn("Titles that change (1)", text)
-        self.assertIn("`PPSA01746` Kena: Bridge of Spirits", text)
-        self.assertIn("Ingame → **—**", text)
+        self.assertIn("Games that change (1)", text)
+        self.assertIn("Kena: Bridge of Spirits `PPSA01746`, `PPSA01802`", text)
+        self.assertIn("Ingame with #32 + patches → **—**", text)
         self.assertIn("ROADMAP.md diff", text)
 
     def test_missing_base_still_reports_the_head(self):
         doc = build_doc(self.curated)
         text = preview.render(self.root / "missing", write_site(self.root / "b", doc))
         self.assertIn("could not be built", text)
-        self.assertIn("| Title IDs | 14 |", text)
+        self.assertIn("| Title IDs | 15 |", text)
+        self.assertIn("| Games | 12 |", text)
+
+    def test_a_new_merge_is_listed_with_its_reasons(self):
+        head = build_doc(self.curated)
+        base = copy.deepcopy(head)
+        base["identity"]["merges"] = []
+        text = preview.render(write_site(self.root / "a", base), write_site(self.root / "b", head))
+        self.assertIn("### Game identity", text)
+        self.assertIn(
+            "| Kena: Bridge of Spirits | `PPSA01746`, `PPSA01802` | merged | same name (Kena: Bridge of Spirits) |",
+            text,
+        )
 
 
 if __name__ == "__main__":

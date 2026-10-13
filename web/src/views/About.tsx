@@ -23,10 +23,14 @@ export function About({ loc }: { loc: Location }) {
   const s = doc.stats;
   const gaps = doc.gaps ?? [];
   const total = model.stages.length;
+  const review = doc.identity?.review ?? [];
   const numbers: [string, number | undefined][] = [
     ["Issues read", s.issues_scanned],
     ["Pull requests read", s.prs_scanned],
+    ["Discussions read", s.discussions_scanned as number | undefined],
+    ["Games", s.games as number | undefined],
     ["Title IDs", s.titles],
+    ["Games with a cover", s.games_with_image as number | undefined],
     ["Stage reviews", s.stage_reviews],
     ["Curated blockers", s.blockers_curated as number | undefined],
     ["Evidence items", s.evidence_items as number | undefined],
@@ -68,7 +72,9 @@ export function About({ loc }: { loc: Location }) {
         <p>
           A stage counts when it was reached on main, or on main plus pull requests that are merged now. Menus and
           higher, the stages people share screenshots of, count only after someone checks the report. Until then the
-          game shows the report as an unverified claim.
+          game shows the report as an unverified claim. A game that gets further with pull requests that are still open,
+          or with local patches, shows that too, as its stage off main, with the pull requests it needs; it moves up by
+          itself once they are merged.
         </p>
       </section>
 
@@ -86,6 +92,25 @@ export function About({ loc }: { loc: Location }) {
           </p>
         </section>
       )}
+
+      <section className="section prose" aria-labelledby="h-identity">
+        <h2 id="h-identity">Games and title IDs</h2>
+        <p>
+          A game is listed once, with every title ID it ships under: its US, European and Asian releases, and the PS4
+          version where someone tried one. Reports on any of them count for the game, and a search for any of its IDs or
+          for a short form of its name, such as GTA V for Grand Theft Auto V, finds it.
+        </p>
+        <p>
+          Two title IDs are one game when the PlayStation Store lists them under one product page, or when their names
+          match once spelling, symbols, editions and abbreviations are set aside. Names that only look alike are never
+          joined by themselves; they wait for a person to check, below. Each game takes its name from the PlayStation
+          Store unless a person corrected it.
+        </p>
+        <p>
+          Covers come from the game&rsquo;s PlayStation Store page, or from Steam, and load from their servers. They
+          belong to their publishers. A game without one shows its initials.
+        </p>
+      </section>
 
       <section className="section prose" aria-labelledby="h-ranking">
         <h2 id="h-ranking">Blockers and the ranking</h2>
@@ -155,6 +180,25 @@ export function About({ loc }: { loc: Location }) {
           <ul className="gaps">
             {gaps.map((g) => (
               <li key={g}>{g}</li>
+            ))}
+          </ul>
+        </details>
+      )}
+
+      {review.length > 0 && (
+        <details className="disclose">
+          <summary>
+            <span className="disclose-title">
+              Possible duplicates to check <span className="h-n">{review.length}</span>
+            </span>
+          </summary>
+          <ul className="gaps">
+            {review.map((r) => (
+              <li key={r.title_ids.join("+")}>
+                {r.names.filter(Boolean).join(" / ")}{" "}
+                <span className="mono muted">({r.title_ids.join(", ")})</span>
+                <span className="muted">. {r.note}</span>
+              </li>
             ))}
           </ul>
         </details>

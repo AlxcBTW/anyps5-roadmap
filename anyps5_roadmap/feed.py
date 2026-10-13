@@ -7,7 +7,11 @@ in one item:
 - blockers that are resolved now;
 - blockers that enter or leave the ranking, and blockers whose own score moved them up or down with
   the old or the new place in the top 15 (one that only shifts because another one moved is not listed);
-- titles whose stage (`best_stage`; never an unverified claim) or first open blocker changed.
+- games whose stage (never an unverified claim) or first open blocker changed;
+- games that took in another title ID (a region variant, or a name written another way).
+
+Games are compared as the new build groups them: against a roadmap.json from before games existed
+(schema 1), a game's old stage is the best of its title IDs then, so the switch adds no false changes.
 
 Items of the live feed are carried over, newest first, up to MAX_ITEMS, so a reader that polls less
 often than every build still sees every change. A build that changes nothing adds no item. With
@@ -44,6 +48,47 @@ def title_label(t: dict) -> str:
     return f"{t['name']} ({t['id']})" if t.get("name") else t["id"]
 
 
+STAGE_ORDER = ["Converts", "Loads", "Starts", "First draw", "Presents", "Menus", "Ingame", "Playable"]
+
+
+def _rank(stage: str | None) -> int:
+    return STAGE_ORDER.index(stage) if stage in STAGE_ORDER else -1
+
+
+def game_views(doc: dict, layout: dict) -> dict[str, dict]:
+    """Stage and first open blocker of every game of `layout` (the new build), as `doc` saw them. A doc with
+    games reads its own; an older one (titles only) the best of the game's title IDs."""
+    out = {}
+    own = {g["id"]: g for g in doc.get("games") or []}
+    own_by_title = {tid: g for g in own.values() for tid in g.get("title_ids", [])}
+    titles = {t["id"]: t for t in doc.get("titles") or []}
+    for g in layout.get("games") or []:
+        mine = own.get(g["id"]) or next((own_by_title[t] for t in g["title_ids"] if t in own_by_title), None)
+        if doc.get("games") is not None:
+            if mine is None:
+                out[g["id"]] = {"stage": None, "stop": None}
+                continue
+            steps = mine.get("open_blockers") or []
+            out[g["id"]] = {"stage": (mine.get("stage") or {}).get("stage"), "stop": steps[0]["id"] if steps else None}
+            continue
+        members = [titles[t] for t in g["title_ids"] if t in titles]
+        best = max(members, key=lambda t: (_rank(stage_of(t)), bool(t.get("open_blockers"))), default=None)
+        out[g["id"]] = {"stage": stage_of(best) if best else None, "stop": first_stop(best) if best else None}
+    return out
+
+
+def merged_sets(doc: dict) -> list[frozenset]:
+    """The title IDs that one game holds together, as `doc` grouped them: its merges, or for an older doc the
+    title IDs the page put together, those of one exact name."""
+    if doc.get("identity") is not None:
+        return [frozenset(m["title_ids"]) for m in doc["identity"].get("merges", [])]
+    by_name: dict[str, set] = {}
+    for t in doc.get("titles") or []:
+        if t.get("name"):
+            by_name.setdefault(t["name"], set()).add(t["id"])
+    return [frozenset(ids) for ids in by_name.values() if len(ids) > 1]
+
+
 def plural(n: int, one: str, many: str) -> str:
     return f"{n} {one if n == 1 else many}"
 
@@ -59,7 +104,8 @@ class Diff:
         self.changes: list[tuple[dict, str, str]] = []  # (record, linked subject, rest of the sentence)
         resolved = self.resolved()
         self.ranking(resolved)
-        self.titles()
+        self.merges()
+        self.games()
 
     def blocker_url(self, b: dict) -> str:
         return f"{SITE_URL}#b-{b['id']}" if b["id"] in self.on_page else b.get("url") or SITE_URL
@@ -99,13 +145,37 @@ class Diff:
                     was_score=m["was_score"],
                 )
 
-    def titles(self) -> None:
-        old = {t["id"]: t for t in self.base["titles"]}
-        for t in sorted(self.head["titles"], key=lambda t: ((t.get("name") or t["id"]).lower(), t["id"])):
-            listed = t.get("best_stage") or t.get("open_blockers") or t.get("unverified_claim")
-            url = f"{SITE_URL}#g-{t['id']}" if listed else SITE_URL
-            o = old.get(t["id"], {})
-            stage, was = stage_of(t), stage_of(o)
+    def game_url(self, g: dict) -> str:
+        listed = g.get("stage") or g.get("open_blockers") or g.get("unverified_claim") or g.get("stage_on_branches")
+        return f"{SITE_URL}#g-{g['primary'] or g['title_ids'][0]}" if listed else SITE_URL
+
+    def game_label(self, g: dict) -> str:
+        primary = g.get("primary") or g["title_ids"][0]
+        return f"{g['name']} ({primary})" if g.get("name") else primary
+
+    def merges(self) -> None:
+        before = merged_sets(self.base)
+        games = {g["id"]: g for g in self.head.get("games") or []}
+        for m in self.head.get("identity", {}).get("merges", []):
+            ids = frozenset(m["title_ids"])
+            if any(ids <= old for old in before):
+                continue
+            g = games.get(m["game"])
+            if not g:
+                continue
+            why = "; ".join(m.get("reasons") or [])
+            record = {"type": "merged", "game": g["id"], "title": g.get("primary"), "titles": sorted(ids)}
+            record["url"] = self.game_url(g)
+            listed = " and ".join(", ".join(sorted(ids)).rsplit(", ", 1))
+            self.changes.append((record, self.game_label(g), f"now holds {listed} as one game ({why})."))
+
+    def games(self) -> None:
+        old, new = game_views(self.base, self.head), game_views(self.head, self.head)
+        for g in sorted(self.head.get("games") or [], key=lambda g: ((g.get("name") or g["id"]).lower(), g["id"])):
+            a, b = old[g["id"]], new[g["id"]]
+            label, url = self.game_label(g), self.game_url(g)
+            primary = g.get("primary") or g["title_ids"][0]
+            stage, was = b["stage"], a["stage"]
             if stage != was:
                 if stage and was:
                     rest = f"went from {was} to {stage}."
@@ -113,19 +183,25 @@ class Diff:
                     rest = f"is at {stage} now (no stage before)."
                 else:
                     rest = f"has no stage now (was {was})."
-                self.changes.append(
-                    ({"type": "stage", "title": t["id"], "stage": stage, "was": was, "url": url}, title_label(t), rest)
-                )
-            stop, was_stop = first_stop(t), first_stop(o)
+                record = {"type": "stage", "title": primary, "game": g["id"], "stage": stage, "was": was, "url": url}
+                self.changes.append((record, label, rest))
+            stop, was_stop = b["stop"], a["stop"]
             if stop != was_stop:
                 before = f" (was {ref(self.old_blockers.get(was_stop) or {'id': was_stop})})" if was_stop else ""
                 if stop:
-                    b = self.blockers.get(stop) or {"id": stop}
-                    rest = f"now stops at {ref(b)} “{b.get('title') or ''}”{before}."
+                    blk = self.blockers.get(stop) or {"id": stop}
+                    rest = f"now stops at {ref(blk)} “{blk.get('title') or ''}”{before}."
                 else:
                     rest = f"has no known stop left{before}."
-                record = {"type": "stop", "title": t["id"], "blocker": stop, "was": was_stop, "url": url}
-                self.changes.append((record, title_label(t), rest))
+                record = {
+                    "type": "stop",
+                    "title": primary,
+                    "game": g["id"],
+                    "blocker": stop,
+                    "was": was_stop,
+                    "url": url,
+                }
+                self.changes.append((record, label, rest))
 
 
 def stage_of(t: dict) -> str | None:
@@ -149,11 +225,13 @@ def item(base: dict, head: dict) -> dict | None:
     kinds = [r["type"] for r in records]
     resolved = kinds.count("resolved")
     ranking = sum(kinds.count(k) for k in ("entered", "left", "moved"))
-    titles = len({r["title"] for r in records if "title" in r})
+    games = len({r["game"] for r in records if r["type"] in ("stage", "stop")})
+    merged = kinds.count("merged")
     summary = [
         plural(resolved, "blocker resolved", "blockers resolved") if resolved else "",
         plural(ranking, "ranking change", "ranking changes") if ranking else "",
-        plural(titles, "title changed", "titles changed") if titles else "",
+        plural(games, "game changed", "games changed") if games else "",
+        plural(merged, "game merged", "games merged") if merged else "",
     ]
     text = [f"{subject} {rest}" for _, subject, rest in shown]
     lis = [
@@ -187,7 +265,8 @@ def build(head: dict, base: dict | None = None, previous: dict | None = None) ->
         "home_page_url": SITE_URL,
         "feed_url": SITE_URL + NAME,
         "description": "What each snapshot of the AnyPS5 blocker map changed: blockers resolved, blockers entering, "
-        "leaving or moving in the ranking, and titles whose stage or first open blocker changed. "
+        "leaving or moving in the ranking, games whose stage or first open blocker changed, and games that took in "
+        "another title ID. "
         "Generated data, community prototype, not official.",
         "language": "en",
         "items": items[:MAX_ITEMS],

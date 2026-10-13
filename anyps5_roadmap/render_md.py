@@ -44,18 +44,19 @@ def render_markdown(doc: dict) -> str:
         f"[{repo}](https://github.com/{repo}) at `{(doc['upstream'].get('commit') or '?')[:8]}` plus `data/blockers.json`.\n"
     )
     a(
-        f"Issues read: {s['issues_scanned']} · PRs read: {s['prs_scanned']} · titles: {s['titles']} · open blockers: {s['blockers_open']} "
-        f"({s['blockers_ranked']} block at least one title) · curated blockers: {s['blockers_curated']}\n"
+        f"Issues read: {s['issues_scanned']} · PRs read: {s['prs_scanned']} · discussions read: {s.get('discussions_scanned', 0)} · "
+        f"games: {s.get('games', s['titles'])} ({s['titles']} title IDs seen) · open blockers: {s['blockers_open']} "
+        f"({s['blockers_ranked']} stop at least one game) · curated blockers: {s['blockers_curated']}\n"
     )
     a(
-        "Score = 3 × one_fix_away + 2 × frontier + total. Frontier: titles for which the blocker is the first open one. "
-        "One fix away: titles for which it is the only open one.\n"
+        "Score = 3 × one_fix_away + 2 × frontier + total, counted by game (all title IDs of a game count once). "
+        "Frontier: games for which the blocker is the first open one. One fix away: games for which it is the only open one.\n"
     )
     a("## Focus areas\n")
     for i, ar in enumerate(doc["focus"]["areas"], 1):
         tops = ", ".join(md_ref(B[b]) for b in ar["blockers"])
         a(
-            f"{i}. **{ar['name']}** (score {ar['score']}): {ar['blocker_count']} blockers on {ar['titles']} titles, "
+            f"{i}. **{ar['name']}** (score {ar['score']}): {ar['blocker_count']} blockers on {ar['titles']} games, "
             f"first stop for {ar['frontier_titles']}; open fix PRs {ar['open_fix_prs']}. Top: {tops}"
         )
     a("")
@@ -70,23 +71,32 @@ def render_markdown(doc: dict) -> str:
             f"**{b['score']}** | {area_name(b['area'])} | {md_cell(prs)} | {fmt_date(b.get('last_activity'))} |"
         )
     a("")
-    a("## Titles\n")
+    a("## Games\n")
     a(
-        "Best stage counts only verified stages: curated, upstream, or mined below Menus. A mined claim of Menus or "
-        "higher that nobody has reviewed is listed as an unverified claim and is not sorted on.\n"
+        "One row per game, with all of its title IDs (region variants and other spellings of its name). The stage "
+        "counts only qualifying reports: curated ones, and mined ones below Menus that ran on main or on main plus "
+        "merged PRs. A mined claim of Menus or higher that nobody has reviewed is listed as an unverified claim and is "
+        "not sorted on. Confidence: checked by hand, or how many GitHub accounts report the stage on main.\n"
     )
-    a("| ID | Title | Best stage | Where | Source | Unverified claim | Open blockers, in order |")
-    a("|---|---|---|---|---|---|---|")
-    shown = [t for t in doc["titles"] if t["best_stage"] or t["open_blockers"] or t["unverified_claim"]]
+    a(
+        "| Game | Title IDs | Stage | Confidence | Where | Source | Unverified claim | Off main (open PRs, patches) | "
+        "Open blockers, in order |"
+    )
+    a("|---|---|---|---|---|---|---|---|---|")
+    shown = [
+        g
+        for g in doc["games"]
+        if g["stage"] or g["open_blockers"] or g["unverified_claim"] or g.get("stage_on_branches")
+    ]
     shown.sort(
-        key=lambda t: (
-            -(STAGES.index(t["best_stage"]["stage"]) if t["best_stage"] else -1),
-            len(t["open_blockers"]),
-            (t["name"] or t["id"]).lower(),
+        key=lambda g: (
+            -(STAGES.index(g["stage"]["stage"]) if g["stage"] else -1),
+            len(g["open_blockers"]),
+            (g["name"] or g["id"]).lower(),
         )
     )
-    for t in shown:
-        best = t["best_stage"]
+    for g in shown:
+        best = g["stage"]
         stage = f"{best['stage']} ({best['origin']}{', reviewed' if best.get('review') else ''})" if best else "—"
         where = " · ".join(x for x in [best.get("os"), best.get("gpu"), best.get("build")] if x) if best else ""
         src = (
@@ -94,15 +104,26 @@ def render_markdown(doc: dict) -> str:
             if best and best.get("url")
             else "—"
         )
-        claim = t["unverified_claim"]
+        claim = g["unverified_claim"]
         claim_md = f"{claim['stage']}, [source]({claim['url']})" if claim else "—"
+        branch = g.get("stage_on_branches")
+        off = "—"
+        if branch:
+            needs = ", ".join(f"#{n}" for n in branch["needs"])
+            off = (
+                f"{branch['stage']}" + (f" with {needs}" if needs else "") + (" + patches" if branch["patches"] else "")
+            )
+            off += f", [source]({branch['url']})"
         chain = " → ".join(
             md_ref(B[st["id"]]) + (f" ({'/'.join(st['scope'])})" if st.get("scope") else "")
-            for st in t["open_blockers"][:6]
+            for st in g["open_blockers"][:6]
             if st["id"] in B
         )
+        ids = ", ".join(f"`{t['id']}`" + (f" {t['region']}" if t.get("region") else "") for t in g["titles"])
+        sure = g["confidence"].get("label") or "—"
         a(
-            f"| `{t['id']}` | {md_cell(t['name'] or '')} | {stage} | {md_cell(where)} | {src} | {claim_md} | {chain or '—'} |"
+            f"| {md_cell(g['name'] or '')} | {ids} | {stage} | {md_cell(sure)} | {md_cell(where)} | {src} | {claim_md} | "
+            f"{off} | {chain or '—'} |"
         )
     a("")
     cov = doc["coverage"]
@@ -158,11 +179,12 @@ def render_llms(doc: dict) -> str:
         "# AnyPS5 blocker map",
         "",
         f"> Generated technical roadmap for AnyPS5, a tool that ports PS5 executables to Linux and Windows (https://github.com/{repo}): which open issues block which PS5 "
-        "titles, ranked by how many titles a fix would move, plus HLE, RDNA ISA and PM4 coverage. Community prototype, not official; "
+        "games, ranked by how many games a fix would move, plus HLE, RDNA ISA and PM4 coverage. Community prototype, not official; "
         "regenerated from GitHub data by roadmap.py.",
         "",
         f"Snapshot {doc['generated_at']}, upstream commit {(doc['upstream'].get('commit') or '?')[:8]}. "
-        f"{doc['stats']['blockers_open']} open blockers, {doc['stats']['titles']} titles. Top of the ranking:",
+        f"{doc['stats']['blockers_open']} open blockers, {doc['stats'].get('games')} games on the page ({doc['stats']['titles']} title IDs seen). "
+        "Top of the ranking:",
         "",
     ]
     for b in top:
@@ -173,6 +195,16 @@ def render_llms(doc: dict) -> str:
         "",
         "How to read the data:",
         "",
+        "- `games` is the list to read first: one entry per game, with its `title_ids` (PPSA for PS5, CUSA for PS4; region "
+        "variants of one game share an entry, `titles` gives each ID's region), its `aliases` (other ways the name is "
+        "written, such as GTA V for Grand Theft Auto V), `stage`, `confidence`, `unverified_claim`, `open_blockers`, "
+        "`stage_on_branches` (the furthest stage off main, with open PRs or local patches: `needs` lists the open "
+        "PRs it ran with, `patches` says it had more; never the stage, never ranked on), "
+        "`timeline` (each date the stage rose, with its source) and `image` (a cover on the PlayStation Store or Steam CDN, "
+        "hotlinked, or null). `identity.merges` lists every game that holds several title IDs with the reasons; "
+        "`identity.review` lists matches that may be one game and are never merged by themselves.",
+        "- `confidence.level` is `verified` (a person checked the source), `corroborated` (two or more GitHub accounts "
+        "report the stage on main or on main plus merged PRs), `reported` (one account) or `none`.",
         "- Stages, lowest to highest: "
         + ", ".join(STAGES)
         + ". `best_stage` is the highest verified stage, with os, gpu, build, "
@@ -186,11 +218,12 @@ def render_llms(doc: dict) -> str:
         "- `tags` on a title say what kind of game it is, from the fixed list in the top-level `tags` (2D, 3D, genres, and "
         "App for anything that is not a game); `tag_sources` link the Wikidata item, PlayStation Store page, SteamSpy page or "
         "homebrew README they come from. An empty list means no source was found, not that the title has no kind.",
-        "- `confidence` on a title counts reports, it does not verify them: `reports_on_main` is the number of distinct GitHub "
+        "- `titles` keeps one entry per title ID, with `game` naming its game. `confidence` on a title counts reports, it does not verify them: `reports_on_main` is the number of distinct GitHub "
         "accounts whose own text puts the title at its best stage (or higher) on main; `claim.reports_on_main` and "
         "`claim.reports_on_branches` do the same for the unverified claim on main and on PR branches or patched builds.",
-        "- Each mined evidence item has an `author`, a `part` (body, comment or review) and a `build` (`main`, `main + patches` "
-        "or `PR #N`). A PR link on a blocker has `via`: `closing` (GitHub's closing references), `xref` (a timeline "
+        "- Each mined evidence item has an `author`, a `part` (body, comment or review) and a `build` (`main`, `main + #N`, "
+        "`main + patches`, `PR #N`) with `build_kind` (main, prs or patched) and the `prs` it ran with; a stage on `prs` "
+        "counts once every one of them is merged. A PR link on a blocker has `via`: `closing` (GitHub's closing references), `xref` (a timeline "
         "cross-reference), `text` (read from PR text) or `resubmission` (the PR resubmits or carries a fix PR closed "
         "without merge, or carries a fork fix PR, named in `resubmits`).",
         "- `origin` is `curated` (data/blockers.json, reviewed by a person), `mined` (regex rules over issue and PR text), "
@@ -202,17 +235,17 @@ def render_llms(doc: dict) -> str:
         "",
         "## Data",
         "",
-        f"- [roadmap.json](roadmap.json): full data, `schema_version` {doc['schema_version']}. Keys: stages, tags, scoring, stats, ranking "
-        "(blocker ids, best first), blockers, titles, coverage (isa, hle, pm4, registers), focus (areas, help_wanted), gaps, sources.",
+        f"- [roadmap.json](roadmap.json): full data, `schema_version` {doc['schema_version']}. Keys: stages, tags, scoring, confidence_levels, stats, ranking "
+        "(blocker ids, best first), blockers, games, identity, titles, coverage (isa, hle, pm4, registers), focus (areas, help_wanted), gaps, sources.",
         "- [feed.json](feed.json): what each snapshot changed, as a JSON Feed 1.1, newest first; the last 50 snapshots "
         "that changed something. An item lists blockers resolved, blockers entering, leaving or moving in the ranking "
-        "(moves only when the blocker's own score changed and one of its places is in the top 15), and titles whose "
-        "`best_stage` or first open blocker changed, in plain sentences with links to the page. Its `id` and "
+        "(moves only when the blocker's own score changed and one of its places is in the top 15), games whose "
+        "stage or first open blocker changed, and games that took in another title ID, in plain sentences with links to the page. Its `id` and "
         "`date_published` are the snapshot's `generated_at`; `_anyps5.changes` holds the same as records "
-        "(`type`: resolved, entered, left, moved, stage or stop) and `_anyps5.since` the snapshot it compares with.",
-        "- [ROADMAP.md](ROADMAP.md): ranking, titles, coverage and help wanted as Markdown tables.",
+        "(`type`: resolved, entered, left, moved, stage, stop or merged) and `_anyps5.since` the snapshot it compares with.",
+        "- [ROADMAP.md](ROADMAP.md): ranking, games, coverage and help wanted as Markdown tables.",
         "- [index.html](index.html): the same for people, as an app that reads roadmap.json and feed.json; every blocker "
-        "has a link of its own (`#/blockers/<id>`), and so does every title (`#/games/<PPSA ID>`).",
+        "has a link of its own (`#/blockers/<id>`), and so does every game (`#/games/<game id>`, or any of its title IDs).",
         "- [classic.html](classic.html): the same as one static page that works without JavaScript.",
         "",
         "## Curation",

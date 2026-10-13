@@ -75,7 +75,7 @@ class CorrectionLinks(unittest.TestCase):
         self.assertEqual(sarah["page_source"], "https://github.com/example/AnyPS5/pull/31")
         self.assertEqual(sarah["title"], "Stage: Dreaming Sarah (PPSA02929)")
         kena = next(q for q in links if q.get("title_id") == "PPSA01746")
-        self.assertEqual(kena["page_stage"], "No stage yet; claimed Ingame, unverified")
+        self.assertEqual(kena["page_stage"], "No stage yet; Ingame off main")
         blocker = next(q for q in links if q.get("blocker", "").startswith("#10 "))
         self.assertEqual(blocker["template"], "blocker.yml")
         self.assertEqual(blocker["page_source"], "https://github.com/example/AnyPS5/issues/10")

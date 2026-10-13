@@ -201,12 +201,14 @@ class Page:
         self.project = (doc.get("project") or {}).get("repo") or "AlxcBTW/anyps5-roadmap"
         self.blockers = {b["id"]: b for b in doc["blockers"]}
         self.titles = {t["id"]: t for t in doc["titles"]}
+        # one game, one name: every title ID of a game reads as the game (schema 2), so the page counts games
+        self.game_name = {tid: g.get("name") or g["id"] for g in doc.get("games") or [] for tid in g["title_ids"]}
         self.stages = [s["name"] for s in doc["stages"]]
         self.stage_rank = {s: i for i, s in enumerate(self.stages)}
         ranked = [self.blockers[i] for i in doc["ranking"] if i in self.blockers]
         linked = [b for b in ranked if b.get("total")]
         self.unlinked = [b for b in ranked if not b.get("total")]
-        # The data ranks by title ID; the page counts games by name, so it ranks by name too.
+        # The page counts games by name (the game's name for every title ID of it), and ranks by it too.
         self.score = {
             b["id"]: 3 * len(self.names(b.get("one_fix_titles", [])))
             + 2 * len(self.names(b.get("frontier_titles", [])))
@@ -217,7 +219,9 @@ class Page:
         self.ranked = sorted(linked, key=lambda b: (-self.score[b["id"]], order[b["id"]]))
         self.rank_of = {b["id"]: n for n, b in enumerate(self.ranked, 1)}
         self.listed = [
-            t for t in doc["titles"] if t.get("best_stage") or t.get("open_blockers") or t.get("unverified_claim")
+            t
+            for t in doc["titles"]
+            if t.get("best_stage") or t.get("open_blockers") or t.get("unverified_claim") or t.get("stage_on_branches")
         ]
 
     # -- names ---------------------------------------------------------------
@@ -230,7 +234,7 @@ class Page:
         return b["id"]
 
     def title_name(self, tid: str) -> str:
-        return (self.titles.get(tid) or {}).get("name") or tid
+        return self.game_name.get(tid) or (self.titles.get(tid) or {}).get("name") or tid
 
     def names(self, ids: list[str]) -> set[str]:
         return {self.title_name(t) for t in ids}
@@ -458,6 +462,9 @@ class Page:
         now = f"{best['stage']} ({best.get('origin', 'mined')})" if best.get("stage") else "No stage yet"
         if claim.get("stage"):
             now += f"; claimed {claim['stage']}, unverified"
+        branch = t.get("stage_on_branches") or {}
+        if branch:
+            now += f"; {branch['stage']} off main"
         name = t.get("name") or ""
         fields = {
             "title": f"Stage: {name} ({t['id']})" if name else f"Stage: {t['id']}",

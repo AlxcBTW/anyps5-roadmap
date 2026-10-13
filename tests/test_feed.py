@@ -58,7 +58,7 @@ class Feed(unittest.TestCase):
         item = feed.item(self.base, self.head)
         self.assertEqual(item["id"], "2026-10-10T13:00:00Z")
         self.assertEqual(item["date_published"], item["id"])
-        self.assertEqual(item["title"], "1 blocker resolved, 1 ranking change, 2 titles changed")
+        self.assertEqual(item["title"], "1 blocker resolved, 1 ranking change, 2 games changed")
         self.assertEqual(
             item["content_text"].splitlines(),
             [
@@ -67,7 +67,7 @@ class Feed(unittest.TestCase):
                 "(score 1 → 6).",
                 "Kena: Bridge of Spirits (PPSA01746) now stops at #11 “Kena: Bridge of Spirits (PPSA01746): "
                 "layered draw aborts” (was #10).",
-                "Stray (PPSA02100) went from Presents to Menus.",
+                "Stray (PPSA02100) went from Starts to Menus.",
                 "Stray (PPSA02100) has no known stop left (was #10).",
             ],
         )
@@ -78,6 +78,25 @@ class Feed(unittest.TestCase):
             [("resolved", "10"), ("moved", "11"), ("stop", "PPSA01746"), ("stage", "PPSA02100"), ("stop", "PPSA02100")],
         )
         self.assertEqual(item["_anyps5"]["since"], self.base["generated_at"])
+
+    def test_against_a_build_from_before_games_only_new_merges_are_listed(self):
+        old = copy.deepcopy(self.base)
+        old["schema_version"] = 1
+        del old["games"], old["identity"]
+        for t in old["titles"]:
+            t.pop("game", None)
+            if t["id"] == "PPSA01802":
+                t["name"] = "Kena"  # the page showed two games then
+        item = feed.item(old, self.base | {"generated_at": "2026-10-10T13:00:00Z"})
+        self.assertEqual(item["title"], "1 game merged")
+        (record,) = item["_anyps5"]["changes"]
+        self.assertEqual(
+            (record["type"], record["game"], record["titles"]),
+            ("merged", "kena-bridge-of-spirits", ["PPSA01746", "PPSA01802"]),
+        )
+        self.assertTrue(
+            item["content_text"].startswith("Kena: Bridge of Spirits (PPSA01746) now holds PPSA01746 and PPSA01802")
+        )
 
     def test_each_change_links_its_blocker_or_title_on_the_page(self):
         item = feed.item(self.base, self.head)

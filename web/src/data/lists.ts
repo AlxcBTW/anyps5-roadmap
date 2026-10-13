@@ -73,39 +73,26 @@ export function filterGames(rows: readonly GameRow[], { stage, tag = "", q }: Ga
   );
 }
 
-/** Games per stage chip ("all", each stage name, "none"): the names with a title ID at that stage. */
+/** Games per stage chip ("all", each stage name, "none"). */
 export function stageCounts(rows: readonly GameRow[]): Map<string, number> {
-  const names = new Map<string, Set<string>>([["all", new Set()]]);
-  for (const g of rows) {
-    names.get("all")!.add(g.name);
-    const k = g.stage ?? "none";
-    names.set(k, (names.get(k) ?? new Set()).add(g.name));
-  }
-  return new Map([...names].map(([k, s]) => [k, s.size]));
+  const n = new Map<string, number>([["all", rows.length]]);
+  for (const g of rows) n.set(g.stage ?? "none", (n.get(g.stage ?? "none") ?? 0) + 1);
+  return n;
 }
 
-/** Games per tag, by name: a game counts once for each of its tags. */
+/** Games per tag: a game counts once for each of its tags. */
 export function tagCounts(rows: readonly GameRow[]): Map<string, number> {
-  const names = new Map<string, Set<string>>();
-  for (const g of rows) for (const t of g.tags) names.set(t, (names.get(t) ?? new Set()).add(g.name));
-  return new Map([...names].map(([k, s]) => [k, s.size]));
-}
-
-/** One row per game: the first title ID of each name in the given order, so a sorted list keeps its best. */
-export function onePerGame(rows: readonly GameRow[]): GameRow[] {
-  const seen = new Set<string>();
-  return rows.filter((g) => !seen.has(g.name) && !!seen.add(g.name));
+  const n = new Map<string, number>();
+  for (const g of rows) for (const t of g.tags) n.set(t, (n.get(t) ?? 0) + 1);
+  return n;
 }
 
 /**
- * The game list: one row per game, its best title ID (rows come highest stage first, as model.games
- * does). The stage filter reads that row, like the stage chips and the ladder; the tag filter reads the
- * game's tags, which every title ID of it shares; the search reads every title ID of the game, so a
- * region's PPSA ID still finds it.
+ * The game list: one row per game. The search reads every title ID, alias and name of a game, so a region's
+ * title ID or a short form such as "GTA V" finds it.
  */
-export function gameList(rows: readonly GameRow[], { stage, tag = "", q }: GameQuery): GameRow[] {
-  const hit = new Set(filterGames(rows, { stage: "all", q }).map((g) => g.name));
-  return filterGames(onePerGame(rows), { stage, tag, q: "" }).filter((g) => hit.has(g.name));
+export function gameList(rows: readonly GameRow[], query: GameQuery): GameRow[] {
+  return filterGames(rows, query);
 }
 
 export const GAME_SORTS = ["name", "stage", "stop", "chain", "report"] as const;
