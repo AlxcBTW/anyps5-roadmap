@@ -796,7 +796,16 @@
     {"id": "PPSA25936", "name": "永久與神樹的祈願者", "name_sources": ["https://prosperopatches.com/PPSA25936", "https://github.com/andshrew/PlayStation-Titles/blob/main/PS5_Titles_by_Name.tsv"]},
     {"id": "PPSA28002", "name": "Ninja Gaiden: Ragebound", "name_sources": ["https://prosperopatches.com/PPSA28002", "https://github.com/andshrew/PlayStation-Titles/blob/main/PS5_Titles_by_Name.tsv"]},
     {"id": "PPSA28038", "name": "Halo: Campaign Evolved", "name_sources": ["https://prosperopatches.com/PPSA28038", "https://github.com/andshrew/PlayStation-Titles/blob/main/PS5_Titles_by_Name.tsv"]},
-    {"id": "PPSA34502", "name": "Call of Duty: Black Ops II", "name_sources": ["https://prosperopatches.com/PPSA34502", "https://github.com/andshrew/PlayStation-Titles/blob/main/PS5_Titles_by_Name.tsv"]}
+    {"id": "PPSA34502", "name": "Call of Duty: Black Ops II", "name_sources": ["https://prosperopatches.com/PPSA34502", "https://github.com/andshrew/PlayStation-Titles/blob/main/PS5_Titles_by_Name.tsv"]},
+    {
+      "id": "PPSA16827", "name": "Harmony's Odyssey", "engine": "Unity", "kind": "retail",
+      "name_sources": ["https://store.playstation.com/en-hk/product/HP7621-PPSA16827_00-HARMONYPS5ASIA00"],
+      "evidence": [
+        {"stage": "Presents", "os": "Windows", "gpu": "NVIDIA", "build": "c080fc2d + local workaround (2 files)", "date": "2026-10-13",
+         "url": "https://github.com/Zibo176/SilkSongFork/blob/harmony-odyssey-workaround/HarmonyOdyssey_PPSA16827.md",
+         "note": "Zibo176 (roadmap #49, RTX 4060) saw Menus, but only on a branch with a local 2-file libc patch (Unwind.hpp, Exports.cpp), so the page keeps the Menus claim unverified. Clean main stops before the first frame: libSceAgcDriver.prx cannot resolve _ZN10LibcUnwind11CursorSlotsE (GetLastError 127). Upstream #5014 (merged 2026-10-13) hands the table out through a _nid_no_patch export; the report does not test it. With the patch: stable 60+ s, AGC/Vulkan active, about 16-17 FPS, screenshot https://github.com/Zibo176/SilkSongFork/blob/harmony-odyssey-workaround/screenshots/harmony-odyssey/runtime-01-workaround.png. Menus needs a re-run on main with #5014."}
+      ]
+    }
   ],
   "title_tags_note": "What kind of game a title is, from a fixed list (2026-10-13). A tag needs a source that names it: the Wikidata genre of the item whose name and platform (PS5) match, the PlayStation Store genre of this title ID, the SteamSpy user tags of that item's Steam app (2D, 3D, Shooter, Platformer only), or the homebrew's own README. No source, no tag. See AGENTS.md.",
   "title_tags": [
