@@ -261,6 +261,19 @@ SHORT_REF_RE = re.compile(r"(?<![\w/#&])(?:(?P<repo>[\w.\-]+/[\w.\-]+))?#(?P<num
 CLOSING_RE = re.compile(
     r"(?i)\b(?:fix(?:es|ed)?|close[sd]?|resolve[sd]?)\b:?\s+(?P<refs>(?:(?:[\w.\-]+/[\w.\-]+)?#\d+|https://github\.com/[\w.\-]+/[\w.\-]+/issues/\d+)(?:\s*(?:,|and|&)\s*(?:(?:[\w.\-]+/[\w.\-]+)?#\d+|https://github\.com/[\w.\-]+/[\w.\-]+/issues/\d+))*)"
 )
+# The PR template's checklist line: "- [x] Unblocks: PPSA99011 #4808; PPSA99995 (same stop)". The issues on that line are
+# the blockers the PR claims to fix. An unticked box ("- [ ] Unblocks: #N") is a template left as it was: no claim.
+# "Depends on: #N" is a different line and never matches; a "depends on" inside the line ends the claim.
+UNBLOCKS_RE = re.compile(
+    r"(?im)^[ \t]*(?:[-*+][ \t]+)?(?:\[(?P<box>[ xX])\][ \t]+)?\**unblock(?:s|ed)?\**[ \t]*:\**[ \t]*(?P<rest>.*)$"
+)
+DEPENDS_RE = re.compile(r"(?i)\b(?:depends?\s+on|blocked\s+by)\b")
+# "..., addressing #5001." names the issue the PR is for. Not "addressing review feedback from #123" (a word
+# between), and a PR number in that place is no blocker anyway.
+ADDRESSING_RE = re.compile(
+    r"(?i)\baddress(?:es|ed|ing)\s+(?P<refs>(?:(?:[\w.\-]+/[\w.\-]+)?#\d+|https://github\.com/[\w.\-]+/[\w.\-]+/issues/\d+)(?:\s*(?:,|and|&)\s*(?:(?:[\w.\-]+/[\w.\-]+)?#\d+|https://github\.com/[\w.\-]+/[\w.\-]+/issues/\d+))*)"
+)
+HTML_COMMENT_RE = re.compile(r"<!--.*?-->", re.S)
 # A PR that stands in for an earlier one: "This is #1872 again", "Resubmission of #2174", "resubmits PR #1745",
 # "Reopened as a new PR of #2106", "Replaces #2481", "Supersedes #1855". Not "superseded by" or "follow-up to".
 RESUBMITS_RE = re.compile(
@@ -537,6 +550,22 @@ def refs_in(text: str, default_repo: str) -> list[tuple[str, int]]:
 def closing_refs(text: str, default_repo: str) -> list[tuple[str, int]]:
     out = []
     for m in CLOSING_RE.finditer(text or ""):
+        out += refs_in(m.group("refs"), default_repo)
+    return out
+
+
+def unblocking_refs(text: str, default_repo: str) -> list[tuple[str, int]]:
+    """Issues (repository, number) that a PR claims to unblock: the ticked "Unblocks:" checklist line, and
+    "addressing #N". Not "Depends on: #N", not an unticked template line, not other mentions."""
+    text = HTML_COMMENT_RE.sub("", text or "")
+    out = []
+    for m in UNBLOCKS_RE.finditer(text):
+        if (m.group("box") or "x") == " ":
+            continue
+        rest = m.group("rest")
+        cut = DEPENDS_RE.search(rest)
+        out += refs_in(rest[: cut.start()] if cut else rest, default_repo)
+    for m in ADDRESSING_RE.finditer(text):
         out += refs_in(m.group("refs"), default_repo)
     return out
 

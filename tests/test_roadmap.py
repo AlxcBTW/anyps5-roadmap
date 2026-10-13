@@ -620,5 +620,59 @@ class Ranking(unittest.TestCase):
         self.assertTrue(r.render_llms(doc).startswith("# AnyPS5 blocker map\n\n> "))
 
 
+# Bodies as they appear on boykopovar/AnyPS5 (PR template checklist), trimmed to the lines that matter.
+UNBLOCKS_OPEN = (
+    "## Summary\n\nStub the cert bundle.\n\n## Checklist\n\n"
+    "- [x] Unblocks: PPSA99011 #11; PPSA99995 (same stop; titles not rerun)\n- [ ] Depends on: #13\n"
+)
+UNBLOCKS_EVIDENCE = (
+    "- [x] Unblocks: PPSA97510, PPSA98510, PPSA99003 #10 (title evidence in #11 and the linked retest above)\n"
+)
+ADDRESSING = "Propose a host-provided certificate bundle for `/<sandbox word>/common/cert/CA_LIST.cer`, addressing #13."
+
+
+class UnblocksLines(unittest.TestCase):
+    repo = "example/AnyPS5"
+
+    def refs(self, text):
+        return [n for _, n in mine.unblocking_refs(text, self.repo)]
+
+    def test_the_unblocks_line_names_the_blockers_a_pr_fixes(self):
+        self.assertEqual(self.refs(UNBLOCKS_OPEN), [11])
+        # every issue on the line counts, the evidence issue in the parenthesis too
+        self.assertEqual(self.refs(UNBLOCKS_EVIDENCE), [10, 11])
+        self.assertEqual(self.refs("* **Unblocks:** #4 and example/AnyPS5#5, other/repo#6"), [4, 5, 6])
+
+    def test_addressing_names_the_issue_a_pr_is_for(self):
+        self.assertEqual(self.refs(ADDRESSING), [13])
+        self.assertEqual(self.refs("Addressing review feedback from the maintainer, see #13."), [])
+
+    def test_depends_on_templates_and_prose_are_no_claim(self):
+        self.assertEqual(self.refs("- [x] Depends on: #11\n"), [])
+        self.assertEqual(self.refs("- [ ] Unblocks: #11\n"), [])  # unticked template line
+        self.assertEqual(self.refs("- [x] Unblocks: #N\n<!-- Unblocks: #12 -->"), [])
+        self.assertEqual(self.refs("- [x] Unblocks: PPSA1 #11, depends on #13\n"), [11])
+        self.assertEqual(self.refs("Same stop as #11, builds on #13. Does not unblock #10."), [])
+        self.assertEqual(self.refs(None), [])
+
+    def test_a_model_links_such_a_pr_as_a_fix_and_the_rest_as_mentions(self):
+        raw = json.loads((FIX / "raw.json").read_text(encoding="utf-8"))
+        base = raw["prs"][0]
+        bodies = {61: UNBLOCKS_OPEN, 62: ADDRESSING, 63: "Depends on: #11\nSee also #13.", 64: "- [ ] Unblocks: #10"}
+        for number, body in bodies.items():
+            pr = {**base, "number": number, "title": f"pr {number}", "body": body, "closes": [], "xrefs": []}
+            raw["prs"].append(pr)
+        model = r.Model(raw, r.load_curated(FIX / "curated.json"), self.repo, NOW)
+
+        def kind(issue, number):
+            return model.links[issue].get(f"{self.repo}#{number}")
+
+        self.assertEqual((kind(11, 61), kind(13, 61)), ("fixes", "mentions"))
+        self.assertEqual(model.link_via[11][f"{self.repo}#61"], {"unblocks", "text"})
+        self.assertEqual(kind(13, 62), "fixes")
+        self.assertEqual((kind(11, 63), kind(13, 63)), ("mentions", "mentions"))
+        self.assertEqual(kind(10, 64), "mentions")
+
+
 if __name__ == "__main__":
     unittest.main()
