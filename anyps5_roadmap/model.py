@@ -471,11 +471,20 @@ class Model:
         self._mine_code_blocks(src, info)
 
     def _mine_code_blocks(self, src: dict, info: dict | None):
-        """A fenced log in a comment that names exactly one title: its last error line is
-        where that title stopped, even when the ID and the error are on different lines."""
+        """A fenced log with one title ID: its last error line is where that title stopped,
+        even when the ID and the error are on different lines. An ID-less issue comment may
+        use its issue title when that title names exactly one title ID."""
         text = src["text"]
-        ids = [i for i in dict.fromkeys(TITLE_RE.findall(text)) if i not in PLACEHOLDER_IDS]
-        if len(ids) != 1 or (info and info["tracker"]):
+        raw_ids = TITLE_RE.findall(text)
+        ids = [i for i in dict.fromkeys(raw_ids) if i not in PLACEHOLDER_IDS]
+        if info and info["tracker"]:
+            return
+        if not ids and not raw_ids and info and src["kind"] == "issue" and src["part"] == "comment":
+            issue_title = self.issues[src["number"]].get("title") or ""
+            title_ids = [i for i in dict.fromkeys(TITLE_RE.findall(issue_title)) if i not in PLACEHOLDER_IDS]
+            if len(title_ids) == 1:
+                ids = title_ids
+        if len(ids) != 1:
             return
         blocks = code_blocks_with_lead(text)
         if not blocks:
