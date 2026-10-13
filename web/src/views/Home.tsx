@@ -41,7 +41,7 @@ export function Home({ loc }: { loc: Location }) {
           <SearchField
             large
             label="Find a game"
-            placeholder="Name, PPSA ID or error line"
+            placeholder="Name, title ID or error line"
             value={q}
             onChange={(v) => setParams(loc, { q: v || null })}
           />

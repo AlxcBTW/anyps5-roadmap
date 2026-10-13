@@ -1,8 +1,8 @@
-// Everything the views show, derived once from roadmap.json. The rules match the classic page
-// (render_html.py): games are counted by name, since one game can have several title IDs (regions),
-// and the ranking counts games, not title IDs.
+// Everything the views show, derived once from roadmap.json. A game is one entity of the data (roadmap.json
+// `games`): all of its title IDs, region variants and other spellings of its name, evaluated together. The
+// ranking counts games, as the data does.
 
-import type { Area, Blocker, ChainStep, Claim, Evidence, PullRequest, RoadmapDoc, Stage, Tag, Title } from "./schema";
+import type { Area, Blocker, BranchStage, ChainStep, Claim, Confidence, Evidence, Game, PullRequest, RoadmapDoc, Stage, Tag } from "./schema";
 
 export const AREA_NAMES: Record<Area, string> = {
   shader: "Shader recompiler",
@@ -29,7 +29,7 @@ export interface BlockerRow {
   blocker: Blocker;
   open: boolean;
   rank: number | null; // place in the ranking; null when no game is linked or it is resolved
-  score: number; // 3 × only stop + 2 × first stop + games, counted by game name
+  score: number; // 3 × only stop + 2 × first stop + games
   games: number; // games that list it anywhere
   firstStop: number; // games it stops first
   onlyStop: number; // games for which it is the only stop left
@@ -40,17 +40,21 @@ export interface BlockerRow {
 }
 
 export interface GameRow {
-  id: string;
+  id: string; // the game's id, a slug of its name
   name: string; // the game's name, or its title ID when the name is unknown
   named: boolean;
-  title: Title;
-  stage: string | null; // best verified stage; never an unverified claim
+  game: Game;
+  ids: string[]; // its title IDs, the leading one first
+  stage: string | null; // best qualifying stage; never an unverified claim
   stageRank: number; // -1 without a stage
-  reports: string | null; // "2 reports on main"
+  confidence: Confidence;
+  reports: string | null; // "Checked by hand", "2 reports on main"
+  sure: string | null; // the same for a row: "Checked by hand", "2 reports"
   claim: Claim | null;
   claimReports: number;
-  steps: ChainStep[]; // open stops on the map, first stop first
-  tags: string[]; // the game's tags over all of its title IDs, in the order of the tag list
+  offMain: BranchStage | null; // further with open PRs or patches; never the stage
+  steps: (ChainStep & { title?: string })[]; // open stops on the map, first stop first
+  tags: string[]; // in the order of the tag list
   firstStop: BlockerRow | null;
   lastReport: string | null;
   search: string;
@@ -68,8 +72,8 @@ export type AfterFix =
   | { game: GameRow; kind: "done" };
 
 export interface Counts {
-  games: number; // listed games, by name
-  titleIds: number; // listed title IDs
+  games: number; // listed games
+  titleIds: number; // the title IDs behind them
   gamesWithStage: number;
   reachMenus: number; // games whose best stage is Menus or higher
   gamesWaiting: number; // games with at least one open stop
@@ -88,9 +92,8 @@ export interface Model {
   stageRank: (stage: string | null | undefined) => number;
   blockers: BlockerRow[]; // ranked, then not linked to a game, then resolved
   blocker: (id: string) => BlockerRow | undefined;
-  games: GameRow[]; // one row per listed title ID, highest stage first
-  game: (id: string) => GameRow | undefined;
-  regions: (id: string) => GameRow[]; // the other listed title IDs of the same game
+  games: GameRow[]; // one row per listed game, highest stage first
+  game: (id: string) => GameRow | undefined; // by game id or by any of its title IDs
   ladder: Rung[];
   noStage: number; // games with an open stop but no confirmed stage
   counts: Counts;
@@ -140,18 +143,11 @@ export function buildModel(doc: RoadmapDoc): Model {
   const rankOf = new Map(stages.map((s, i) => [s.name, i]));
   const stageRank = (s: string | null | undefined) => (s != null && rankOf.has(s) ? rankOf.get(s)! : -1);
   const byId = new Map(doc.blockers.map((b) => [b.id, b]));
-  const titles = new Map(doc.titles.map((t) => [t.id, t]));
-  const nameOf = (tid: string) => titles.get(tid)?.name || tid;
-  const names = (ids: string[]) => new Set(ids.map(nameOf));
 
-  // ranking: open blockers linked to a game, by score over game names, ties in the data's order
+  // ranking: open blockers linked to a game, in the data's order (by score over games)
   const open = doc.ranking.map((id) => byId.get(id)).filter((b): b is Blocker => !!b);
-  const order = new Map(open.map((b, i) => [b.id, i]));
   const rows = new Map<string, BlockerRow>();
   const toRow = (b: Blocker): BlockerRow => {
-    const all = names(b.titles ?? []);
-    const first = names(b.frontier_titles ?? []);
-    const only = names(b.one_fix_titles ?? []);
     const r: BlockerRow = {
       id: b.id,
       ref: ref(b),
@@ -160,10 +156,10 @@ export function buildModel(doc: RoadmapDoc): Model {
       blocker: b,
       open: b.status === "open",
       rank: null,
-      score: 3 * only.size + 2 * first.size + all.size,
-      games: all.size,
-      firstStop: first.size,
-      onlyStop: only.size,
+      score: b.score ?? 0,
+      games: b.total ?? 0,
+      firstStop: b.frontier ?? 0,
+      onlyStop: b.one_fix_away ?? 0,
       fix: fixStatus(b),
       helpWanted: !!b.help_wanted,
       lastActivity: b.last_activity ?? null,
@@ -174,107 +170,102 @@ export function buildModel(doc: RoadmapDoc): Model {
     return r;
   };
   const linked = open.filter((b) => b.total).map(toRow);
-  linked.sort((a, z) => z.score - a.score || order.get(a.id)! - order.get(z.id)!);
   linked.forEach((r, i) => (r.rank = i + 1));
   const unlinked = open.filter((b) => !b.total).map(toRow);
-  const resolved = doc.blockers.filter((b) => b.status !== "open" && !order.has(b.id)).map(toRow);
+  const ranked = new Set(open.map((b) => b.id));
+  const resolved = doc.blockers.filter((b) => b.status !== "open" && !ranked.has(b.id)).map(toRow);
   resolved.sort((a, z) => (z.lastActivity ?? "").localeCompare(a.lastActivity ?? ""));
   // open blockers outside the ranking (none today) still get a row, so every link resolves
   const rest = doc.blockers.filter((b) => !rows.has(b.id)).map(toRow);
   const blockers = [...linked, ...unlinked, ...rest, ...resolved];
 
-  // games: titles with a stage, a stop or a claim; one row per title ID
-  const listed = doc.titles.filter((t) => t.best_stage || t.open_blockers?.length || t.unverified_claim);
-  // tags describe a game, so every title ID of a name carries the tags of all of them
+  // games: those with a stage, a stop or a claim
   const tagList = doc.tags ?? [];
-  const tagsOf = new Map<string, Set<string>>();
-  for (const t of listed) {
-    const set = tagsOf.get(t.name || t.id) ?? new Set<string>();
-    for (const tag of t.tags ?? []) set.add(tag);
-    tagsOf.set(t.name || t.id, set);
-  }
-  const games: GameRow[] = listed.map((t) => {
-    const stage = t.best_stage?.stage ?? null;
-    const steps = (t.open_blockers ?? []).filter((s) => byId.has(s.id));
-    const conf = t.confidence;
-    const own = tagsOf.get(t.name || t.id)!;
-    const tags = tagList.map((x) => x.name).filter((x) => own.has(x));
-    const words: (string | null | undefined)[] = [t.name, t.id, t.engine, t.kind, ...tags];
+  const listed = (doc.games ?? []).filter(
+    (g) => g.stage || g.open_blockers?.length || g.unverified_claim || g.stage_on_branches,
+  );
+  const games: GameRow[] = listed.map((g) => {
+    const stage = g.stage?.stage ?? null;
+    const steps = (g.open_blockers ?? []).filter((s) => byId.has(s.id));
+    const conf = g.confidence ?? { stage, reports_on_main: 0, authors: [], label: null };
+    const tags = tagList.map((x) => x.name).filter((x) => (g.tags ?? []).includes(x));
+    const ids = g.primary ? [g.primary, ...g.title_ids.filter((t) => t !== g.primary)] : g.title_ids;
+    const words: (string | null | undefined)[] = [g.name, g.id, ...g.title_ids, ...g.aliases, g.engine, g.kind, ...tags];
+    for (const t of g.titles ?? []) words.push(t.name);
     for (const s of steps) {
       const r = rows.get(s.id);
       if (r) words.push(r.title, r.ref, r.ref.replace("PR ", ""), r.blocker.signature);
     }
     return {
-      id: t.id,
-      name: t.name || t.id,
-      named: !!t.name,
-      title: t,
+      id: g.id,
+      name: g.name || ids[0] || g.id,
+      named: !!g.name,
+      game: g,
+      ids,
       stage,
       stageRank: stageRank(stage),
-      reports: stage && conf?.label ? conf.label : null,
-      claim: t.unverified_claim?.url ? t.unverified_claim : null,
-      claimReports: conf?.claim?.reports_on_main ?? 0,
+      confidence: conf,
+      reports: stage && conf.label ? conf.label : null,
+      sure: !stage
+        ? null
+        : conf.level === "verified"
+          ? "Checked by hand"
+          : conf.reports_on_main
+            ? `${conf.reports_on_main} report${conf.reports_on_main === 1 ? "" : "s"}`
+            : null,
+      claim: g.unverified_claim?.url ? g.unverified_claim : null,
+      claimReports: conf.claim?.reports_on_main ?? 0,
+      offMain: g.stage_on_branches ?? null,
       steps,
       tags,
       firstStop: steps.length ? (rows.get(steps[0].id) ?? null) : null,
-      lastReport: t.last_evidence?.date ?? null,
+      lastReport: g.last_evidence?.date ?? null,
       search: lower(words),
     };
   });
   games.sort((a, z) => z.stageRank - a.stageRank || a.name.toLowerCase().localeCompare(z.name.toLowerCase()));
-  const gameById = new Map(games.map((g) => [g.id, g]));
-  const byName = new Map<string, GameRow[]>();
-  for (const g of games) byName.set(g.name, [...(byName.get(g.name) ?? []), g]);
-
-  // the stage ladder: each game at its highest confirmed stage over all of its title IDs
-  const best = new Map<string, string | null>();
+  const gameById = new Map<string, GameRow>();
   for (const g of games) {
-    const cur = best.get(g.name);
-    if (!best.has(g.name) || (g.stage && (cur == null || g.stageRank > stageRank(cur)))) best.set(g.name, g.stage);
+    gameById.set(g.id, g);
+    for (const tid of g.game.title_ids) if (!gameById.has(tid)) gameById.set(tid, g);
   }
-  const held = new Map<string, Map<string, Set<string>>>(stages.map((s) => [s.name, new Map()]));
+
+  // the stage ladder: each game at its stage, and the blocker that holds most of them there
+  const held = new Map<string, Map<string, number>>(stages.map((s) => [s.name, new Map()]));
   for (const g of games) {
     const first = g.steps[0];
     if (g.stage && first) {
       const at = held.get(g.stage)!;
-      at.set(first.id, (at.get(first.id) ?? new Set()).add(g.name));
+      at.set(first.id, (at.get(first.id) ?? 0) + 1);
     }
   }
   const ladder: Rung[] = stages.map((stage) => {
     let top: Rung["heldBy"] = null;
-    for (const [id, set] of held.get(stage.name) ?? []) {
+    for (const [id, n] of held.get(stage.name) ?? []) {
       const row = rows.get(id)!;
-      const better =
-        !top || set.size > top.games || (set.size === top.games && (row.rank ?? 999) < (top.row.rank ?? 999));
-      if (better) top = { row, games: set.size };
+      const better = !top || n > top.games || (n === top.games && (row.rank ?? 999) < (top.row.rank ?? 999));
+      if (better) top = { row, games: n };
     }
-    return { stage, games: [...best.values()].filter((s) => s === stage.name).length, heldBy: top };
+    return { stage, games: games.filter((g) => g.stage === stage.name).length, heldBy: top };
   });
 
   const afterFix = (id: string): AfterFix[] => {
     const b = rows.get(id);
     if (!b) return [];
     const out: AfterFix[] = [];
-    const seen = new Set<string>();
-    for (const tid of b.blocker.titles ?? []) {
-      const game = gameById.get(tid);
+    for (const gid of b.blocker.games ?? []) {
+      const game = gameById.get(gid);
       if (!game) continue;
       const ids = game.steps.map((s) => s.id);
       const i = ids.indexOf(id);
       if (i < 0) continue;
-      let entry: AfterFix;
-      if (i > 0) entry = { game, kind: "earlier", then: rows.get(ids[0])! };
-      else if (i + 1 < ids.length) entry = { game, kind: "next", then: rows.get(ids[i + 1])! };
-      else entry = { game, kind: "done" };
-      const key = `${game.name}|${entry.kind}|${"then" in entry ? entry.then.id : ""}`;
-      if (seen.has(key)) continue;
-      seen.add(key);
-      out.push(entry);
+      if (i > 0) out.push({ game, kind: "earlier", then: rows.get(ids[0])! });
+      else if (i + 1 < ids.length) out.push({ game, kind: "next", then: rows.get(ids[i + 1])! });
+      else out.push({ game, kind: "done" });
     }
     return out;
   };
 
-  const gameNames = new Set(games.map((g) => g.name));
   return {
     doc,
     repo: doc.upstream.repo,
@@ -286,18 +277,14 @@ export function buildModel(doc: RoadmapDoc): Model {
     blocker: (id) => rows.get(id),
     games,
     game: (id) => gameById.get(id),
-    regions: (id) => {
-      const g = gameById.get(id);
-      return g ? (byName.get(g.name) ?? []).filter((o) => o.id !== id) : [];
-    },
     ladder,
-    noStage: [...best.values()].filter((s) => s == null).length,
+    noStage: games.filter((g) => g.stage == null).length,
     counts: {
-      games: gameNames.size,
-      titleIds: games.length,
-      gamesWithStage: [...best.values()].filter(Boolean).length,
-      reachMenus: [...best.values()].filter((s) => s != null && stageRank(s) >= stageRank("Menus")).length,
-      gamesWaiting: new Set(games.filter((g) => g.steps.length).map((g) => g.name)).size,
+      games: games.length,
+      titleIds: games.reduce((n, g) => n + g.game.title_ids.length, 0),
+      gamesWithStage: games.filter((g) => g.stage).length,
+      reachMenus: games.filter((g) => g.stageRank >= stageRank("Menus")).length,
+      gamesWaiting: games.filter((g) => g.steps.length).length,
       open: open.length,
       ranked: linked.length,
       inReview: open.filter((b) => rows.get(b.id)!.fix.kind === "review").length,
@@ -326,15 +313,17 @@ export function blockerReport(model: Model, row: BlockerRow): string {
   });
 }
 
-export function gameReport(model: Model, t: Title): string {
-  const best: Partial<Evidence> = t.best_stage ?? {};
-  const claim: Partial<Claim> = t.unverified_claim ?? {};
+export function gameReport(model: Model, g: GameRow): string {
+  const best: Partial<Evidence> = g.game.stage ?? {};
+  const claim: Partial<Claim> = g.game.unverified_claim ?? {};
+  const tid = best.title ?? g.ids[0];
   let now = best.stage ? `${best.stage} (${best.origin ?? "mined"})` : "No stage yet";
   if (claim.stage) now += `; claimed ${claim.stage}, unverified`;
+  if (g.offMain) now += `; ${g.offMain.stage} off main`;
   return reportUrl(model.project, "wrong-stage.yml", {
-    title: t.name ? `Stage: ${t.name} (${t.id})` : `Stage: ${t.id}`,
-    title_id: t.id,
-    game: t.name ?? "",
+    title: g.named ? `Stage: ${g.name} (${tid})` : `Stage: ${tid}`,
+    title_id: tid,
+    game: g.named ? g.name : "",
     page_stage: now,
     page_source: best.url || claim.url || "",
   });

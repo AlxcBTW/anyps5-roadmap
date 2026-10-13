@@ -1,15 +1,17 @@
-// Every game on the map, one row each: its highest confirmed stage and the issue that stops it now.
-// Region IDs of one game collapse into its best row; the drawer lists the others. Unverified claims
-// live in the drawer and are never shown as a stage or sorted on.
+// Every game on the map, one row each: its cover, its highest confirmed stage, how sure that stage is, and the
+// issue that stops it now. A game holds all of its title IDs (regions, other spellings of its name), so a search
+// for any of them finds its one row. Unverified claims live in the drawer and are never shown as a stage or
+// sorted on.
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { GAME_SORTS, filterGames, gameAccessors, gameList, onePerGame, stageCounts, tagCounts, type GameSort } from "../data/lists";
+import { GAME_SORTS, filterGames, gameAccessors, gameList, stageCounts, tagCounts, type GameSort } from "../data/lists";
 import { useData } from "../data/load";
 import type { GameRow } from "../data/model";
 import { plural } from "../lib/format";
 import { setParams, type Location } from "../lib/router";
 import { formatSort, parseSort, sortRows, type Dir, type Sort } from "../lib/sort";
 import { Chips, Empty, GameTags, ItemLink, SortSelect, StageMeter, StatusPill } from "../components/ui";
+import { Cover } from "../components/Cover";
 import { ListKeys } from "./listKeys";
 
 const DEFAULT: Sort<GameSort> = { key: "stage", dir: "desc" };
@@ -36,7 +38,7 @@ export function GameList({ loc }: { loc: Location }) {
   const q = p.get("q") ?? "";
   const sort = parseSort(p.get("sort"), GAME_SORTS, DEFAULT);
   // each filter counts within the other, so a number always says what choosing it shows
-  const games = useMemo(() => onePerGame(model.games), [model]);
+  const games = model.games;
   const counts = useMemo(() => stageCounts(filterGames(games, { stage: "all", tag, q: "" })), [games, tag]);
   const tags = useMemo(() => tagCounts(filterGames(games, { stage, q: "" })), [games, stage]);
   const tagged = useMemo(() => games.some((g) => g.tags.length), [games]);
@@ -146,7 +148,7 @@ export function GameList({ loc }: { loc: Location }) {
           title={`No games${tag ? ` tagged ${tag}` : ""}${stage !== "all" ? ` at ${stage === "none" ? "no stage" : stage}` : ""}${q ? ` match “${q}”` : ""}`}
           hint={
             q || (stage === "all" && !tag)
-              ? "Try a game name, a PPSA ID, an engine such as Unity, an issue number or part of an error line."
+              ? "Try a game name, a title ID, an engine such as Unity, an issue number or part of an error line."
               : "Pick another tag or stage, or clear the filters."
           }
           onClear={() => set({ q: null, stage: null, tag: null })}
@@ -172,16 +174,31 @@ function GameRowLink({ g, loc, total }: { g: GameRow; loc: Location; total: numb
       aria-current={loc.route.item?.id === g.id ? "true" : undefined}
     >
       <span className="g-game">
+        <Cover image={g.game.image} name={g.name} named={g.named} size="row" />
         <span className="row-title">{g.name}</span>
         <span className="row-meta">
-          {g.named && <span className="mono">{g.id}</span>}
-          {g.title.engine && <span>{g.title.engine}</span>}
+          {g.named && (
+            <span className="mono">
+              {g.ids[0]}
+              {g.ids.length > 1 && (
+                <>
+                  <span className="more-ids" aria-hidden="true">
+                    {" "}+{g.ids.length - 1}
+                  </span>
+                  <span className="sr-only"> and {plural(g.ids.length - 1, "more title ID")}</span>
+                </>
+              )}
+            </span>
+          )}
+          {g.game.engine && <span>{g.game.engine}</span>}
           <GameTags tags={g.tags} />
         </span>
       </span>
       <span className="g-stage">
         <StageMeter rank={g.stageRank} total={total} />
         <span className={g.stage ? "stage-name" : "stage-name muted"}>{g.stage ?? "No stage yet"}</span>
+        {g.sure && <span className="g-sure">{g.sure}</span>}
+        {g.offMain && <span className="g-off">{g.offMain.stage} off main</span>}
       </span>
       <span className="g-stop">
         {stop ? (

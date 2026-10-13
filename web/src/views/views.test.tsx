@@ -6,6 +6,7 @@ import { buildModel } from "../data/model";
 import { useLocation } from "../lib/router";
 import { fixture } from "../test/fixture";
 import { Blockers } from "./Blockers";
+import { GameDetail } from "./GameDetail";
 import { GameList } from "./Games";
 import { Home } from "./Home";
 
@@ -49,9 +50,9 @@ describe("Games", () => {
     go("#/games");
     render(<Harness view="games" />);
     fireEvent.click(screen.getByRole("radio", { name: /Presents/ }));
-    expect(rowNames().sort()).toEqual(["Stray", "Taxi Chaos 2"]);
+    expect(rowNames()).toEqual(["Taxi Chaos 2"]);
     expect(location.hash).toBe("#/games?stage=Presents");
-    expect(screen.getByRole("status").textContent).toBe("2 games at Presents");
+    expect(screen.getByRole("status").textContent).toBe("1 game at Presents");
   });
 
   it("filters by a tag, counts the stages within it and clears it with the other filters", () => {
@@ -71,7 +72,7 @@ describe("Games", () => {
     expect(rowNames()).toEqual(["Dreaming Sarah", "Stray"]);
     expect(screen.getByRole("status").textContent).toBe("2 games tagged Adventure");
     // the stage chips count only games with that tag
-    expect(screen.getAllByRole("radio").map((r) => r.parentElement!.textContent)).toEqual(["All2", "Menus1", "Presents1"]);
+    expect(screen.getAllByRole("radio").map((r) => r.parentElement!.textContent)).toEqual(["All2", "Menus1", "Starts1"]);
     fireEvent.click(screen.getByRole("radio", { name: /Menus/ }));
     expect(screen.getByRole("status").textContent).toBe("1 game tagged Adventure at Menus");
     go("#/games?tag=Adventure&stage=Converts");
@@ -86,6 +87,23 @@ describe("Games", () => {
     render(<Harness view="games" />);
     const row = [...document.querySelectorAll("[data-row-link]")].find((r) => r.querySelector(".row-title")!.textContent === "Stray")!;
     expect(row.querySelector(".game-tags")!.textContent).toBe("Tags: Puzzle, Adventure");
+  });
+
+  it("shows a game's cover, or its initials, and the confidence of its stage", () => {
+    go("#/games");
+    render(<Harness view="games" />);
+    const row = (name: string) =>
+      [...document.querySelectorAll("[data-row-link]")].find((r) => r.querySelector(".row-title")!.textContent === name)!;
+    const img = row("Stray").querySelector<HTMLImageElement>(".cover img")!;
+    expect(img.getAttribute("alt")).toBe("");
+    expect(img.getAttribute("loading")).toBe("lazy");
+    expect(img.getAttribute("srcset")).toMatch(/[?]w=48 1x, .*[?]w=96 2x$/);
+    expect(row("Taxi Chaos 2").querySelector(".cover img")).toBeNull();
+    expect(row("Taxi Chaos 2").querySelector(".cover-initials")!.textContent).toBe("TC");
+    expect(row("Taxi Chaos 2").querySelector(".g-sure")!.textContent).toBe("Checked by hand");
+    expect(row("Kena: Bridge of Spirits").querySelector(".g-off")!.textContent).toBe("Ingame off main");
+    // two title IDs, one row
+    expect(row("Kena: Bridge of Spirits").querySelector(".row-meta .mono")!.textContent).toBe("PPSA01746 +1 and 1 more title ID");
   });
 
   it("sorts from the sort menu", () => {
@@ -104,6 +122,49 @@ describe("Games", () => {
     expect(screen.getByText("No games match “nothing-like-this”")).toBeTruthy();
     fireEvent.click(screen.getByRole("button", { name: "Clear filters" }));
     expect(location.hash).toBe("#/games");
+  });
+});
+
+function Drawer({ id }: { id: string }) {
+  const loc = useLocation();
+  return (
+    <DataContext.Provider value={data}>
+      <GameDetail id={id} loc={loc} />
+    </DataContext.Provider>
+  );
+}
+
+describe("Game drawer", () => {
+  it("opens a game by any of its title IDs and lists all of them with their regions", () => {
+    render(<Drawer id="PPSA01802" />);
+    expect(screen.getByRole("heading", { level: 2 }).textContent).toBe("Kena: Bridge of Spirits");
+    expect([...document.querySelectorAll(".title-id")].map((n) => n.textContent)).toEqual(["PPSA01746US", "PPSA01802EU"]);
+    // its cover: none on the store, so its initials
+    expect(document.querySelector(".cover-detail .cover-initials")!.textContent).toBe("KB");
+    expect(screen.queryByText(/Cover art from/)).toBeNull();
+  });
+
+  it("shows how far a game gets off main and the open PRs it needs", () => {
+    render(<Drawer id="kena-bridge-of-spirits" />);
+    const box = screen.getByRole("region", { name: "Off main" });
+    expect(box.querySelector(".off-main-head")!.textContent).toBe("Off mainIngame");
+    expect(box.querySelector(".off-main-needs")!.textContent).toBe("With open PR #32 and local patches.");
+    expect(box.querySelector(".off-main-needs a")!.getAttribute("href")).toBe("https://github.com/boykopovar/AnyPS5/pull/32");
+    expect(box.textContent).toContain("1 report off main");
+    expect(box.textContent).toContain("counts once it runs on main");
+  });
+
+  it("credits the cover's source and links the store page", () => {
+    render(<Drawer id="stray" />);
+    expect(document.querySelector<HTMLImageElement>(".cover-detail img")!.getAttribute("src")).toMatch(/[?]w=88$/);
+    const credit = screen.getByText(/Cover art from the/);
+    expect(credit.querySelector("a")!.getAttribute("href")).toBe("https://store.playstation.com/en-us/concept/10001114");
+    expect(screen.getByText("1 report on main")).toBeTruthy();
+  });
+
+  it("says when a game is not on the map", () => {
+    render(<Drawer id="PPSA00001" />);
+    expect(screen.getByRole("heading", { level: 2 }).textContent).toBe("PPSA00001 is not on the map");
   });
 });
 

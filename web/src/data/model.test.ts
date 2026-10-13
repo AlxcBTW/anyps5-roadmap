@@ -7,7 +7,7 @@ const model = buildModel(fixture);
 const query = (url: string) => Object.fromEntries(new URL(url).searchParams);
 
 describe("ranking", () => {
-  it("ranks linked blockers by a score over game names, like the classic page", () => {
+  it("ranks linked blockers by their score over games, in the data's order", () => {
     const ranked = model.blockers.filter((r) => r.rank != null);
     expect(ranked.map((r) => [r.id, r.rank, r.score])).toEqual([
       ["13~pthread_sigmask", 1, 30],
@@ -42,16 +42,19 @@ describe("tags", () => {
     expect(model.game("PPSA01746")!.tags).toEqual([]);
   });
 
-  it("shares a game's tags between its title IDs and finds the game by them", () => {
-    const stray = fixture.titles.find((t) => t.id === "PPSA02100")!;
-    const doc: RoadmapDoc = { ...fixture, titles: [...fixture.titles, { ...stray, id: "PPSA02101", tags: [], tag_sources: [] }] };
+  it("gives a game's tags to every title ID of it and finds the game by them", () => {
+    const doc: RoadmapDoc = {
+      ...fixture,
+      games: fixture.games.map((g) => (g.id === "stray" ? { ...g, title_ids: [...g.title_ids, "PPSA02101"] } : g)),
+    };
     const m = buildModel(doc);
+    expect(m.game("PPSA02101")).toBe(m.game("stray"));
     expect(m.game("PPSA02101")!.tags).toEqual(["Puzzle", "Adventure"]);
-    expect(m.game("PPSA02101")!.search).toContain("puzzle");
+    expect(m.game("PPSA02101")!.search).toContain("ppsa02101");
   });
 
-  it("reads without tags in an older roadmap.json", () => {
-    const old = { ...fixture, tags: undefined, titles: fixture.titles.map((t) => ({ ...t, tags: undefined })) };
+  it("reads without tags", () => {
+    const old = { ...fixture, tags: undefined, games: fixture.games.map((g) => ({ ...g, tags: [] })) };
     const m = buildModel(old);
     expect(m.tags).toEqual([]);
     expect(m.games.every((g) => g.tags.length === 0)).toBe(true);
@@ -80,22 +83,40 @@ describe("fix status", () => {
 });
 
 describe("games", () => {
-  it("lists one row per title ID with a stage, a stop or a claim, highest stage first", () => {
+  it("lists one row per game with a stage, a stop or a claim, highest stage first", () => {
     expect(model.games).toHaveLength(12);
+    expect(model.counts).toMatchObject({ games: 12, titleIds: 13 });
     expect(model.game("PPSA21564")).toBeUndefined(); // no stage, stop or claim
     expect(model.games[0].name).toBe("Dreaming Sarah");
     expect(model.games.at(-1)!.name).toBe("Kena: Bridge of Spirits"); // no stage sorts last
   });
 
-  it("keeps an unverified claim apart from the stage", () => {
+  it("holds every title ID of a game in one row, found by any of them", () => {
+    const kena = model.game("PPSA01802")!;
+    expect(kena).toBe(model.game("PPSA01746"));
+    expect(kena.id).toBe("kena-bridge-of-spirits");
+    expect(kena.ids).toEqual(["PPSA01746", "PPSA01802"]);
+    expect(kena.search).toContain("ppsa01802");
+    // its region ID stops at #11 too, and the blocker counts the game once
+    expect(model.blocker("11")!.games).toBe(1);
+  });
+
+  it("carries the confidence of the stage", () => {
+    expect(model.game("PPSA02929")!.reports).toBe("Checked by hand");
+    expect(model.game("PPSA02100")!.confidence.level).toBe("reported");
+    expect(model.game("PPSA02100")!.reports).toBe("1 report on main");
+  });
+
+  it("keeps the stage off main apart from the stage", () => {
     const kena = model.game("PPSA01746")!;
     expect(kena.stage).toBeNull();
-    expect(kena.claim?.stage).toBe("Ingame");
+    expect(kena.claim).toBeNull(); // its Ingame ran on an integration branch, not on main
+    expect(kena.offMain).toMatchObject({ stage: "Ingame", needs: [32], patches: true });
   });
 
   it("counts the ladder by game, and every listed game once", () => {
     const at = Object.fromEntries(model.ladder.map((r) => [r.stage.name, r.games]));
-    expect(at).toMatchObject({ Converts: 8, Presents: 2, Menus: 1, Ingame: 0 });
+    expect(at).toMatchObject({ Converts: 8, Starts: 1, Presents: 1, Menus: 1, Ingame: 0 });
     expect(model.noStage).toBe(1);
     expect(model.ladder.reduce((n, r) => n + r.games, 0) + model.noStage).toBe(model.counts.games);
     expect(model.ladder.find((r) => r.stage.name === "Converts")!.heldBy?.row.id).toBe("13~pthread_sigmask");
@@ -112,7 +133,7 @@ describe("games", () => {
 
 describe("correction links", () => {
   it("prefills the wrong-stage form with the stage on the page and its source", () => {
-    const sarah = query(gameReport(model, model.game("PPSA02929")!.title));
+    const sarah = query(gameReport(model, model.game("PPSA02929")!));
     expect(sarah).toMatchObject({
       template: "wrong-stage.yml",
       title: "Stage: Dreaming Sarah (PPSA02929)",
@@ -120,8 +141,8 @@ describe("correction links", () => {
       page_stage: "Menus (curated)",
       page_source: "https://github.com/example/AnyPS5/pull/31",
     });
-    const kena = query(gameReport(model, model.game("PPSA01746")!.title));
-    expect(kena.page_stage).toBe("No stage yet; claimed Ingame, unverified");
+    const kena = query(gameReport(model, model.game("PPSA01746")!));
+    expect(kena.page_stage).toBe("No stage yet; Ingame off main");
   });
 
   it("prefills the blocker form with the blocker, its source and its error line", () => {

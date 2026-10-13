@@ -25,19 +25,21 @@ export const CHANGE_LABELS: Record<ChangeType, string> = {
   moved: "Moved",
   stage: "Stage",
   stop: "Stop",
+  merged: "Merged",
 };
 
-/** The groups of the Changes filter: what a reader asks for, not the six record types. */
+/** The groups of the Changes filter: what a reader asks for, not the seven record types. */
 export const CHANGE_GROUPS = {
   resolved: ["resolved"],
   ranking: ["entered", "left", "moved"],
-  games: ["stage", "stop"],
+  games: ["stage", "stop", "merged"],
 } as const satisfies Record<string, readonly ChangeType[]>;
 
 export type ChangeGroup = keyof typeof CHANGE_GROUPS;
 
 function itemOf(r: ChangeRecord): ChangeRow["item"] {
-  if ((r.type === "stage" || r.type === "stop") && r.title) return { kind: "game", id: r.title };
+  if ((r.type === "stage" || r.type === "stop" || r.type === "merged") && (r.game || r.title))
+    return { kind: "game", id: (r.game ?? r.title)! };
   if (r.blocker) return { kind: "blocker", id: r.blocker };
   return null;
 }
@@ -57,6 +59,8 @@ function fallbackText(r: ChangeRecord): string {
       return `${subject} is at ${r.stage ?? "no stage"} now.`;
     case "stop":
       return `${subject} now stops at ${r.blocker ?? "nothing known"}.`;
+    case "merged":
+      return `${subject} now holds ${(r.titles ?? []).join(", ")} as one game.`;
   }
 }
 

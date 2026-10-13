@@ -1,4 +1,4 @@
-// The shape of site/roadmap.json (schema_version 1, written by anyps5_roadmap/assemble.py) and of
+// The shape of site/roadmap.json (schema_version 2, written by anyps5_roadmap/assemble.py) and of
 // site/feed.json (JSON Feed 1.1, written by anyps5_roadmap/feed.py). Only the fields the app reads are
 // typed; AGENTS.md and llms.txt describe every field.
 
@@ -38,6 +38,9 @@ export interface Blocker {
   titles: string[];
   frontier_titles: string[];
   one_fix_titles: string[];
+  games: string[]; // game ids: frontier, one_fix_away and total count these
+  frontier_games: string[];
+  one_fix_games: string[];
   score: number;
   parent?: number;
 }
@@ -47,6 +50,7 @@ export interface Evidence {
   os?: string | null;
   gpu?: string | null;
   build?: string | null;
+  build_kind?: "main" | "prs" | "patched" | null;
   url: string;
   date?: string | null;
   note?: string | null;
@@ -55,6 +59,8 @@ export interface Evidence {
   verified?: boolean;
   author?: string | null;
   part?: string | null;
+  title?: string; // the title ID it is about, in a game's evidence
+  also?: string[]; // the same report quoted elsewhere
 }
 
 export interface Claim {
@@ -80,12 +86,16 @@ export interface ChainStep {
   scope: string[] | null; // OS/GPU paths, e.g. ["Windows/NVIDIA"]; null applies to every path
 }
 
+export type ConfidenceLevel = "verified" | "corroborated" | "reported" | "none";
+
 export interface Confidence {
   stage: string | null;
+  level?: ConfidenceLevel;
   reports_on_main: number | null;
   authors: string[];
+  last_seen?: string | null;
   claim?: { stage: string; reports_on_main: number; reports_on_branches: number };
-  label: string | null; // "2 reports on main"
+  label: string | null; // "Checked by hand", "2 reports on main"
 }
 
 export interface Title {
@@ -106,6 +116,95 @@ export interface Title {
   prs: number[];
   last_evidence: { kind: string; number: number; url: string; date: string | null } | null;
   confidence: Confidence;
+}
+
+/** A cover on a public CDN, hotlinked. `sizing: "w"` means the CDN resizes with ?w=<pixels>. */
+export interface ImageRef {
+  square: string | null;
+  wide: string | null;
+  portrait: string | null;
+  source: string; // "PlayStation Store", "Steam" or "data/games.json"
+  page: string | null;
+  sizing: "w" | null;
+}
+
+export interface TitleRef {
+  id: string;
+  name: string | null;
+  region: string | null; // US, EU, JP, Asia, KR
+  platform: "PS5" | "PS4";
+  content_id: string | null;
+  stage: string | null;
+}
+
+export interface TimelineStep {
+  date: string | null;
+  stage: string;
+  url: string;
+  origin?: Origin;
+  build?: string | null;
+  title?: string;
+}
+
+/** One game: all of its title IDs, evaluated together. */
+export interface Game {
+  id: string; // a slug of its name, e.g. grand-theft-auto-v
+  name: string | null;
+  name_origin: "curated" | "store" | "mined" | null;
+  name_sources: string[];
+  aliases: string[];
+  title_ids: string[];
+  titles: TitleRef[];
+  primary: string | null; // the title ID that leads: its chain decides where the game stops first
+  store_url: string | null;
+  kind: "retail" | "homebrew" | null;
+  engine: string | null;
+  tags: string[];
+  tag_sources: string[];
+  curated: boolean;
+  image: ImageRef | null;
+  stage: Evidence | null;
+  confidence: Confidence;
+  unverified_claim: Claim | null;
+  stage_on_branches?: BranchStage | null;
+  timeline: TimelineStep[];
+  stage_reviews: (StageReview & { title?: string })[];
+  evidence: Evidence[];
+  evidence_count: number;
+  open_blockers: (ChainStep & { title?: string })[];
+  resolved_blockers: string[];
+  issues: number[];
+  prs: number[];
+  discussions: number[];
+  last_evidence: { url: string; date: string | null } | null;
+}
+
+/** The furthest stage reached off main: on a PR's branch, with open PRs, or with local patches. Never the stage. */
+export interface BranchStage {
+  stage: string;
+  url: string;
+  quote?: string | null;
+  date?: string | null;
+  build?: string | null;
+  title?: string | null;
+  needs: number[]; // the open upstream PRs it ran with
+  patches: boolean; // it also had changes no PR carries
+  confidence: { level: ConfidenceLevel; reports: number; authors: string[]; label: string | null };
+}
+
+export interface ReviewItem {
+  kind: "mined-name" | "subtitle" | "prefix" | "similar" | "reused-id";
+  title_ids: string[];
+  names: (string | null)[];
+  note: string;
+  games: string[];
+}
+
+export interface Identity {
+  merges: { game: string; name: string | null; title_ids: string[]; names: Record<string, string | null>; reasons: string[] }[];
+  review: ReviewItem[];
+  placeholders?: string[];
+  rules?: string;
 }
 
 export interface Stage {
@@ -158,6 +257,8 @@ export interface RoadmapDoc {
   };
   ranking: string[];
   blockers: Blocker[];
+  games: Game[];
+  identity?: Identity;
   titles: Title[];
   coverage: Coverage | null;
   not_blockers?: { issue: number; reason: string }[];
@@ -165,12 +266,14 @@ export interface RoadmapDoc {
   sources?: Record<string, string>;
 }
 
-export type ChangeType = "resolved" | "entered" | "left" | "moved" | "stage" | "stop";
+export type ChangeType = "resolved" | "entered" | "left" | "moved" | "stage" | "stop" | "merged";
 
 export interface ChangeRecord {
   type: ChangeType;
   blocker?: string | null;
   title?: string;
+  game?: string;
+  titles?: string[];
   rank?: number;
   was?: number | string | null;
   score?: number;

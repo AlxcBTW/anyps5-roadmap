@@ -756,13 +756,7 @@ a {
   }
 }
 
-.g-stage {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  align-self: start;
-  min-height: 21px;
-}
+
 .stage-name {
   font-size: var(--text-ui);
   font-weight: 500;
@@ -787,6 +781,84 @@ a {
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+/* the cover leads the game cell; name and meta share its trailing edge */
+.g-game {
+  display: grid;
+  grid-template-columns: 48px minmax(0, 1fr);
+  grid-template-rows: auto 1fr;
+  column-gap: var(--s-3);
+  align-items: start;
+}
+.g-game > .cover {
+  grid-row: 1 / span 2;
+}
+.g-game > .row-title,
+.g-game > .row-meta {
+  grid-column: 2;
+}
+.more-ids {
+  color: var(--text-3);
+}
+.g-stage {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  column-gap: 10px;
+  row-gap: 2px;
+  align-items: center;
+  align-self: start;
+  min-height: 21px;
+}
+.g-sure,
+.g-off {
+  grid-column: 2;
+  color: var(--text-3);
+  font-size: var(--text-small);
+  line-height: 1.4;
+  white-space: nowrap;
+}
+
+/* a game's picture, or its initials while it loads and when it has none */
+.cover {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  flex: none;
+  overflow: hidden;
+  border-radius: var(--r-s);
+  background: var(--sunken);
+  outline: 1px solid var(--image-outline);
+  outline-offset: -1px;
+}
+.cover img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0;
+  transition: opacity 200ms var(--ease-out);
+}
+.cover[data-state="ready"] img {
+  opacity: 1;
+}
+.cover-initials {
+  color: var(--text-3);
+  font-family: var(--pixel);
+  font-size: 15px;
+  line-height: 1;
+  letter-spacing: 0.02em;
+}
+.cover-detail {
+  width: 88px;
+  height: 88px;
+  border-radius: var(--r-m);
+}
+.cover-detail .cover-initials {
+  font-size: 26px;
+}
+
 .more-btn {
   margin-top: var(--s-5);
 }
@@ -965,6 +1037,93 @@ a {
 }
 .detail-head h2:focus {
   outline: none;
+}
+.game-head {
+  grid-template-columns: 88px minmax(0, 1fr);
+  column-gap: var(--s-4);
+  row-gap: var(--s-3);
+  align-items: center;
+}
+.game-head > .detail-game-tags {
+  grid-column: 1 / -1;
+  margin-top: 0;
+}
+.game-head-text {
+  display: grid;
+  gap: 6px;
+  min-width: 0;
+}
+.aka {
+  color: var(--text-2);
+  font-size: var(--text-small);
+  line-height: 1.45;
+  text-wrap: pretty;
+}
+.title-id {
+  display: inline-flex;
+  gap: 4px;
+  white-space: nowrap;
+}
+.region {
+  color: var(--text-3);
+  font-size: var(--text-micro);
+  font-weight: 550;
+}
+.cover-credit {
+  color: var(--text-3);
+  font-size: var(--text-small);
+  line-height: 1.45;
+}
+/* each rise of the stage: the date, then the stage with its meter over the source */
+.stage-history {
+  display: grid;
+  gap: var(--s-3);
+}
+.stage-history li {
+  display: grid;
+  grid-template-columns: 84px minmax(0, 1fr);
+  column-gap: var(--s-3);
+  row-gap: 2px;
+  font-size: var(--text-small);
+  line-height: 1.45;
+}
+.stage-history .tl-stage,
+.stage-history .tl-source {
+  grid-column: 2;
+}
+.stage-history .tl-date {
+  grid-row: 1;
+  white-space: nowrap;
+}
+.off-main-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.off-main-head .tag-claim {
+  margin-inline-end: 0;
+}
+.off-main-needs {
+  color: var(--text-2);
+  font-size: var(--text-small);
+  line-height: 1.55;
+}
+.tl-date {
+  color: var(--text-3);
+  font-variant-numeric: tabular-nums;
+}
+.tl-stage {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s-2);
+  color: var(--text);
+  font-weight: 550;
+  white-space: nowrap;
+}
+.tl-source {
+  min-width: 0;
+  color: var(--text-2);
+  overflow-wrap: anywhere;
 }
 .detail-meta {
   display: flex;
@@ -1758,17 +1917,23 @@ a.change-text {
   }
   /* the name sits beside the stage; its ID, engine and tags take the full width below, then the stop */
   .game-row {
-    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-columns: 40px minmax(0, 1fr) auto;
     grid-template-areas:
-      "game stage"
-      "meta meta"
-      "stop stop";
+      "cover game stage"
+      "cover meta stage"
+      ". stop stop";
     row-gap: 4px;
     column-gap: var(--s-3);
   }
   .g-game {
     display: contents;
   }
+  .g-game > .cover {
+    grid-area: cover;
+    width: 40px;
+    height: 40px;
+  }
+
   .g-game > .row-title {
     grid-area: game;
     min-width: 0;

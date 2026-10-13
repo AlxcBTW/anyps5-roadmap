@@ -49,6 +49,8 @@
   --ok-part: oklch(0.8 0.08 149);
   --miss: oklch(0.9 0.003 265);
   --grid: oklch(1 0 0 / 0.7);
+  /* the edge of a picture: pure black or white at low opacity, never a tinted gray */
+  --image-outline: oklch(0 0 0 / 0.1);
 
   --scrim: oklch(0.2 0.006 265 / 0.32);
   --shadow-raised: 0 0 0 1px var(--line), 0 1px 2px oklch(0 0 0 / 0.04);
@@ -115,6 +117,7 @@
     --ok-part: oklch(0.45 0.08 149);
     --miss: oklch(0.34 0.005 265);
     --grid: oklch(0.205 0.005 265 / 0.75);
+    --image-outline: oklch(1 0 0 / 0.1);
     --scrim: oklch(0 0 0 / 0.55);
     --shadow-raised: 0 0 0 1px var(--line);
     --shadow-control: none;
@@ -142,6 +145,7 @@
   --ok-part: oklch(0.45 0.08 149);
   --miss: oklch(0.34 0.005 265);
   --grid: oklch(0.205 0.005 265 / 0.75);
+  --image-outline: oklch(1 0 0 / 0.1);
   --scrim: oklch(0 0 0 / 0.55);
   --shadow-raised: 0 0 0 1px var(--line);
   --shadow-control: none;
