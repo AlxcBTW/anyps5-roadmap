@@ -3,7 +3,9 @@
 Thanks for helping. The map is only as good as its data, and its data comes from people who read the
 AnyPS5 issues closely. There are three ways to help, smallest first:
 
-1. **Data corrections** in `data/blockers.json`: a wrong stage, a missing blocker, a fix that landed.
+1. **Data corrections** in `data/blockers.json`: a wrong stage, a missing blocker, a fix that landed; and in
+   `data/games.json`: two title IDs that are one game, or two that are not (see "Possible duplicates to check"
+   on the About page).
 2. **Mining rules** in `anyps5_roadmap/`: teach the miner to read a kind of sentence it gets wrong.
 3. **Rendering** in `web/`, the app people see, and `render_html.py`, the same map as one static page.
 
@@ -127,7 +129,7 @@ then from `web/sample/`. To look at your own build: `ROADMAP_DATA=../build/site 
 
 After a change to the shape of `roadmap.json`, regenerate the fixture:
 `python3 roadmap.py --offline --no-network --cache tests/fixtures/raw.json --curated
-tests/fixtures/curated.json --out build/fixture-site`, then copy `build/fixture-site/roadmap.json` to
+tests/fixtures/curated.json --games tests/fixtures/games.json --out build/fixture-site`, then copy `build/fixture-site/roadmap.json` to
 `web/src/test/fixture-roadmap.json`.
 
 ### Design
@@ -170,20 +172,24 @@ Node 24, for every pull request, forks included, without secrets. A labeler adds
 | File | What it does |
 |---|---|
 | `roadmap.py` | Entry point; re-exports the package's names for tests and scripts |
-| `anyps5_roadmap/cli.py` | Command line, `--validate`, the checks on `data/blockers.json` (`validate_curated`) |
+| `anyps5_roadmap/cli.py` | Command line, `--validate`, the checks on `data/blockers.json` (`validate_curated`) and `data/games.json` (`validate_games`) |
 | `anyps5_roadmap/config.py` | Paths, the upstream repository, stage names |
 | `anyps5_roadmap/github.py` | `gh api` calls with retries |
-| `anyps5_roadmap/collect.py` | GraphQL queries for issues, PRs and their threads; the raw cache |
+| `anyps5_roadmap/collect.py` | GraphQL queries for issues, PRs, discussions and their threads; the listing cursor, the budget reserve, the raw cache |
 | `anyps5_roadmap/mine.py` | Text rules: names (`name_before`, `name_after`), stages (`stage_in`), error lines (`signature_from`), references (`refs_in`, `closing_refs`) |
-| `anyps5_roadmap/model.py` | `Model`: links, titles, blockers, chains, `best_stage`, `unverified_claim`, the ranking |
+| `anyps5_roadmap/model.py` | `Model`: links, titles, blockers, chains, each game's chain, the ranking by game |
+| `anyps5_roadmap/identity.py` | Which title IDs are one game: the name key (`name_key`), the PlayStation title list (`parse_catalog`), merges and the review list (`resolve`) |
+| `anyps5_roadmap/evaluate.py` | Qualifying reports, `best_stage`, `unverified_claim`, `confidence`, the stage history (`timeline`), evidence `dedupe` |
+| `anyps5_roadmap/images.py` | Cover URLs from the PlayStation Store and Steam, cached in `data/cache/images.json` ([docs/images.md](docs/images.md)) |
+| `anyps5_roadmap/migrate.py` | The report of what the move to game entities changed ([docs/migrations/](docs/migrations/)) |
 | `anyps5_roadmap/coverage.py` | HLE and ISA coverage from progress.json; PM4 packets from the driver sources |
-| `anyps5_roadmap/assemble.py` | `roadmap.json`: stats, focus areas, help wanted, `KNOWN_GAPS` |
+| `anyps5_roadmap/assemble.py` | `roadmap.json`: game records, identity, stats, focus areas, help wanted, `KNOWN_GAPS` |
 | `anyps5_roadmap/render_md.py` | `ROADMAP.md` and `llms.txt` |
 | `anyps5_roadmap/preview.py` | The PR preview summary; `rank_moves` compares two rankings |
 | `anyps5_roadmap/feed.py` | `feed.json`: what changed since the live `roadmap.json`, as a JSON Feed |
 | `render_html.py` | `classic.html` (and `index.html` in a build without Node) |
 | `web/` | The front page: a React app over `roadmap.json` and `feed.json` (see [Rendering](#rendering)) |
-| `tests/` | Fixture tests; `tests/fixtures/raw.json` is a tiny upstream, `curated.json` a tiny curated file |
+| `tests/` | Fixture tests; `tests/fixtures/raw.json` is a tiny upstream, `curated.json` a tiny curated file, `PS5_Titles.tsv` a slice of the PlayStation title list and `images.json` a cover cache |
 
 ## Pull requests
 

@@ -1,25 +1,28 @@
 # AGENTS.md: curating the AnyPS5 blocker map
 
 This repo builds a generated roadmap for AnyPS5, the tool that ports PS5 executables to Linux and Windows. `roadmap.py` mines
-GitHub issues and PRs of `boykopovar/AnyPS5`; `data/blockers.json` holds the facts that
-mining gets wrong or cannot see. Curated facts always win over mined ones.
+GitHub issues, PRs and discussions of `boykopovar/AnyPS5`; `data/blockers.json` holds the facts
+that mining gets wrong or cannot see, and `data/games.json` says which title IDs are one game where
+the automatic matching cannot. Curated facts always win over mined ones.
 
 ## Run it
 
 ```sh
 python3 roadmap.py --upstream-checkout /path/to/AnyPS5            # live: gh api + git fetch
 python3 roadmap.py --offline --upstream-checkout /path/to/AnyPS5  # rebuild from data/cache/
-python3 roadmap.py --validate                                     # check data/blockers.json only
+python3 roadmap.py --validate                                     # check data/blockers.json and data/games.json
 python3 -m unittest discover -s tests                             # fixture tests, no network
 cd web && npm ci && npm run dev                                   # the page, over site/roadmap.json
 ```
 
-`gh` must be logged in (or `GH_TOKEN` set). A run lists every issue and PR in the window
-(about 30 queries, 70 points), then reads comments, reviews, review threads and
-cross-references only for threads whose `updatedAt` changed since `data/cache/threads.json`
-was written. With an empty cache that is about 3,000 threads in 115 batched queries, and the
-whole run costs about 190 points (4% of the hourly 5,000); with a warm cache it costs about
-75. The Roadmap workflow keeps `data/cache` between runs. Check the budget with
+`gh` must be logged in (or `GH_TOKEN` set). A run lists only the issues, PRs and discussions
+updated since the last run (`data/cache/listing.json`; a full listing once a week, about 110
+points), then reads comments, reviews, review threads, discussion replies and cross-references only
+for threads whose `updatedAt` changed (`data/cache/threads.json`). With an empty cache that is about
+4,800 threads and 220 points; an hourly run with a warm cache costs about 20. Below a reserve of 500
+points the thread pass stops and the rest waits for the next run (`api.partial` in raw.json). REST
+calls and downloads are revalidated with their ETag (`etags.json`, `*.meta.json`). The Roadmap
+workflow keeps `data/cache` between runs. Check the budget with
 `gh api graphql -f query='{ rateLimit { remaining resetAt } }'` (the REST `rate_limit`
 view of the graphql bucket lags behind). No search API calls; do not add any in loops.
 
@@ -50,8 +53,8 @@ too) and copy the exact state. Never invent a PPSA ID, a title name or a stage.
 | Field | Meaning |
 |---|---|
 | `id` | PS5 title ID, `PPSA` + 5 digits. One entry per region ID. |
-| `name`, `engine`, `kind` | `kind` is `retail` or `homebrew`. `name` wins over every mined name. |
-| `name_sources` | Public links that tie this title ID to `name`: its PlayStation Store product, `https://prosperopatches.com/PPSA…`, serialstation, or the upstream issue text that says so. Required in practice whenever `name` replaces a mined name (the validator checks the links are https and that a name exists). Add it for a name the miner got wrong or could not read; never write a name you only know from memory. |
+| `name`, `engine`, `kind` | `kind` is `retail` or `homebrew`. `name` wins over the PlayStation title list and every mined name. |
+| `name_sources` | Public links that tie this title ID to `name`: its PlayStation Store product, `https://prosperopatches.com/PPSA…`, serialstation, or the upstream issue text that says so. Required in practice whenever `name` replaces another name (the validator checks the links are https and that a name exists). A title ID in the PlayStation title list already has the store's name, so a curated name is needed only for IDs the list lacks (homebrew), for a homebrew app on a retail ID, or to correct the list; never write a name you only know from memory. |
 | `paths` | Optional OS/GPU paths, e.g. `["Windows/NVIDIA", "Windows/AMD"]`, when a title stops at different places. |
 | `blockers` | Ordered chain, first stop first: `{"id": "2783", "scope": ["Windows/NVIDIA"], "why": "…"}`. A step without `scope` applies to every path. Every `id` must exist in `blockers[]`. |
 | `evidence` | Best stages seen: `{"stage", "os", "gpu", "build", "date", "url", "note"}`. `url` is required: a stage without a public source is not added, however sure you are. `build` says what was running: `main`, `main + #2054`, `main + local patches`. |
@@ -66,16 +69,31 @@ black is still Presents.
 A stage of **Menus or higher** is what people screenshot and repeat, so a mined one never
 counts on its own:
 
-- `best_stage` holds only verified stages: curated entries, the two archived reports of the removed
-  `COMPATIBILITY.md` (curated, see `ARCHIVE_URL`), and mined stages below Menus. `best_stage.verified` is
-  `false` only for that last kind.
-- A mined stage of Menus or higher that nobody has reviewed becomes `unverified_claim`
-  (`{stage, url, quote}`) when it is above the best verified stage. It is never sorted or
-  ranked on, and it must never be reported as the title's stage.
+- `best_stage` holds only qualifying stages: curated entries, the two archived reports of the removed
+  `COMPATIBILITY.md` (curated, see `ARCHIVE_URL`), and mined stages below Menus from a run on `main` or on
+  `main` plus PRs that are merged now. `best_stage.verified` is `false` only for that last kind. Each mined
+  report has a `build_kind`: `main`, `prs` (main plus the PRs in `prs`: a PR's own branch or "with #3497";
+  it counts once all of them are merged) or `patched` (local patches, a fork, a hack or someone's branch;
+  it never counts). A mined report older than the newest curated fact about the same game is superseded.
+- A mined stage of Menus or higher, reported on `main` (or `main` plus merged PRs), that nobody
+  has reviewed becomes `unverified_claim` (`{stage, url, quote, build}`) when it is above the best
+  verified stage. It is never sorted or ranked on, and it must never be reported as the title's stage.
+- The furthest stage reported off main (a PR's branch, `main` plus open PRs, local patches, a
+  working group's stack) becomes `stage_on_branches` (`{stage, url, quote, needs, patches,
+  confidence}`) when it is above both. `needs` lists the open upstream PRs it ran with, `patches`
+  says it also had changes no PR carries. It is the "what is needed to get there" view: shown
+  apart, never sorted or ranked on, never the stage. Once its PRs are merged, the same report
+  qualifies and the stage (or the claim) moves up by itself.
+- Working-group threads outside upstream (`WORKING_GROUPS` in `anyps5_roadmap/config.py`, now the
+  Sword of the Sea group, AlxcBTW/AnyPS5#44) are read as off main only. In such a thread, a line
+  that names the title (or its initials, "SotS") counts for it even without the title ID; its
+  upstream PRs are the ones the opening post's recipe names, or the ones the line names.
 - `confidence` counts distinct GitHub accounts whose own text puts a title at its stage on
   `main` ("2 reports on main" on the page), and separately those that reached the claimed
-  stage only on PR branches or patched builds. It never turns a claim into a stage; only a
-  `stage_reviews` entry does.
+  stage only on PR branches or patched builds. Its `level` is `verified` (curated), `corroborated`
+  (two or more accounts), `reported` (one) or `none`. It never turns a claim into a stage; only a
+  `stage_reviews` entry does. A blockquote (`> …`) repeats someone else's words and is not the
+  quoter's report, and the same sentence posted in several threads counts once.
 - To settle a claim, open the source (body, comments, linked screenshots and logs) and add
   a `stage_reviews` entry.
 
@@ -95,6 +113,25 @@ integration stacks or hacks.
 | `stage`, `os`, `gpu`, `build`, `date`, `url` | For `confirmed` and `downgraded`: the stage that holds on main and its own source, which may differ from `claim_url`. |
 | `quote` | The exact sentence the verdict rests on. Required. |
 | `reason` | One line on why, e.g. "reached only on an integration branch of open PRs". |
+
+### Games (`data/games.json`)
+
+A game is one entity with all of its title IDs. The build joins title IDs by itself when the PlayStation
+title list ([andshrew/PlayStation-Titles](https://github.com/andshrew/PlayStation-Titles)) puts them under
+one store concept, or when their names agree after normalising case, ™ ® ©, punctuation, accents, a leading
+"The", region, platform and edition suffixes, roman numerals (V = 5) and known short forms (GTA, RE, CoD,
+TLOU, GT, GoW, FF, MGS, RDR, …; `ABBREVIATIONS` in `anyps5_roadmap/identity.py`), as long as both names are
+trusted (curated or from the store list) or both are mined. Every merge is listed with its reasons in
+`roadmap.json` → `identity.merges`. Weaker matches land in `identity.review` and are never merged by
+themselves. Settle them here:
+
+| Field | Meaning |
+|---|---|
+| `games[]` | `{"name", "title_ids", "aliases", "image", "sources"}`: these title IDs are one game. `name` (optional) is the canonical name; `aliases` are other ways it is written, for the search; `image` is `{"url", "page", "source"}` for a cover, or `null` for none; `sources` (required) are public links that tie the IDs and the name together. A title ID belongs to one game only. |
+| `distinct[]` | `{"title_ids": [...], "reason"}`: these title IDs are different games. They are never merged with each other, and the review list stops listing them. |
+
+Add an entry only with a source: a store page for each ID, a release note, or the homebrew's README. A
+review item is settled by one of the two; leaving it open is fine.
 
 ### Not blockers (`not_blockers[]`)
 
@@ -136,14 +173,16 @@ A tag needs a source that names it. No source, no entry; never tag a game from w
 
 ## Ranking
 
-For every title the chain is split into its OS/GPU paths. Per blocker:
+A game's chain is the chain of its leading title ID (the furthest one), followed by the steps only its other
+title IDs know; it is split into its OS/GPU paths. Per blocker, counted by game:
 
-- `frontier`: titles where it is the first open step on at least one path
-- `one_fix_away`: titles where it is the only open step on at least one path
-- `total`: titles that list it anywhere
+- `frontier`: games where it is the first open step on at least one path
+- `one_fix_away`: games where it is the only open step on at least one path
+- `total`: games that list it anywhere
 - `score = 3 * one_fix_away + 2 * frontier + total`
 
-Titles whose best stage is Playable only count toward `total`.
+Games whose stage is Playable only count toward `total`. `games`, `frontier_games` and `one_fix_games`
+list the games; `titles`, `frontier_titles` and `one_fix_titles` the title IDs behind them.
 
 ## Rules for agents
 
