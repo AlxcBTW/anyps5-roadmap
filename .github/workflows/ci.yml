@@ -41,8 +41,8 @@ jobs:
       - name: Compile
         run: python -m compileall -q roadmap.py render_html.py anyps5_roadmap tests
 
-      - name: Validate data/blockers.json
-        run: python roadmap.py --validate --curated data/blockers.json
+      - name: Validate data/blockers.json and data/games.json
+        run: python roadmap.py --validate --curated data/blockers.json --games data/games.json
 
       - name: Tests
         run: python -m unittest discover -s tests -v
@@ -50,7 +50,7 @@ jobs:
       - name: Offline build from the fixtures
         run: |
           python roadmap.py --offline --no-network --cache tests/fixtures/raw.json \
-            --curated tests/fixtures/curated.json --out build/fixture-site
+            --curated tests/fixtures/curated.json --games tests/fixtures/games.json --out build/fixture-site
           test -s build/fixture-site/index.html && test -s build/fixture-site/classic.html
           test -s build/fixture-site/roadmap.json
 
@@ -110,6 +110,7 @@ jobs:
         env:
           BASE_SHA: ${{ github.event.pull_request.base.sha }}
         run: |
+          head_args=()
           if [ -s data/cache/raw.json ]; then
             snap="data/cache/raw.json"
             label="the API snapshot of $(python -c 'import json; print(json.load(open("data/cache/raw.json"))["fetched_at"])')"
@@ -118,9 +119,10 @@ jobs:
             snap="tests/fixtures/raw.json"
             label="the test fixtures (no API snapshot was available)"
             curated_args=(--curated tests/fixtures/curated.json)
+            head_args=(--games tests/fixtures/games.json)
           fi
           git worktree add --detach build/base-src "$BASE_SHA"
-          python roadmap.py --offline --no-network --cache "$snap" "${curated_args[@]}" --out build/head
+          python roadmap.py --offline --no-network --cache "$snap" "${curated_args[@]}" "${head_args[@]}" --out build/head
           base_curated=("${curated_args[@]}")
           if [ ${#base_curated[@]} -gt 0 ]; then base_curated=(--curated build/base-src/tests/fixtures/curated.json); fi
           python build/base-src/roadmap.py --offline --no-network --cache "$PWD/$snap" "${base_curated[@]}" --out build/base \

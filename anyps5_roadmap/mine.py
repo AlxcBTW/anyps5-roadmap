@@ -8,7 +8,11 @@ import re
 
 from .config import STAGES
 
-TITLE_RE = re.compile(r"\bPPSA\d{5}\b")
+TITLE_RE = re.compile(r"\b(?:PPSA|CUSA)\d{5}\b")  # PS5 title IDs, and PS4 ones for the PS4 executables people try
+# A PlayStation content ID names the region and the store product: "UP1004-PPSA04264_00-GTAVFULLGAMEDISC"
+CONTENT_ID_RE = re.compile(
+    r"\b(?P<region>[A-Z]{2})\d{4}-(?P<title>(?:PPSA|CUSA)\d{5})_00(?:-(?P<label>[A-Z0-9]{16}))?\b"
+)
 MD_NOISE = re.compile(r"[*_`\[\]]|\]\([^)]*\)")
 NAME_TOKEN = re.compile(r"[A-Z0-9À-ɏ][\w'’&.!:+\-]*")
 NAME_CONNECT = {"of", "the", "and", "&", "a", "in", "for", "to", "de", "-", "–", ":", "vs.", "x", "or"}
@@ -87,7 +91,7 @@ NAME_REJECT_FIRST = {
     "runmultipleframes:",
 }
 NAME_REJECT_ANY = re.compile(
-    r"\b(?:RTX|GTX|GPU|CPU|Radeon|Laptop|Engine \d|NVIDIA|AMD|Vulkan)\b|PPSA\d{5}|0x[0-9a-f]", re.I
+    r"\b(?:RTX|GTX|GPU|CPU|Radeon|Laptop|Engine \d|NVIDIA|AMD|Vulkan)\b|(?:PPSA|CUSA)\d{5}|0x[0-9a-f]", re.I
 )
 ENGINE_RULES = [
     (re.compile(r"\bUE ?5\b|Unreal Engine 5"), "Unreal Engine 5"),
@@ -205,7 +209,10 @@ STAGE_RULES = [
     ("Starts", re.compile(r"\bboots?\b|\bstarts up\b", re.I)),
 ]
 PATCHED_BUILD = re.compile(
-    r"\bwith (?:#|PR|AlxcBTW/|the fix|this|these|both|all)|\bplus #|\+ ?#\d|\bon #\d+'s branch|\bthis branch\b|"
+    # "with #2054", "with the fix", "with this PR", "with both patches"; not "with all 20 registries"
+    r"\bwith (?:#|PR|AlxcBTW/|the fix|(?:this|these|both|all)(?:\s+(?:the|of the|two|three|\d+))?\s+"
+    r"(?:fix(?:es)?|patch(?:es)?|PRs?|pull requests?|changes?|commits?|branch(?:es)?)\b)|"
+    r"\bplus #|\+ ?#\d|\bon #\d+'s branch|\bthis branch\b|"
     r"\blocal(?:ly)?\b|\bfork\b|\bhack\b|#\d+ (?:took|takes|gets|brings)\b|\b(?:integration|test|testing|bring-up|working) (?:branch|stack)\b|\bstacked\b|"
     # "on oneandonlydean's astrobot branch", "on my audio branch"
     r"\b(?:my|our|their|his|her|[\w-]+'s)\s+(?:[\w-]+\s+)?branch\b|"
@@ -588,13 +595,94 @@ def blank(line: str, spans: list[tuple[int, int]]) -> str:
     return line
 
 
+# "with #3497", "plus #2054 and #2101", "main + #3497": PRs a run had on top of main
+PATCH_PRS = re.compile(r"(?:\bwith|\bplus|\+|\band)\s+(?:PRs?\s+)?#(\d+)", re.I)
+SELF_REF = re.compile(
+    r"(?:\b(?:with|plus|on)|\+)\s+(?:this|these)\s+(?:PR|pull request|changes?|patch(?:es)?|branch|fix(?:es)?)\b"
+    r"|\bthis branch\b|\b(?:my|our)\s+(?!(?:integration|test|testing|bring-up|working)\b)(?:[\w-]+\s+)?branch\b",
+    re.I,
+)
+# "main at 262c031", "main (f4b715109)", "`main` 1be0a7ce": the commit of main a run used
+MAIN_COMMIT = re.compile(r"(?<![\w-])`?main`?\s*(?:at\s+|@\s*|\(\s*)?`?([0-9a-f]{7,40})\b", re.I)
+
+
 def build_of(text: str, kind: str, number: int) -> str:
-    """What a report ran on. Issue text is taken as main unless it names patches or a branch;
-    PR text is the PR's branch unless it says main and names no patches."""
+    """What a report ran on, as the page labels it (see build_detail)."""
+    return build_detail(text, kind, number)["build"]
+
+
+def build_detail(text: str, kind: str, number: int) -> dict:
+    """What a report ran on, and so whether its stage can count. `build_kind` is
+
+    - `main`: main itself. Issue and discussion text is taken as main unless it names patches or a branch;
+      PR text only when it says main and names no patches;
+    - `prs`: main plus the PRs in `prs` (a PR's own branch, or "with #3497"); it counts once all are merged;
+    - `patched`: local patches, a fork, a hack, a stack or someone's branch; it never counts.
+
+    `build` is the label the page shows, `commit` the main commit the text names, if any."""
+    commit = MAIN_COMMIT.search(text)
+    out = {"build": "main", "build_kind": "main", "prs": [], "commit": commit.group(1) if commit else None}
+    own = number if kind == "pr" else None
+    named = sorted({int(n) for n in PATCH_PRS.findall(text)} - {own})
     patched = PATCHED_BUILD.search(text)
+    # patched by more than PR numbers: local changes, a fork, a hack or a named branch; in PR text, "with this
+    # PR" or "this branch" is the PR itself
+    rest = PATCH_PRS.sub(" ", text)
+    other = PATCHED_BUILD.search(SELF_REF.sub(" ", rest) if kind == "pr" else rest)
     if kind == "pr":
-        return "main" if MAIN_BUILD.search(text) and not patched else f"PR #{number}"
-    return "main + patches" if patched else "main"
+        if MAIN_BUILD.search(text) and not patched:
+            return out
+        prs = [number] + named
+        if other:
+            return {**out, "build": f"PR #{number} + patches", "build_kind": "patched", "prs": prs}
+        label = f"PR #{number}" + (" + " + ", ".join(f"#{n}" for n in named) if named else "")
+        return {**out, "build": label, "build_kind": "prs", "prs": prs}
+    if not patched:
+        return out
+    if named and not other:
+        return {**out, "build": "main + " + ", ".join(f"#{n}" for n in named), "build_kind": "prs", "prs": named}
+    return {**out, "build": "main + patches", "build_kind": "patched", "prs": named}
+
+
+# In a fork's thread "#N" means the fork's own issue or PR; upstream ones are written in full or, being numbered
+# far above any fork's, as a bare number of four digits ("#2054", "boykopovar/AnyPS5#361", "#3816 upstream").
+FORK_UPSTREAM_REF = re.compile(r"(?:\b(?P<repo>[\w.\-]+/[\w.\-]+))?#(?P<num>\d{1,6})\b")
+
+
+def upstream_refs(text: str, upstream: str, fork_floor: int = 1000) -> list[int]:
+    """The upstream issue and PR numbers a fork's text names."""
+    out = []
+    for m in FORK_UPSTREAM_REF.finditer(text or ""):
+        repo, num = m.group("repo"), int(m.group("num"))
+        if (repo and repo.lower() == upstream.lower()) or (not repo and num >= fork_floor):
+            out.append(num)
+    return sorted(set(out))
+
+
+def fork_build(line: str, recipe: list[int], upstream: str) -> dict:
+    """A report in a working-group thread: a patched stack, never main. `prs` are the upstream PRs it names
+    (in the line, else in the thread's recipe); the evaluation keeps the ones still open."""
+    named = upstream_refs(line, upstream) or list(recipe)
+    commit = MAIN_COMMIT.search(line)
+    return {
+        "build": "a working group's stack",
+        "build_kind": "patched",
+        "prs": named,
+        "commit": commit.group(1) if commit else None,
+    }
+
+
+def is_quote(line: str) -> bool:
+    """A Markdown blockquote line: someone else's words, not the writer's own report."""
+    return line.lstrip().startswith(">")
+
+
+def content_ids(text: str) -> list[dict]:
+    """PlayStation content IDs in a text: {title, region, content_id}."""
+    return [
+        {"title": m.group("title"), "region": m.group("region"), "content_id": m.group(0)}
+        for m in CONTENT_ID_RE.finditer(text or "")
+    ]
 
 
 FENCE = re.compile(r"^\s*(`{3,}|~{3,})(.*)$")
@@ -607,22 +695,41 @@ CODE_SIG = re.compile(
 
 def code_blocks(text: str) -> list[list[str]]:
     """The lines of every fenced code block (``` or ~~~); an unclosed block runs to the end."""
-    blocks: list[list[str]] = []
+    return [lines for lines, _ in code_blocks_with_lead(text)]
+
+
+def code_blocks_with_lead(text: str) -> list[tuple[list[str], str]]:
+    """Every fenced code block with its lead: the paragraph right before it ("On main a29ef592 it stops
+    with:"), which says what the logged run was built from."""
+    blocks: list[tuple[list[str], str]] = []
     cur: list[str] | None = None
-    fence = ""
+    fence, lead = "", ""
+    prose: list[str] = []
     for line in text.splitlines():
         m = FENCE.match(line)
         if cur is None:
             if m:
                 cur, fence = [], m.group(1)
+                # the last paragraph before the fence: skip blank lines, then read back to the next blank one
+                para: list[str] = []
+                for prev in reversed(prose):
+                    if not prev.strip():
+                        if para:
+                            break
+                        continue
+                    para.insert(0, prev)
+                lead = "\n".join(para[-5:])
+            else:
+                prose.append(line)
             continue
         if m and m.group(1)[0] == fence[0] and len(m.group(1)) >= len(fence) and not m.group(2).strip():
-            blocks.append(cur)
+            blocks.append((cur, lead))
             cur = None
+            prose.append("")
             continue
         cur.append(line)
     if cur:
-        blocks.append(cur)
+        blocks.append((cur, lead))
     return blocks
 
 

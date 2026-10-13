@@ -28,7 +28,7 @@ class Rules(unittest.TestCase):
         self.assertEqual(mine.build_of("reaches the menu", "pr", 7), "PR #7")
         self.assertEqual(mine.build_of("the domain at 1234567 is mapped", "pr", 7), "PR #7")
         self.assertEqual(mine.build_of("reaches the menu", "issue", 7), "main")
-        self.assertEqual(mine.build_of("on main plus #1157 it reaches gameplay", "issue", 7), "main + patches")
+        self.assertEqual(mine.build_of("on main plus #1157 it reaches gameplay", "issue", 7), "main + #1157")
 
     def test_a_named_branch_is_a_patched_build(self):
         line = "PPSA21567, on oneandonlydean's astrobot branch with an equivalent local export: it boots"
@@ -115,10 +115,12 @@ class DeepModel(unittest.TestCase):
         self.assertEqual(conf["stage"], "Presents")
         self.assertEqual(conf["authors"], ["alice", "bob"])
         self.assertEqual(conf["label"], "2 reports on main")
-        self.assertEqual(conf["claim"], {"stage": "Menus", "reports_on_main": 0, "reports_on_branches": 1})
-        # the claim stays a claim: confidence never promotes it
+        self.assertNotIn("claim", conf)  # dave's Menus ran on PR #50's branch: not a claim about main
+        # it is the stage off main, never the stage
         self.assertEqual(self.model.best_stage(self.ghost)["stage"], "Presents")
-        self.assertEqual(self.model.unverified_claim(self.ghost)["stage"], "Menus")
+        self.assertIsNone(self.model.unverified_claim(self.ghost))
+        branch = self.model.branch_stage(self.ghost)
+        self.assertEqual((branch["stage"], branch["needs"], branch["patches"]), ("Menus", [50], False))
 
     def test_a_review_of_one_comment_drops_only_that_comment(self):
         raw = json.loads((FIX / "threads_raw.json").read_text(encoding="utf-8"))

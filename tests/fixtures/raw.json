@@ -27,7 +27,10 @@
       "url": "https://github.com/example/AnyPS5/issues/11",
       "createdAt": "2026-10-05T10:00:00Z", "updatedAt": "2026-10-06T10:00:00Z", "closedAt": null,
       "author": "dave", "assignees": ["erin"], "labels": ["help wanted"],
-      "comments": [], "comment_count": 0, "xrefs": [], "closed_by": [],
+      "comments": [
+        {"body": "The EU release, Kena: Bridge of Spirits (PPSA01802), aborts the same way on Windows.", "url": "https://github.com/example/AnyPS5/issues/11#issuecomment-111", "createdAt": "2026-10-08T09:00:00Z", "author": "eu-tester"}
+      ],
+      "comment_count": 1, "xrefs": [], "closed_by": [],
       "issueDependenciesSummary": {"blockedBy": 0, "totalBlockedBy": 0, "blocking": 0, "totalBlocking": 0}
     },
     {

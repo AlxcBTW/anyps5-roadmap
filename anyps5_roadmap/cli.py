@@ -18,14 +18,30 @@ from pathlib import Path
 
 import render_html
 
+from . import images as cover_images
 from .assemble import assemble
 from .collect import collect
-from .config import CACHE, CURATED, PROGRESS_URL, ROOT, STAGES, TAGS, UPSTREAM, WINDOW_DAYS
+from .config import (
+    CACHE,
+    CATALOG_PS4_URL,
+    CATALOG_URL,
+    CURATED,
+    GAMES,
+    PROGRESS_URL,
+    ROOT,
+    STAGES,
+    TAGS,
+    UPSTREAM,
+    WINDOW_DAYS,
+    WORKING_GROUPS,
+)
 from .coverage import build_coverage
 from .feed import publish as publish_feed
+from .identity import CATALOG_SOURCE, parse_catalog
+from .identity import TITLE_ID as ANY_TITLE_ID
 from .model import Model
 from .render_md import render_llms, render_markdown
-from .upstream import Upstream, http_get
+from .upstream import Upstream, fetch_cached, http_get
 
 AREAS = ("shader", "agc", "libkernel", "libc", "relinker", "prx")
 VERDICTS = ("confirmed", "downgraded", "suppressed")
@@ -146,6 +162,96 @@ def validate_title_tags(entries: list) -> list[str]:
     return errors
 
 
+def validate_games(data: dict) -> list[str]:
+    """data/games.json: games listed by hand (their title IDs, name, aliases and picture) and title IDs that
+    must stay apart. Every entry rests on public sources."""
+    if not isinstance(data, dict):
+        return ["the top level must be a JSON object"]
+    errors: list[str] = []
+    owner: dict[str, int] = {}
+    for i, g in enumerate(data.get("games", [])):
+        at = _where("games", i, g, "name")
+        ids = g.get("title_ids")
+        if not isinstance(ids, list) or not ids:
+            errors.append(f"{at}: needs title_ids, the PS5 (PPSA) or PS4 (CUSA) title IDs of the game")
+            ids = []
+        for tid in ids:
+            if not ANY_TITLE_ID.fullmatch(str(tid)):
+                errors.append(f"{at}: {tid!r} is not a title ID (PPSA or CUSA plus five digits)")
+            elif tid in owner:
+                errors.append(f"{at}: {tid} is already listed in games[{owner[tid]}]; a title ID belongs to one game")
+            else:
+                owner[tid] = i
+        if "name" in g and not (isinstance(g["name"], str) and g["name"].strip()):
+            errors.append(f"{at}: name must be a non-empty string; leave it out to keep the store's name")
+        aliases = g.get("aliases", [])
+        if not isinstance(aliases, list) or not all(isinstance(a, str) and a.strip() for a in aliases):
+            errors.append(f"{at}: aliases must be a list of names")
+        sources = g.get("sources")
+        if not isinstance(sources, list) or not sources:
+            errors.append(f"{at}: needs sources, the public links that tie these title IDs and names to the game")
+            sources = []
+        for url in sources:
+            if not str(url).startswith("https://"):
+                errors.append(f"{at}: source {url!r} must be an https link")
+        if "image" in g and g["image"] is not None:
+            img = g["image"]
+            url = img.get("url") or img.get("square") if isinstance(img, dict) else None
+            if not url or not str(url).startswith("https://"):
+                errors.append(f"{at}: image needs an https url (or null for no picture)")
+    for i, d in enumerate(data.get("distinct", [])):
+        at = f"distinct[{i}]"
+        ids = d.get("title_ids") if isinstance(d, dict) else None
+        if not isinstance(ids, list) or len(ids) < 2:
+            errors.append(f"{at}: needs two or more title_ids that are different games")
+            ids = []
+        for tid in ids:
+            if not ANY_TITLE_ID.fullmatch(str(tid)):
+                errors.append(f"{at}: {tid!r} is not a title ID (PPSA or CUSA plus five digits)")
+        if not isinstance(d, dict) or not d.get("reason"):
+            errors.append(f"{at}: needs a reason")
+    return errors
+
+
+def load_games(path: Path) -> dict:
+    """Read data/games.json; stop with every rule it breaks."""
+    if not path.exists():
+        return {"games": [], "distinct": []}
+    try:
+        data = json.loads(path.read_text(encoding="utf-8"))
+    except json.JSONDecodeError as e:
+        raise SystemExit(f"{path}:{e.lineno}:{e.colno}: not valid JSON: {e.msg}") from None
+    errors = validate_games(data)
+    if errors:
+        head = f"{path}: {len(errors)} problem{'s' if len(errors) != 1 else ''}:"
+        raise SystemExit("\n".join([head] + [f"  - {e}" for e in errors]))
+    return data
+
+
+def load_catalog(cache_dir: Path, offline: bool, network: bool, ps4: bool, log) -> tuple[dict, dict]:
+    """The PlayStation title list: from the network on a live run (revalidated with its ETag, so an unchanged
+    list costs one 304), else the copy a live run saved next to the API cache. The PS4 list only when a
+    report names a CUSA ID."""
+    catalog: dict = {}
+    info = {"source": CATALOG_SOURCE, "files": []}
+    for url, wanted in ((CATALOG_URL, True), (CATALOG_PS4_URL, ps4)):
+        if not wanted:
+            continue
+        path = cache_dir / url.rsplit("/", 1)[1]
+        if offline or not network:
+            data = path.read_bytes() if path.exists() else None
+        else:
+            data = fetch_cached(url, path, log=log)
+        if data is None:
+            log(f"{path.name}: not available; names and region IDs come from the reports alone")
+            continue
+        part = parse_catalog(data.decode("utf-8", "replace"))
+        catalog.update({k: v for k, v in part.items() if k not in catalog})
+        info["files"].append({"url": url, "titles": len(part)})
+    info["titles"] = len(catalog)
+    return catalog, info
+
+
 def load_curated(path: Path) -> dict:
     """Read data/blockers.json; stop with every rule it breaks, one per line."""
     if not path.exists():
@@ -161,19 +267,27 @@ def load_curated(path: Path) -> dict:
     return data
 
 
-def validate_command(path: Path) -> int:
-    """--validate: check the curated file and say what it holds. Annotates the file on GitHub Actions."""
-    try:
-        data = load_curated(path)
-    except SystemExit as e:
-        print(e, file=sys.stderr)
-        if os.environ.get("GITHUB_ACTIONS") == "true":
-            for line in str(e).splitlines()[1:] or [str(e)]:
-                print(f"::error file={path.as_posix()}::{line.strip().removeprefix('- ')}")
-        return 1
-    counts = {k: len(data.get(k, [])) for k in ("blockers", "titles", "stage_reviews", "not_blockers", "title_tags")}
-    print(f"{path}: valid ({', '.join(f'{n} {k}' for k, n in counts.items())})")
-    return 0
+def validate_command(path: Path, games_path: Path | None = None) -> int:
+    """--validate: check the curated files and say what they hold. Annotates the files on GitHub Actions."""
+    status = 0
+    for file, load, keys in (
+        (path, load_curated, ("blockers", "titles", "stage_reviews", "not_blockers", "title_tags")),
+        (games_path, load_games, ("games", "distinct")),
+    ):
+        if file is None:
+            continue
+        try:
+            data = load(file)
+        except SystemExit as e:
+            print(e, file=sys.stderr)
+            if os.environ.get("GITHUB_ACTIONS") == "true":
+                for line in str(e).splitlines()[1:] or [str(e)]:
+                    print(f"::error file={file.as_posix()}::{line.strip().removeprefix('- ')}")
+            status = 1
+            continue
+        counts = {k: len(data.get(k, [])) for k in keys}
+        print(f"{file}: valid ({', '.join(f'{n} {k}' for k, n in counts.items())})")
+    return status
 
 
 def read_cached_or_fetch(cache_dir: Path, name: str, fetch, offline: bool, network: bool, log) -> str | None:
@@ -197,6 +311,7 @@ def main(argv=None) -> int:
     ap.add_argument("--repo", default=UPSTREAM)
     ap.add_argument("--out", default=str(ROOT / "site"))
     ap.add_argument("--curated", default=str(CURATED))
+    ap.add_argument("--games", default=str(GAMES), help="data/games.json: which title IDs are one game, by hand")
     ap.add_argument("--cache", default=str(CACHE), help="raw API data is written here and read back with --offline")
     ap.add_argument("--offline", action="store_true", help="reuse the cached API data instead of calling GitHub")
     ap.add_argument(
@@ -215,7 +330,7 @@ def main(argv=None) -> int:
     ap.add_argument("--refresh", action="store_true", help="read every thread again instead of reusing threads.json")
     args = ap.parse_args(argv)
     if args.validate:
-        return validate_command(Path(args.curated))
+        return validate_command(Path(args.curated), Path(args.games))
     if args.no_network and not args.offline:
         ap.error("--no-network needs --offline: a live run reads GitHub")
     if hasattr(sys.stdout, "reconfigure"):
@@ -226,6 +341,7 @@ def main(argv=None) -> int:
 
     now = dt.datetime.now(dt.UTC).replace(microsecond=0)
     curated = load_curated(Path(args.curated))
+    games = load_games(Path(args.games))
     cache = Path(args.cache)
     if args.offline:
         raw = json.loads(cache.read_text(encoding="utf-8"))
@@ -233,7 +349,9 @@ def main(argv=None) -> int:
     else:
         cutoff = (now - dt.timedelta(days=WINDOW_DAYS)).strftime("%Y-%m-%dT%H:%M:%SZ")
         log(f"collecting {args.repo} (closed since {cutoff})")
-        raw = collect(args.repo, cutoff, curated, log, cache_dir=cache.parent, refresh=args.refresh)
+        raw = collect(
+            args.repo, cutoff, curated, log, cache_dir=cache.parent, refresh=args.refresh, working_groups=WORKING_GROUPS
+        )
         cache.parent.mkdir(parents=True, exist_ok=True)
         cache.write_text(json.dumps(raw), encoding="utf-8")
         log(f"graphql cost {raw['api']['graphql_cost']}, remaining {raw['api']['graphql_remaining']}")
@@ -257,9 +375,17 @@ def main(argv=None) -> int:
     except json.JSONDecodeError as e:
         log(f"progress.json is not valid JSON: {e}")
         progress = None
-    model = Model(raw, curated, args.repo, now, progress=progress)
+    ps4 = bool(re.search(r"\bCUSA\d{5}\b", json.dumps([raw.get("issues"), raw.get("prs"), raw.get("discussions")])))
+    catalog, catalog_info = load_catalog(cache.parent, args.offline, network, ps4, log)
+    model = Model(raw, curated, args.repo, now, progress=progress, catalog=catalog, games=games)
     coverage = build_coverage(model, upstream, progress, log)
-    doc = assemble(model, coverage, raw, upstream, now)
+    image_cache = cover_images.load_cache(cache.parent)
+    if not args.offline and network:
+        # the first store concept of every game: a game that is not on the page today may be tomorrow
+        concepts = [g.concepts[0] for g in model.identity.games.values() if g.concepts]
+        cover_images.refresh(concepts, image_cache, now, log=log)
+        cover_images.save_cache(cache.parent, image_cache)
+    doc = assemble(model, coverage, raw, upstream, now, images=image_cache, catalog_info=catalog_info)
     out = Path(args.out)
     out.mkdir(parents=True, exist_ok=True)
     lf = {"encoding": "utf-8", "newline": "\n"}  # same bytes on Windows and on the Actions runner
@@ -281,7 +407,10 @@ def main(argv=None) -> int:
     (out / "index.html").write_text(classic, **lf)
     s = doc["stats"]
     log(
-        f"issues {s['issues_scanned']} (open {s['issues_open']}), PRs {s['prs_scanned']}, titles {s['titles']}, "
+        f"issues {s['issues_scanned']} (open {s['issues_open']}), PRs {s['prs_scanned']}, "
+        f"discussions {s['discussions_scanned']}, games {s['games']} ({s['title_ids_folded']} more title "
+        f"ID{'s' if s['title_ids_folded'] != 1 else ''} folded in, {s['games_with_image']} with a cover, "
+        f"{s['identity_review']} to review), title IDs {s['titles']}, "
         f"open blockers {s['blockers_open']} ({s['blockers_ranked']} ranked), wrote {out}"
     )
     return 0

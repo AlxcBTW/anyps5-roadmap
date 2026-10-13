@@ -4,17 +4,24 @@ from __future__ import annotations
 
 from pathlib import Path
 
-SCHEMA_VERSION = 1
+SCHEMA_VERSION = 2  # 2: games[], identity{}, blocker counts by game
 ROOT = Path(__file__).resolve().parent.parent  # the repository root
 DATA = ROOT / "data"
 CURATED = DATA / "blockers.json"
+GAMES = DATA / "games.json"  # which title IDs are one game, by hand
 CACHE = DATA / "cache" / "raw.json"
 
 UPSTREAM = "boykopovar/AnyPS5"
 PROJECT_REPO = "AlxcBTW/anyps5-roadmap"  # this repository: corrections are filed here
 SITE_URL = "https://alxcbtw.github.io/anyps5-roadmap/"  # where the Roadmap workflow publishes site/
 WINDOW_DAYS = 60
+# Working-group threads outside the upstream repository that follow one title on a patched stack. Every report
+# in them is read as off main (a stage with open PRs or patches), never as the stage; see AGENTS.md.
+WORKING_GROUPS = ("AlxcBTW/AnyPS5#44",)  # Sword of the Sea (PPSA25344)
 PROGRESS_URL = "https://boykopovar.github.io/AnyPS5/progress.json"
+# The PlayStation title list (MIT): title ID, store concept, name, content ID and region of every PS5 and PS4 title
+CATALOG_URL = "https://raw.githubusercontent.com/andshrew/PlayStation-Titles/main/PS5_Titles.tsv"
+CATALOG_PS4_URL = "https://raw.githubusercontent.com/andshrew/PlayStation-Titles/main/PS4_Titles.tsv"
 ARCHIVE_URL = "https://github.com/boykopovar/AnyPS5/discussions/2475#discussioncomment-18886410"
 PM4_HEADER = "core/libs/prx/libSceAgcDriver/Execution/include/Pm4Opcodes.hpp"
 PM4_SOURCE = "core/libs/prx/libSceAgcDriver/Execution/src/Pm4.cpp"

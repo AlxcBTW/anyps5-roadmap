@@ -440,13 +440,17 @@ class Ranking(unittest.TestCase):
     def test_unreviewed_mined_menus_or_higher_is_only_a_claim(self):
         kena = self.t["PPSA01746"]
         self.assertIsNone(self.model.best_stage(kena))  # "reaches gameplay on my integration branch" is not a stage
-        claim = self.model.unverified_claim(kena)
-        self.assertEqual(claim["stage"], "Ingame")
-        self.assertEqual(claim["url"], "https://github.com/example/AnyPS5/pull/32")
-        self.assertIn("integration branch", claim["quote"])
-        # a mined stage below Menus still counts, marked as not verified
+        # nor a claim about main: it is where Kena gets off main, with the PR and the patches it needs
+        self.assertIsNone(self.model.unverified_claim(kena))
+        branch = self.model.branch_stage(kena)
+        self.assertEqual((branch["stage"], branch["needs"], branch["patches"]), ("Ingame", [32], True))
+        self.assertEqual(branch["url"], "https://github.com/example/AnyPS5/pull/32")
+        self.assertIn("integration branch", branch["quote"])
+        self.assertEqual(branch["confidence"]["label"], "1 report off main")
+        # a mined stage below Menus counts, marked as not verified, when it ran on main: "the loading screen
+        # renders" in open PR #20 is the PR's branch, so Stray stays at the stop its issue records on main
         stray = self.model.best_stage(self.t["PPSA02100"])
-        self.assertEqual((stray["stage"], stray["origin"], stray["verified"]), ("Presents", "mined", False))
+        self.assertEqual((stray["stage"], stray["origin"], stray["verified"]), ("Starts", "mined", False))
         self.assertIsNone(self.model.unverified_claim(self.t["PPSA02100"]))
 
     def test_stage_review_replaces_the_mined_claim(self):
@@ -470,7 +474,10 @@ class Ranking(unittest.TestCase):
         )
         kena = next(t for t in doc["titles"] if t["id"] == "PPSA01746")
         self.assertIsNone(kena["best_stage"])
-        self.assertEqual(set(kena["unverified_claim"]), {"stage", "url", "quote"})
+        self.assertIsNone(kena["unverified_claim"])
+        self.assertEqual(kena["stage_on_branches"]["stage"], "Ingame")
+        game = next(g for g in doc["games"] if "PPSA01746" in g["title_ids"])
+        self.assertEqual(game["stage_on_branches"]["needs"], [32])
         self.assertIn("unverified claim", r.render_markdown(doc))
         self.assertIn("unverified_claim", r.render_llms(doc))
 
