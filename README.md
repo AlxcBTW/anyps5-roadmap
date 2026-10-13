@@ -47,7 +47,8 @@ data and links its source.
    what changed since the last one and reads only the threads that changed, within a GraphQL budget.
    `mine.py` reads title IDs, game names, stages, OS, GPU, the build (main, main plus named PRs, or
    patches), the author and error lines from that text, one line at a time, plus the last error line of
-   a fenced log. A quoted line is not the quoter's report, and a report posted twice counts once.
+   a fenced log and the "Furthest point" of a Game bring-up discussion form. A quoted line is not the
+   quoter's report, and a report posted twice counts once.
 2. **Group.** `identity.py` puts the title IDs of one game together: by a person's word
    (`data/games.json`), by the PlayStation Store's (one store concept), or when their names agree once
    spelling, symbols, editions and short forms such as GTA are set aside. Anything less certain goes to a

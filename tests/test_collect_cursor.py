@@ -36,7 +36,7 @@ def with_discussions(fake):
                 {**comment(11, "second"), "replies": {"totalCount": 0, "nodes": []}},
             ],
         },
-        31: {"updatedAt": "2026-10-08T12:00:00Z", "comments": []},
+        31: {"updatedAt": "2026-10-08T12:00:00Z", "editedAt": "2026-10-08T09:00:00Z", "comments": []},
     }
     return fake
 
@@ -181,6 +181,8 @@ class Discussions(unittest.TestCase):
                 "updatedAt": "2026-10-09T12:00:00Z", "body": "report",
             },
         )  # fmt: skip
+        self.assertIsNone(d["editedAt"])
+        self.assertEqual(raw["discussions"][1]["editedAt"], "2026-10-08T09:00:00Z")
         self.assertEqual([x["body"] for x in d["comments"]], ["PPSA01999 starts", "a reply", "a reply", "second"])
         self.assertEqual(sorted(d["comments"][1]), ["author", "body", "createdAt", "url"])
         self.assertEqual(d["comments"][1]["author"], "eve")

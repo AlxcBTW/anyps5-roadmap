@@ -643,6 +643,37 @@ def clip(text: str, n: int) -> str:
     return cut + "…"
 
 
+FORM_SECTION = re.compile(r"^###[ \t]+(.+?)[ \t]*$", re.M)
+# the "Furthest point" options of the Game bring-up discussion form, and the stage each one is
+BRING_UP_STAGES = {
+    "does not convert": None,
+    "stops before the first frame": "Converts",
+    "logos or loading screen": "Presents",
+    "menu": "Menus",
+    "in game": "Ingame",
+}
+
+
+def bring_up_form(text: str) -> dict | None:
+    """The fields of a submitted Game bring-up form (GitHub renders each as a `### Label` section), or None
+    when the text has no `Title` section or its `Furthest point` is not one of the form's options."""
+    marks = list(FORM_SECTION.finditer(text))
+    sections = {
+        m.group(1).strip().lower(): text[m.end() : marks[i + 1].start() if i + 1 < len(marks) else len(text)].strip()
+        for i, m in enumerate(marks)
+    }
+    point = " ".join(strip_md(sections.get("furthest point", "")).lower().split())
+    if "title" not in sections or point not in BRING_UP_STAGES:
+        return None
+    return {
+        "title": sections["title"],
+        "commit": sections.get("anyps5 commit", ""),
+        "system": sections.get("system tested", ""),
+        "point": " ".join(strip_md(sections["furthest point"]).split()),
+        "stage": BRING_UP_STAGES[point],
+    }
+
+
 def run_text(text: str) -> str:
     """The text without the lines that link a CI run: what the OS and GPU of its title runs are read from."""
     return "\n".join(line for line in text.splitlines() if not CI_RUN.search(line))
