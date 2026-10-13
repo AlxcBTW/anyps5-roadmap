@@ -231,10 +231,10 @@ export function GameDetail({ id, loc }: { id: string; loc: Location }) {
       )}
 
       <footer className="detail-foot">
-        <a className="report" href={gameReport(model, g)}>
+        <External className="report" href={gameReport(model, g)}>
           Report a correction
           <span className="sr-only"> for {g.named ? `${g.name} (${g.ids[0]})` : g.ids[0]}</span>
-        </a>
+        </External>
         {g.lastReport && <span className="muted small">Last report {fmtDate(g.lastReport)}</span>}
         {mentions > 0 && (
           <span className="muted small">
