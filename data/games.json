@@ -10,6 +10,14 @@
     "https://github.com/boykopovar/AnyPS5/issues/4454",
     "https://github.com/boykopovar/AnyPS5/issues/1578#issuecomment-6063010151"
    ]
+  },
+  {
+   "title_ids": ["PPSA18194", "PPSA18216"],
+   "reason": "Two games: METAL GEAR SOLID 4: Guns of the Patriots - Master Collection Version (PPSA18194) and METAL GEAR SOLID: Peace Walker - Master Collection Version (PPSA18216) are separate products that the PlayStation Store lists under one concept (10009075).",
+   "sources": [
+    "https://prosperopatches.com/PPSA18194",
+    "https://prosperopatches.com/PPSA18216"
+   ]
   }
  ]
 }
