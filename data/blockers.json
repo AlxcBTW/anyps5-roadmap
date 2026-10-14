@@ -456,7 +456,12 @@
      "verdict": "confirmed", "stage": "Playable", "os": "Windows", "gpu": "NVIDIA", "build": "main", "date": "2026-10-10",
      "url": "https://github.com/boykopovar/AnyPS5/discussions/966",
      "quote": "In game and playable at 60 FPS.",
-     "reason": "Reported on Windows 11, RTX 4070 SUPER, main at 2ba993a87; all eleven pull requests the report lists are merged."}
+     "reason": "Reported on Windows 11, RTX 4070 SUPER, main at 2ba993a87; all eleven pull requests the report lists are merged."},
+    {"title": "PPSA21297", "claim": "Ingame", "claim_url": "https://github.com/boykopovar/AnyPS5/discussions/5809",
+     "verdict": "confirmed", "stage": "Ingame", "os": "Linux", "gpu": "AMD", "build": "main", "date": "2026-10-14",
+     "url": "https://github.com/boykopovar/AnyPS5/discussions/5809",
+     "quote": "In game (Gatehouse Residence, a study, Gatehouse Hallway): rooms render with lighting, the character walks between rooms and the \"Open\" prompt appears.",
+     "reason": "Reported on CachyOS, RX 9070 XT, main at 23be5a02b with no pull requests or environment variables; the title crashes after 2-4 minutes."}
   ],
   "titles": [
     {
