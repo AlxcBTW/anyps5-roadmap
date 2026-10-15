@@ -456,7 +456,20 @@
      "verdict": "confirmed", "stage": "Playable", "os": "Windows", "gpu": "NVIDIA", "build": "main", "date": "2026-10-10",
      "url": "https://github.com/boykopovar/AnyPS5/discussions/966",
      "quote": "In game and playable at 60 FPS.",
-     "reason": "Reported on Windows 11, RTX 4070 SUPER, main at 2ba993a87; all eleven pull requests the report lists are merged."}
+     "reason": "Reported on Windows 11, RTX 4070 SUPER, main at 2ba993a87; all eleven pull requests the report lists are merged."},
+    {"title": "PPSA01802", "claim": "Ingame", "claim_url": "https://github.com/boykopovar/AnyPS5/pull/5428",
+     "verdict": "downgraded", "stage": "Presents", "os": "Linux", "gpu": "AMD", "build": "main", "date": "2026-10-15",
+     "url": "https://github.com/boykopovar/AnyPS5/pull/5778#issuecomment-6201950433",
+     "quote": "It shows the Ember Lab logos, then the loading screen, then renders the 3D forest scene and keeps presenting it until the time limit (exit by `timeout`, no throw, no crash, no GPU reset).",
+     "reason": "The #5428 runs were on a local stack of unmerged changes; plain main ce991f1ec reaches the forest scene with no UI seen and no input given."},
+    {"title": "PPSA01802", "claim": "Ingame", "claim_url": "https://github.com/boykopovar/AnyPS5/pull/425#issuecomment-6131429668",
+     "verdict": "suppressed",
+     "quote": "The fix is in #4722 on top of this head, with a `PaddedCubeCase` test.",
+     "reason": "Gameplay needed #4722 (closed unmerged) on top of #425."},
+    {"title": "PPSA01802", "claim": "Menus", "claim_url": "https://github.com/boykopovar/AnyPS5/pull/4841#issuecomment-6170173016",
+     "verdict": "suppressed",
+     "quote": "Kena does not reach its title on plain `main` (it stops at `buffer descriptor uses an unsupported type`, which #5049 covers), so the runs are on a local stack: `main` f74ec639c + #5049 + #5156 + #4722 + #1201 (with `APS5_PIPELINED_DRAWS=1`) + local stand-ins, `APS5_SYNC_FLIP=1`.",
+     "reason": "The title-screen runs also needed #4722 (closed unmerged) and local stand-ins."}
   ],
   "titles": [
     {
