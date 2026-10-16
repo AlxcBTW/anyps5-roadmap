@@ -69,7 +69,6 @@
       "signature": null,
       "area": "agc",
       "fix_prs": [{"number": 425}],
-      "next": "Land #425 or its cube case: a 512x512 D16 depth target is sampled as a cube map.",
       "sources": ["https://github.com/boykopovar/AnyPS5/pull/425"]
     },
     {
@@ -217,7 +216,6 @@
       "signature": "FAIL: unresolved ELF import pebqbE5ws8s (siglongjmp) from libkernel",
       "area": "libkernel",
       "fix_prs": [{"number": 2935}],
-      "next": "A ready branch is posted in #1578; it can go up as a PR now that the intake threshold is 10.",
       "sources": ["https://github.com/boykopovar/AnyPS5/issues/1578", "https://github.com/boykopovar/AnyPS5/pull/2935"]
     },
     {
@@ -255,7 +253,6 @@
       "signature": "FAIL: unresolved ELF import Jb2uGFMr688 (pthread_getaffinity_np) from libkernel",
       "area": "libkernel",
       "fix_prs": [{"number": 1922}],
-      "next": "Submit #1922 again; PS5VR stops here once #3031 is in.",
       "sources": ["https://github.com/boykopovar/AnyPS5/pull/1922", "https://github.com/boykopovar/AnyPS5/pull/3031"]
     },
     {
