@@ -508,8 +508,14 @@
     {
       "id": "PPSA99666", "name": "DOOM Shareware (homebrew)", "kind": "homebrew",
       "evidence": [
-        {"stage": "Ingame", "os": "Windows", "build": "main", "url": "https://github.com/boykopovar/AnyPS5/discussions/2475#discussioncomment-18886410", "note": "Archived report from the removed docs/user/COMPATIBILITY.md: E1M1 and later maps, weapon switching, save/load, audio"},
-        {"stage": "Ingame", "os": "Linux", "build": "main", "url": "https://github.com/boykopovar/AnyPS5/discussions/2475#discussioncomment-18886410", "note": "Archived report: E1M1 at 35 FPS on Mesa llvmpipe, software Vulkan only"}
+        {"stage": "Ingame", "os": "Windows", "gpu": "NVIDIA", "build": "main + #553, #683, #684, #685", "url": "https://github.com/boykopovar/AnyPS5/discussions/2475#discussioncomment-18886410", "note": "Archived report from the removed docs/user/COMPATIBILITY.md: E1M1 movement and shooting on an RTX 4070; the later maps, save/load and audio were seen only with a local stack of open PRs (#690)"},
+        {"stage": "Ingame", "os": "Linux", "build": "main + #1278, #1279, #1307", "url": "https://github.com/boykopovar/AnyPS5/discussions/2475#discussioncomment-18886410", "note": "Archived report: E1M1 at 35 FPS on Mesa llvmpipe, software Vulkan only"},
+        {"stage": "Ingame", "os": "Linux", "gpu": "NVIDIA", "build": "main", "date": "2026-10-11",
+         "url": "https://github.com/boykopovar/AnyPS5/pull/3775", "note": "main a11c8f7f7, RTX 3080 Ti: E1M1 at 35 FPS; movement, firing, a pickup and the automap with APS5_PAD_INPUT_FILE"},
+        {"stage": "Ingame", "os": "Linux", "gpu": "AMD", "build": "main", "date": "2026-10-11",
+         "url": "https://github.com/boykopovar/AnyPS5/pull/3834", "note": "main a11c8f7f7, Ryzen 5 PRO 5650U graphics (RADV): E1M1 and E1M2 completed at 35 FPS with a DualShock 4, audio heard, save/load round trip"},
+        {"stage": "Ingame", "os": "Windows", "gpu": "AMD", "build": "main", "date": "2026-10-12",
+         "url": "https://github.com/boykopovar/AnyPS5/pull/4312", "note": "main b42ef24e0, RX 9060 XT and Ryzen 9 7950X graphics: menus, a new game, movement, pickups and firing in E1M1 with an Xbox One controller, audio heard"}
       ]
     },
     {
