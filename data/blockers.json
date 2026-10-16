@@ -466,7 +466,12 @@
      "verdict": "confirmed", "stage": "Ingame", "os": "Linux", "gpu": "AMD", "build": "main", "date": "2026-10-14",
      "url": "https://github.com/boykopovar/AnyPS5/discussions/5809",
      "quote": "In game (Gatehouse Residence, a study, Gatehouse Hallway): rooms render with lighting, the character walks between rooms and the \"Open\" prompt appears.",
-     "reason": "Reported on CachyOS, RX 9070 XT, main at 23be5a02b with no pull requests or environment variables; the title crashes after 2-4 minutes."}
+     "reason": "Reported on CachyOS, RX 9070 XT, main at 23be5a02b with no pull requests or environment variables; the title crashes after 2-4 minutes."},
+    {"title": "PPSA03912", "claim": "Ingame", "claim_url": "https://github.com/boykopovar/AnyPS5/discussions/5146",
+     "verdict": "confirmed", "stage": "Ingame", "os": "Linux", "gpu": "NVIDIA", "build": "main", "date": "2026-10-14",
+     "url": "https://github.com/boykopovar/AnyPS5/discussions/5146",
+     "quote": "Main menu, Offline > New Character, class selection and the Rogue Encampment with the world, HUD and sound.",
+     "reason": "Reported on Ubuntu 26.10, RTX 3080 Ti, main at 19e020a27 with no pull requests and APS5_HOST_IMPORT_MIB=16384; two runs of about 40 presents per 10 s."}
   ],
   "titles": [
     {
