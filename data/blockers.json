@@ -317,6 +317,11 @@
         "https://github.com/boykopovar/AnyPS5/pull/1841#issuecomment-6107169569",
         "https://github.com/boykopovar/AnyPS5/pull/1841#issuecomment-6107351873"
       ]
+    },
+    {
+      "id": "4399",
+      "issue": 4399,
+      "sources": ["https://github.com/boykopovar/AnyPS5/issues/4399#issuecomment-6162621642"]
     }
   ],
   "not_blockers": [
@@ -484,7 +489,12 @@
     {"title": "PPSA01802", "claim": "Menus", "claim_url": "https://github.com/boykopovar/AnyPS5/pull/4841#issuecomment-6170173016",
      "verdict": "suppressed",
      "quote": "Kena does not reach its title on plain `main` (it stops at `buffer descriptor uses an unsupported type`, which #5049 covers), so the runs are on a local stack: `main` f74ec639c + #5049 + #5156 + #4722 + #1201 (with `APS5_PIPELINED_DRAWS=1`) + local stand-ins, `APS5_SYNC_FLIP=1`.",
-     "reason": "The title-screen runs also needed #4722 (closed unmerged) and local stand-ins."}
+     "reason": "The title-screen runs also needed #4722 (closed unmerged) and local stand-ins."},
+    {"title": "PPSA99007", "claim": "Menus", "claim_url": "https://github.com/boykopovar/AnyPS5/issues/1413#issuecomment-6167675060",
+     "verdict": "confirmed", "stage": "Menus", "os": "Windows", "gpu": "NVIDIA", "build": "main", "date": "2026-10-14",
+     "url": "https://github.com/boykopovar/AnyPS5/issues/1413#issuecomment-6167675060",
+     "quote": "The main menu runs at 120 FPS. Controller pulses through `APS5_PAD_INPUT_FILE` open Game and pick the first entry, and the run ends 48 s in (exit 0xC0000409) with:",
+     "reason": "Plain main 31bfc4e86, Windows 11, RTX 4080, relinked with --trap-sdk-syscall-stubs; the menu takes pad input, and the first Game entry stops at #1413."}
   ],
   "titles": [
     {
@@ -551,7 +561,12 @@
     {"id": "PPSA68091", "name": "Ruffle Flash", "kind": "homebrew", "blockers": [{"id": "pr-2106", "why": "next import stop"}]},
     {
       "id": "PPSA99007", "name": "Yamagi Quake II", "kind": "homebrew",
-      "blockers": [{"id": "pr-2106", "why": "next import stop"}, {"id": "pr-1872", "why": "first stop on main b8a083b2"}]
+      "blockers": [{"id": "pr-2106", "why": "next import stop"}, {"id": "pr-1872", "why": "first stop on main b8a083b2"}],
+      "excluded": [{"id": "4399", "why": "named in #4399 without a traced stop; main f87799aa3 runs its main menu 60 s without a stop"}],
+      "evidence": [
+        {"stage": "Menus", "os": "Windows", "gpu": "AMD", "build": "main", "date": "2026-10-14",
+         "url": "https://github.com/boykopovar/AnyPS5/discussions/5745", "note": "main d8888df9b, Radeon 860M, 60 s: main menu at 59.9 FPS"}
+      ]
     },
     {
       "id": "PPSA69420", "name": "ScreenTester5", "kind": "homebrew",
