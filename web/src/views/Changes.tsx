@@ -38,7 +38,7 @@ export function Changes({ loc }: { loc: Location }) {
   return (
     <div className="list-view">
       <ViewHead title="Changes">
-        What each hourly snapshot changed: blockers resolved, moves in the ranking, and games whose stage or first stop
+        What each snapshot changed: blockers resolved, moves in the ranking, and games whose stage or first stop
         changed. Also as a <a href="feed.json">JSON feed</a>.
       </ViewHead>
       {feed === "loading" && <p className="result" role="status">Loading the change feed…</p>}
@@ -47,13 +47,13 @@ export function Changes({ loc }: { loc: Location }) {
           title={feed === "missing" ? "No change feed in this build" : "Unable to load feed.json"}
           hint={
             feed === "missing"
-              ? "Offline builds skip feed.json; the live site adds an entry whenever an hourly build changes something."
+              ? "Offline builds skip feed.json; the live site adds an entry whenever a build changes something."
               : "Check your connection and reload the page."
           }
         />
       )}
       {feed === "ready" && !snapshots.length && (
-        <Empty title="No changes recorded yet" hint="An entry appears here when an hourly build changes the ranking, a stage or a stop." />
+        <Empty title="No changes recorded yet" hint="An entry appears here when a build changes the ranking, a stage or a stop." />
       )}
       {snapshots.length > 0 && (
         <>

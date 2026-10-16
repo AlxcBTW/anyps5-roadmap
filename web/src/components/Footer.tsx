@@ -29,7 +29,7 @@ export function Footer({ model }: { model: Model | null }) {
                 </External>
               </>
             )}
-            . Rebuilt every hour.
+            . Rebuilt every few hours. Merged corrections go live within minutes.
           </p>
         )}
         <p className="foot-fine">
