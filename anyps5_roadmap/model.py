@@ -13,6 +13,8 @@ from .mine import (
     ENGINE_RULES,
     GPU_RULES,
     LINE_TITLE_LIMIT,
+    MAIN_BUILD,
+    MAIN_COMMIT,
     OS_RULES,
     QUOTED_RE,
     REGISTER_RE,
@@ -472,11 +474,22 @@ class Model:
         self._mine_code_blocks(src, info)
 
     def _mine_code_blocks(self, src: dict, info: dict | None):
-        """A fenced log in a comment that names exactly one title: its last error line is
-        where that title stopped, even when the ID and the error are on different lines."""
+        """A fenced log with one title ID: its last error line is where that title stopped,
+        even when the ID and the error are on different lines. An ID-less issue comment may
+        use its issue title when that title names exactly one title ID."""
         text = src["text"]
-        ids = [i for i in dict.fromkeys(TITLE_RE.findall(text)) if i not in PLACEHOLDER_IDS]
-        if len(ids) != 1 or (info and info["tracker"]):
+        raw_ids = TITLE_RE.findall(text)
+        ids = [i for i in dict.fromkeys(raw_ids) if i not in PLACEHOLDER_IDS]
+        issue_title_fallback = False
+        if info and info["tracker"]:
+            return
+        if not ids and not raw_ids and info and src["kind"] == "issue" and src["part"] == "comment":
+            issue_title = self.issues[src["number"]].get("title") or ""
+            title_ids = [i for i in dict.fromkeys(TITLE_RE.findall(issue_title)) if i not in PLACEHOLDER_IDS]
+            if len(title_ids) == 1:
+                ids = title_ids
+                issue_title_fallback = True
+        if len(ids) != 1:
             return
         blocks = code_blocks_with_lead(text)
         if not blocks:
@@ -488,6 +501,13 @@ class Model:
         for block, lead in blocks:
             # what the logged run was built from: the paragraph that introduces the log, not the whole thread
             build = self._build(lead, src)
+            if (
+                issue_title_fallback
+                and build["build_kind"] == "main"
+                and not MAIN_BUILD.search(lead)
+                and not MAIN_COMMIT.search(lead)
+            ):
+                continue
             sig = block_stop(block)
             if not sig or sig["key"] in seen:
                 continue

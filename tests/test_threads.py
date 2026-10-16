@@ -110,6 +110,176 @@ class DeepModel(unittest.TestCase):
         self.assertEqual([s["blocker"] for s in self.ghost["chain"]][:1], ["40"])
         self.assertEqual(self.ghost["chain"][0]["why"], "latest recorded stop matches its signature")
 
+    def test_an_idless_issue_comment_uses_one_id_from_the_issue_title(self):
+        issue = self.model.issues[60]
+        self.assertGreater(len(self.model.issue_info[60]["titles"]), 1)
+        self.assertFalse(self.model.issue_info[60]["tracker"])
+        url = issue["comments"][0]["url"]
+        blocks = mine.code_blocks_with_lead(issue["comments"][0]["body"])
+        self.assertEqual(len(blocks), 2)
+        self.assertEqual([lead for _, lead in blocks], ["On main, Windows 11, RTX 4080:"] * 2)
+        title = self.model.titles["PPSA06001"]
+        stops = [s for s in title["stops"] if s.get("via") == "log block" and s["url"] == url]
+        self.assertEqual(len(stops), 1)
+        evidence = [e for e in title["evidence"] if e["url"] == url and "(log block)" in e["note"]]
+        self.assertEqual(len(evidence), 1)
+        self.assertEqual(
+            (
+                evidence[0]["build"],
+                evidence[0]["author"],
+                evidence[0]["date"],
+                evidence[0]["os"],
+                evidence[0]["gpu"],
+                evidence[0]["part"],
+            ),
+            ("main", "maria", "2026-10-06T10:00:00Z", "Windows", "NVIDIA", "comment"),
+        )
+
+    def test_tracker_comments_do_not_fall_back_to_the_issue_title(self):
+        info = self.model.issue_info[61]
+        self.assertTrue(info["tracker"])
+        url = self.model.issues[61]["comments"][1]["url"]
+        self.assertFalse(
+            any(s.get("via") == "log block" and s["url"] == url for t in self.model.titles.values() for s in t["stops"])
+        )
+        self.assertFalse(self.model.titles["PPSA06101"]["assoc"].get(61, {}).get("url") == url)
+
+    def test_idless_comments_do_not_infer_from_a_multi_id_issue_title(self):
+        url = self.model.issues[62]["comments"][0]["url"]
+        self.assertFalse(
+            any(s.get("via") == "log block" and s["url"] == url for t in self.model.titles.values() for s in t["stops"])
+        )
+
+    def test_an_explicit_comment_id_wins_over_the_issue_title(self):
+        url = self.model.issues[63]["comments"][0]["url"]
+        chosen = self.model.titles["PPSA06302"]
+        stops = [s for s in chosen["stops"] if s.get("via") == "log block" and s["url"] == url]
+        self.assertEqual(len(stops), 1)
+        self.assertFalse(
+            any(s.get("via") == "log block" and s["url"] == url for s in self.model.titles["PPSA06301"]["stops"])
+        )
+
+    def test_title_fallback_is_limited_to_idless_issue_comments(self):
+        text = "On main:\n```\nAGC graphics: source boundary must not infer a title\n```"
+        sources = [
+            ({"kind": "issue", "part": "body"}, self.model.issue_info[60]),
+            ({"kind": "pr", "part": "comment"}, None),
+            ({"kind": "pr", "part": "review"}, None),
+            ({"kind": "discussion", "part": "comment"}, None),
+            ({"kind": "fork", "part": "comment", "recipe": []}, None),
+        ]
+        for index, (partial, info) in enumerate(sources):
+            url = f"https://example.test/source-boundary-{index}"
+            self.model._mine_code_blocks(
+                {"number": 60, "text": text, "url": url, "date": "2026-10-06T12:00:00Z", "author": "tester", **partial},
+                info,
+            )
+            self.assertFalse(
+                any(
+                    s.get("via") == "log block" and s["url"] == url
+                    for t in self.model.titles.values()
+                    for s in t["stops"]
+                )
+            )
+
+        placeholder_url = "https://example.test/placeholder-id"
+        self.model._mine_code_blocks(
+            {
+                "kind": "issue",
+                "part": "comment",
+                "number": 60,
+                "text": "PPSA00000\n```\nAGC graphics: placeholder must not trigger title fallback\n```",
+                "url": placeholder_url,
+                "date": "2026-10-06T12:01:00Z",
+                "author": "tester",
+            },
+            self.model.issue_info[60],
+        )
+        self.assertFalse(
+            any(
+                s.get("via") == "log block" and s["url"] == placeholder_url
+                for t in self.model.titles.values()
+                for s in t["stops"]
+            )
+        )
+
+    def test_a_nonfatal_yotei_summary_line_is_not_a_stop(self):
+        url = "https://github.com/boykopovar/AnyPS5/issues/3751#issuecomment-6129225437"
+        title = self.model.titles["PPSA26344"]
+        self.assertFalse(any(s.get("via") == "log block" and s["url"] == url for s in title["stops"]))
+        self.assertFalse(any(e["url"] == url and "(log block)" in e["note"] for e in title["evidence"]))
+
+    def test_an_onimusha_build_warning_does_not_authorize_an_unspecified_log_lead(self):
+        url = "https://github.com/boykopovar/AnyPS5/issues/6006#issuecomment-6179302597"
+        title = self.model.titles["PPSA27836"]
+        self.assertFalse(any(s.get("via") == "log block" and s["url"] == url for s in title["stops"]))
+        self.assertFalse(any(e["url"] == url for e in title["evidence"]))
+
+    def test_each_fallback_block_needs_its_own_build_lead(self):
+        model = r.Model(self.raw, {"blockers": [], "titles": [], "not_blockers": []}, "example/AnyPS5", NOW)
+        url = "https://example.test/per-block-leads"
+        text = (
+            "On current main:\n\n````text\nShaderRecompiler::Recompile: main-keyword lead failure\n````\n\n"
+            "`main` 4c1de0c0c on Linux:\n````text\nShaderRecompiler::Recompile: commit-only lead failure\n````\n\n"
+            "Build unspecified here:\n````text\nShaderRecompiler::Recompile: unqualified block failure\n````"
+        )
+        model._mine_code_blocks(
+            {
+                "kind": "issue",
+                "part": "comment",
+                "number": 60,
+                "text": text,
+                "url": url,
+                "date": "2026-10-06T12:02:00Z",
+                "author": "tester",
+            },
+            model.issue_info[60],
+        )
+        title = model.titles["PPSA06001"]
+        stops = [s for s in title["stops"] if s.get("via") == "log block" and s["url"] == url]
+        self.assertEqual(len(stops), 2)
+        evidence = [e for e in title["evidence"] if e["url"] == url and "(log block)" in e["note"]]
+        self.assertEqual([(e["build"], e["commit"]) for e in evidence], [("main", None), ("main", "4c1de0c0c")])
+
+    def test_explicit_id_is_unchanged_without_a_build_lead(self):
+        model = r.Model(self.raw, {"blockers": [], "titles": [], "not_blockers": []}, "example/AnyPS5", NOW)
+        url = "https://example.test/explicit-id-no-build"
+        model._mine_code_blocks(
+            {
+                "kind": "issue",
+                "part": "comment",
+                "number": 60,
+                "text": "PPSA06001:\n```text\nAGC graphics: explicit-ID behavior remains unchanged\n```",
+                "url": url,
+                "date": "2026-10-06T12:03:00Z",
+                "author": "tester",
+            },
+            model.issue_info[60],
+        )
+        stops = [s for s in model.titles["PPSA06001"]["stops"] if s.get("via") == "log block" and s["url"] == url]
+        self.assertEqual(len(stops), 1)
+
+    def test_fallback_with_a_local_patch_lead_stays_a_patched_build(self):
+        model = r.Model(self.raw, {"blockers": [], "titles": [], "not_blockers": []}, "example/AnyPS5", NOW)
+        url = "https://example.test/fallback-local-patches"
+        model._mine_code_blocks(
+            {
+                "kind": "issue",
+                "part": "comment",
+                "number": 60,
+                "text": "On main 4c1de0c0c with local patches:\n```text\nAGC graphics: patched fallback lead\n```",
+                "url": url,
+                "date": "2026-10-06T12:04:00Z",
+                "author": "tester",
+            },
+            model.issue_info[60],
+        )
+        evidence = [e for e in model.titles["PPSA06001"]["evidence"] if e["url"] == url]
+        self.assertEqual(
+            [(e["build"], e["build_kind"], e["commit"]) for e in evidence],
+            [("main + patches", "patched", "4c1de0c0c")],
+        )
+
     def test_confidence_counts_independent_authors_on_main(self):
         conf = self.model.confidence(self.ghost)
         self.assertEqual(conf["stage"], "Presents")
@@ -169,7 +339,7 @@ class DeepModel(unittest.TestCase):
         ghost = next(t for t in doc["titles"] if t["id"] == GHOST)
         self.assertEqual(ghost["confidence"]["label"], "2 reports on main")
         stats = doc["stats"]
-        self.assertEqual(stats["stops_from_log_blocks"], 1)
+        self.assertEqual(stats["stops_from_log_blocks"], 3)
         self.assertEqual(stats["titles_with_two_or_more_reports"], 1)
         self.assertEqual(stats["links"]["closing"], 1)
         self.assertEqual(stats["links"]["xref"], 1)
