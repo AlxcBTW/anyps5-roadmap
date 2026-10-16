@@ -926,6 +926,16 @@ class Model:
             for bid, b in self.blockers.items()
             if b["signature_key"] and b["status"] == "open" and not b["tracker"]
         ]
+        # the issues that track an error line: (key, opened, fixed), fixed meaning closed as completed; an
+        # issue closed as a duplicate or as not planned defers to the issues that stay open and is left out
+        tracked = [
+            (b["signature_key"], self.issues[b["issue"]]["createdAt"], b["status"] != "open")
+            for b in self.blockers.values()
+            if b["signature_key"]
+            and not b["tracker"]
+            and b["issue"] in self.issues
+            and (b["status"] == "open" or self.issues[b["issue"]].get("stateReason") == "COMPLETED")
+        ]
         curated_chains = {ct["id"]: ct.get("blockers", []) for ct in self.curated.get("titles", [])}
         excluded = {ct["id"]: {str(x["id"]) for x in ct.get("excluded", [])} for ct in self.curated.get("titles", [])}
         for tid, t in self.titles.items():
@@ -952,6 +962,10 @@ class Model:
             # the newest stop that names a known open blocker or a tracker row; newer stops
             # that match nothing (an unknown crash site, a quoted placeholder) are passed over
             for stop in latest:
+                if self._stop_fixed(stop, tracked):
+                    # the issue that tracked this error when it was logged is fixed: the title got past
+                    # it, so its error line says nothing about a later open issue that shares it (#87)
+                    continue
                 hit = next(
                     (
                         bid
@@ -997,6 +1011,17 @@ class Model:
                     }.get(a["level"], a["level"]),
                 )
             t["chain"] = steps
+
+    @staticmethod
+    def _stop_fixed(stop: dict, tracked: list[tuple[str, str, bool]]) -> bool:
+        """Whether every issue that tracked this stop's error line when the stop was logged is closed as
+        completed: the title got past it. An issue opened later for the same line (another title, or a
+        regression) is no evidence about this run. Trackers and issues closed as duplicates or not planned
+        are not in `tracked`, an issue a curated entry keeps open counts as open, and a line no issue
+        tracked yet is not fixed."""
+        key, when = stop["sig"]["key"], stop["date"] or ""
+        then = [fixed for k, opened, fixed in tracked if opened <= when and (k == key or sig_match(k, key))]
+        return bool(then) and all(then)
 
     def _virtual_blocker(self, number: int, stop: dict) -> str:
         """A crash site that only lives as a row in a tracker issue becomes its own
