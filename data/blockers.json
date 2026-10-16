@@ -319,6 +319,12 @@
       "id": "4399",
       "issue": 4399,
       "sources": ["https://github.com/boykopovar/AnyPS5/issues/4399#issuecomment-6162621642"]
+    },
+    {
+      "id": "6301",
+      "issue": 6301,
+      "next": "Review and merge #6308; with it Minecraft Dungeons II also loads its first world.",
+      "sources": ["https://github.com/boykopovar/AnyPS5/issues/6301", "https://github.com/boykopovar/AnyPS5/pull/6308#issuecomment-6202950743"]
     }
   ],
   "not_blockers": [
@@ -491,7 +497,23 @@
      "verdict": "confirmed", "stage": "Menus", "os": "Windows", "gpu": "NVIDIA", "build": "main", "date": "2026-10-14",
      "url": "https://github.com/boykopovar/AnyPS5/issues/1413#issuecomment-6167675060",
      "quote": "The main menu runs at 120 FPS. Controller pulses through `APS5_PAD_INPUT_FILE` open Game and pick the first entry, and the run ends 48 s in (exit 0xC0000409) with:",
-     "reason": "Plain main 31bfc4e86, Windows 11, RTX 4080, relinked with --trap-sdk-syscall-stubs; the menu takes pad input, and the first Game entry stops at #1413."}
+     "reason": "Plain main 31bfc4e86, Windows 11, RTX 4080, relinked with --trap-sdk-syscall-stubs; the menu takes pad input, and the first Game entry stops at #1413."},
+    {"title": "PPSA16064", "claim": "Ingame", "claim_url": "https://github.com/boykopovar/AnyPS5/pull/5788",
+     "verdict": "suppressed",
+     "quote": "Both sides are our test build (`main` plus open PRs MCD2 needs, #5480 among them); \"after\" adds this change.",
+     "reason": "Gameplay ran on main plus open PRs, #5480 among them."},
+    {"title": "PPSA16064", "claim": "Ingame", "claim_url": "https://github.com/boykopovar/AnyPS5/pull/4517#issuecomment-6143310937",
+     "verdict": "suppressed",
+     "quote": "With #4515 + #4517 (and #4367) on `main` plus the patches MCD2 needs to reach gameplay: p50 131 ms, p99 139-155 ms, steady across 5 runs.",
+     "reason": "Gameplay needed local patches."},
+    {"title": "PPSA16064", "claim": "Ingame", "claim_url": "https://github.com/boykopovar/AnyPS5/pull/4943#issuecomment-6143313159",
+     "verdict": "suppressed",
+     "quote": "Tested on Minecraft Dungeons II (PPSA16064) gameplay: Windows 11, RTX 5070, cherry-picked onto our MCD2 build (`main` + the import-join PRs).",
+     "reason": "The MCD2 build is main plus the patches the title needs to reach gameplay (the same author's #4517 comment of that morning)."},
+    {"title": "PPSA16064", "claim": "Ingame", "claim_url": "https://github.com/boykopovar/AnyPS5/pull/1201#issuecomment-6143102350",
+     "verdict": "suppressed",
+     "quote": "On Minecraft Dungeons II (PPSA16064) gameplay (Windows 11, RTX 5070), queue 0 spends about 59 ms of a ~101 ms frame on draws:",
+     "reason": "No build is named; the author's gameplay runs that morning were on main plus patches (#4517 comment), and on plain main the title stops at its first world load (#6301)."}
   ],
   "titles": [
     {
@@ -1036,6 +1058,16 @@
       "evidence": [
         {"stage": "Ingame", "os": "Linux", "gpu": "NVIDIA", "build": "main", "date": "2026-10-15",
          "url": "https://github.com/boykopovar/AnyPS5/discussions/2211#discussioncomment-18947061", "note": "main 8856f18, RTX 3060 Ti, relinked with --registry, --module-dir and --to-intel: boots to gameplay; main menu at 35 FPS, in game at 12 FPS; the 3D view corrupts after map use (#5335)"}
+      ]
+    },
+    {
+      "id": "PPSA16064",
+      "blockers": [{"id": "6301", "why": "the first world load stops here on plain main (636b1b93c, 5d9dcc42d); #6308 moves it on"}],
+      "evidence": [
+        {"stage": "Menus", "os": "Windows", "gpu": "NVIDIA", "build": "main", "date": "2026-10-15T14:10:27Z",
+         "url": "https://github.com/AlxcBTW/AnyPS5/issues/56#issuecomment-6194113860", "note": "plain main 0e4ea13a0, RTX 5070 Laptop 8 GB: the title screen for 300 s at 2.2 FPS"},
+        {"stage": "Menus", "os": "Windows", "gpu": "NVIDIA", "build": "main", "date": "2026-10-15T13:44:51Z",
+         "url": "https://github.com/AlxcBTW/AnyPS5/issues/56#issuecomment-6193568996", "note": "main fdea36b83 with measurement-only prints, RTX 3060 and RTX 4060: the title screen (Press any button) renders, no stop in 240 s"}
       ]
     }
   ],
