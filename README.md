@@ -7,9 +7,12 @@ Which open issues stop which PS5 games in [AnyPS5](https://github.com/boykopovar
 ranked by how many games a fix would move, plus how much of the PS5's system libraries and GPU AnyPS5
 implements.
 
-**Live: <https://alxcbtw.github.io/anyps5-roadmap/>**, rebuilt every hour and after every merge.
-Between those, a check every five minutes rebuilds it once an upstream issue or PR changed, at most
-every 15 minutes; a check that finds nothing new costs no API quota (`.github/workflows/update-check.yml`).
+**Live: <https://alxcbtw.github.io/anyps5-roadmap/>**. A merge to `main` goes live within minutes. Otherwise
+GitHub's schedule rebuilds the page: an hourly build, and a check several times an hour that builds once an upstream
+issue or PR changed and costs no API quota when nothing did (`.github/workflows/update-check.yml`). GitHub runs
+schedules best effort and started both far less often than their cron asks, so the rebuilds come irregularly: in
+mid-October 2026 about 1.7 hours apart at the median and at most about 5 hours apart
+([#70](https://github.com/AlxcBTW/anyps5-roadmap/issues/70) has the details).
 
 A community project, not an official AnyPS5 page. Every stage and link on it comes from public GitHub
 data and links its source.

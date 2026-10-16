@@ -19,7 +19,7 @@ cd web && npm ci && npm run dev                                   # the page, ov
 updated since the last run (`data/cache/listing.json`; a full listing once a week, about 110
 points), then reads comments, reviews, review threads, discussion replies and cross-references only
 for threads whose `updatedAt` changed (`data/cache/threads.json`). With an empty cache that is about
-4,800 threads and 220 points; an hourly run with a warm cache costs about 20. Below a reserve of 500
+4,800 threads and 220 points; a run with a warm cache costs about 20. Below a reserve of 500
 points the thread pass stops and the rest waits for the next run (`api.partial` in raw.json). REST
 calls and downloads are revalidated with their ETag (`etags.json`, `*.meta.json`). The Roadmap
 workflow keeps `data/cache` between runs. Check the budget with

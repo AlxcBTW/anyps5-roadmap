@@ -27,8 +27,8 @@ for that title (it shows up under "Possible duplicates to check" as `reused-id`)
 
 Lookups are cached in `data/cache/images.json`, which the Roadmap workflow keeps between runs with the rest
 of the API cache: a found cover for 30 days, a miss for 7. One build reads at most three store pages at a
-time and spends at most three minutes on them (`BUDGET_S`), so a cold cache fills over one or two hourly
-runs and a warm one costs nothing. Wikidata gets one SPARQL query per build, for all misses together. An
+time and spends at most three minutes on them (`BUDGET_S`), so a cold cache fills over one or two runs
+and a warm one costs nothing. Wikidata gets one SPARQL query per build, for all misses together. An
 offline build (`--offline`) reads the cache and never the network.
 
 ## The PlayStation title list

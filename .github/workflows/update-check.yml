@@ -1,14 +1,18 @@
 name: Update check
 
-# Every five minutes, asks upstream with a conditional request whether any issue or PR changed; a
+# Nine times an hour, asks upstream with a conditional request whether any issue or PR changed; a
 # 304 answer does not count against the rate limit. When something changed and the last Pages
 # deployment is at least 15 minutes old, runs the Roadmap workflow. The hourly cron there stays as
 # the fallback and the only reader of discussions. Off unless the repository variable
 # ROADMAP_SCHEDULE is "on".
+#
+# GitHub runs schedules best effort and delays or drops them under load, most of all at the top
+# of the hour, so the check runs at odd minutes that are not multiples of five, 6 to 8 minutes
+# apart (#70).
 
 on:
   schedule:
-    - cron: '*/5 * * * *'
+    - cron: '3,9,17,23,29,37,43,49,57 * * * *'
   workflow_dispatch:
 
 permissions:
