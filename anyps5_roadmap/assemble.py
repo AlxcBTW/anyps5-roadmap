@@ -364,8 +364,9 @@ KNOWN_GAPS = [
     "messages, diffs, attached logs and screenshots (images, gists, uploaded files), edit history, and bot comments.",
     "Issues and PRs closed more than 60 days ago are not read, even when they hold the last report on a title.",
     "Stops are read from a fenced log when the comment names exactly one title ID, or when an issue comment names "
-    "no title ID and its issue title names exactly one valid title ID, provided the issue is not a tracker; the last "
-    "error line in the block counts as the stop.",
+    "no title ID and its issue title names exactly one valid title ID, provided the issue is not a tracker and the "
+    "block's lead identifies its build (main, a main commit or a non-main build); otherwise the block is skipped. "
+    "The last error line in the block counts as the stop.",
     "“N reports on main” counts distinct GitHub accounts whose text puts the title at that stage on main. It cannot "
     "tell whether two accounts tested the same build, and text without a stated build counts as main in issues and as "
     "the PR branch in PRs.",

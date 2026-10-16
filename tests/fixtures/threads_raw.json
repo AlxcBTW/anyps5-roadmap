@@ -89,6 +89,32 @@
       ],
       "xrefs": [], "closed_by": [],
       "issueDependenciesSummary": {"blockedBy": 0, "totalBlockedBy": 0, "blocking": 0, "totalBlocking": 0}
+    },
+    {
+      "number": 64, "state": "OPEN", "stateReason": null,
+      "title": "agc: sampled 8_SRGB decode on a device without R8_SRGB — measured filtering order and the fix shape it rules out (Ghost of Yōtei PPSA26344)",
+      "body": "A source-based regression fixture for a nonfatal summary line.",
+      "url": "https://github.com/boykopovar/AnyPS5/issues/3751",
+      "createdAt": "2026-10-12T17:00:00Z", "updatedAt": "2026-10-12T17:26:22Z", "closedAt": null,
+      "author": "fixture", "assignees": [], "labels": [], "comment_count": 1,
+      "comments": [
+        {"body": "**Why the shader is unreachable here.** On the CI device (lavapipe, `LLVM 23.1.1`) it is never compiled.\nThe run logs, in this order:\n\n```text\n2. Shader 0x8000325e00 could not be prepared after registration\n     ShaderRecompiler::Recompile: GetImageResource dword 0 is not a valid runtime value\n     also not fatal; the run continues past it\n3. compute shader 0x8000393600\n     Vulkan dispatch: workgroup count exceeds device limits   <- abort, core dumped (SIGABRT)\n```", "url": "https://github.com/boykopovar/AnyPS5/issues/3751#issuecomment-6129225437", "createdAt": "2026-10-12T17:26:22Z", "author": "Dextroid17"}
+      ],
+      "xrefs": [], "closed_by": [],
+      "issueDependenciesSummary": {"blockedBy": 0, "totalBlockedBy": 0, "blocking": 0, "totalBlocking": 0}
+    },
+    {
+      "number": 65, "state": "OPEN", "stateReason": null,
+      "title": "Onimusha WotS (PPSA27836) hangs on black screen after successful startup",
+      "body": "A source-based regression fixture for a build warning separated from the log lead.",
+      "url": "https://github.com/boykopovar/AnyPS5/issues/6006",
+      "createdAt": "2026-10-14T20:00:00Z", "updatedAt": "2026-10-16T10:36:05Z", "closedAt": null,
+      "author": "fixture", "assignees": [], "labels": [], "comment_count": 1,
+      "comments": [
+        {"body": "**Important: these results are on tag `v0.1.2` (detached HEAD) with local, uncommitted patches, not on current `main`.** I have not re-tested on current `main`.\n\n#### 4. Current blocker: bindless-style image descriptor\n\n```text\nshader 0x211143cc00 stage 5: ShaderRecompiler::Recompile: GetImageResource dword 0 is not a valid runtime value;\n```\n\nEnvironment: Windows 11, RTX 5070 Ti; tag `v0.1.2` with local patches.", "url": "https://github.com/boykopovar/AnyPS5/issues/6006#issuecomment-6179302597", "createdAt": "2026-10-14T21:52:27Z", "author": "amiraction0938"}
+      ],
+      "xrefs": [], "closed_by": [],
+      "issueDependenciesSummary": {"blockedBy": 0, "totalBlockedBy": 0, "blocking": 0, "totalBlocking": 0}
     }
   ],
   "prs": [
