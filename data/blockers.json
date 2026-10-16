@@ -68,7 +68,7 @@
       "title": "Depth surface sampled as a cube texture",
       "signature": null,
       "area": "agc",
-      "fix_prs": [{"number": 425, "note": "depth surfaces read as textures and storage images"}],
+      "fix_prs": [{"number": 425}],
       "next": "Land #425 or its cube case: a 512x512 D16 depth target is sampled as a cube map.",
       "sources": ["https://github.com/boykopovar/AnyPS5/pull/425"]
     },
@@ -216,9 +216,9 @@
       "title": "siglongjmp is not exported (libkernel)",
       "signature": "FAIL: unresolved ELF import pebqbE5ws8s (siglongjmp) from libkernel",
       "area": "libkernel",
-      "fix_prs": [],
+      "fix_prs": [{"number": 2935}],
       "next": "A ready branch is posted in #1578; it can go up as a PR now that the intake threshold is 10.",
-      "sources": ["https://github.com/boykopovar/AnyPS5/issues/1578"]
+      "sources": ["https://github.com/boykopovar/AnyPS5/issues/1578", "https://github.com/boykopovar/AnyPS5/pull/2935"]
     },
     {
       "id": "pr-1482",
@@ -254,7 +254,7 @@
       "title": "pthread_getaffinity_np is not exported (libkernel)",
       "signature": "FAIL: unresolved ELF import Jb2uGFMr688 (pthread_getaffinity_np) from libkernel",
       "area": "libkernel",
-      "fix_prs": [{"number": 1922, "note": "closed without merge"}],
+      "fix_prs": [{"number": 1922}],
       "next": "Submit #1922 again; PS5VR stops here once #3031 is in.",
       "sources": ["https://github.com/boykopovar/AnyPS5/pull/1922", "https://github.com/boykopovar/AnyPS5/pull/3031"]
     },
