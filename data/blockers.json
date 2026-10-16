@@ -561,7 +561,14 @@
       "blockers": [{"id": "2102", "why": "stops at its first presentation"}]
     },
     {"id": "PPSA03001", "name": "Sifu", "engine": "Unreal Engine 4", "kind": "retail", "blockers": [{"id": "1409", "why": "same 8-bit storage access pattern"}]},
-    {"id": "PPSA68091", "name": "Ruffle Flash", "kind": "homebrew", "blockers": [{"id": "pr-2106", "why": "next import stop"}]},
+    {
+      "id": "PPSA68091", "name": "Ruffle Flash", "kind": "homebrew",
+      "blockers": [{"id": "pr-2106", "why": "next import stop"}],
+      "evidence": [
+        {"stage": "Menus", "os": "Windows", "gpu": "AMD", "build": "main", "date": "2026-10-14",
+         "url": "https://github.com/boykopovar/AnyPS5/discussions/5745", "note": "main 9a3e2ac4d, Radeon 860M, relinked with --windows-fixed-base 0x400000 (#4013), 60 s: library screen (No games yet) at 81 FPS"}
+      ]
+    },
     {
       "id": "PPSA99007", "name": "Yamagi Quake II", "kind": "homebrew",
       "blockers": [{"id": "pr-2106", "why": "next import stop"}, {"id": "pr-1872", "why": "first stop on main b8a083b2"}],
@@ -579,18 +586,37 @@
       ],
       "blockers": [{"id": "pr-1872", "why": "first stop on main b8a083b2"}]
     },
-    {"id": "PPSA99039", "name": "EVO Player", "kind": "homebrew", "blockers": [{"id": "pr-1872", "why": "first stop on main b8a083b2"}]},
+    {
+      "id": "PPSA99039", "name": "EVO Player", "kind": "homebrew",
+      "blockers": [{"id": "pr-1872", "why": "first stop on main b8a083b2"}],
+      "evidence": [
+        {"stage": "Menus", "os": "Windows", "gpu": "AMD", "build": "main", "date": "2026-10-14",
+         "url": "https://github.com/boykopovar/AnyPS5/issues/4997#issuecomment-6162952305", "note": "main d8888df9b, Radeon 860M, 60 s: home screen with the library tiles at 60.0 FPS"}
+      ]
+    },
     {
       "id": "PPSA99177", "name": "PS5VR", "kind": "homebrew",
-      "blockers": [{"id": "pr-1872", "why": "first stop on main b8a083b2"}, {"id": "pr-1922", "why": "next stop with #3031"}]
+      "blockers": [{"id": "pr-1872", "why": "first stop on main b8a083b2"}, {"id": "pr-1922", "why": "next stop with #3031"}],
+      "evidence": [
+        {"stage": "Menus", "os": "Windows", "gpu": "AMD", "build": "main", "date": "2026-10-14",
+         "url": "https://github.com/boykopovar/AnyPS5/discussions/5745", "note": "main d8888df9b, Radeon 860M: home screen (Put on your PlayStation VR2) after 46.7 s of refused loopback connects; without a headset it presents only that frame"}
+      ]
     },
     {
       "id": "PPSA99109", "name": "Prospero Explorer", "engine": ".NET NativeAOT", "kind": "homebrew", "paths": ["Windows", "Linux"],
-      "blockers": [{"id": "2761", "scope": ["Windows"], "why": "faults reading 0x28 through an unpatched TLS read"}, {"id": "pr-2106", "why": "pthread_sigmask import"}]
+      "blockers": [{"id": "2761", "scope": ["Windows"], "why": "faults reading 0x28 through an unpatched TLS read"}, {"id": "pr-2106", "why": "pthread_sigmask import"}],
+      "evidence": [
+        {"stage": "Menus", "os": "Windows", "gpu": "AMD", "build": "main", "date": "2026-10-14",
+         "url": "https://github.com/boykopovar/AnyPS5/discussions/5745", "note": "main d8888df9b, Radeon 860M, 60 s: file browser at 15.2 FPS"}
+      ]
     },
     {
       "id": "PPSA99110", "name": "Prospero Multi Tools", "engine": ".NET NativeAOT", "kind": "homebrew", "paths": ["Windows", "Linux"],
-      "blockers": [{"id": "2761", "scope": ["Windows"], "why": "faults reading 0x28 through an unpatched TLS read"}, {"id": "pr-2106", "why": "pthread_sigmask import"}]
+      "blockers": [{"id": "2761", "scope": ["Windows"], "why": "faults reading 0x28 through an unpatched TLS read"}, {"id": "pr-2106", "why": "pthread_sigmask import"}],
+      "evidence": [
+        {"stage": "Menus", "os": "Windows", "gpu": "AMD", "build": "main", "date": "2026-10-14",
+         "url": "https://github.com/boykopovar/AnyPS5/discussions/5745", "note": "main d8888df9b, Radeon 860M, 60 s: tool list at 12.9 FPS"}
+      ]
     },
     {
       "id": "PPSA99920", "name": "Prospero Vibrate", "engine": ".NET NativeAOT", "kind": "homebrew", "paths": ["Windows", "Linux"],
@@ -715,7 +741,11 @@
     {
       "id": "PPSA99810", "name": "PSBox Cloud Gaming", "kind": "homebrew",
       "blockers": [{"id": "3165", "why": "first stop on main 0f863c10 and a11c8f7f"}],
-      "excluded": [{"id": "3369", "why": "its stop is the same with and without #3365 (42-executable batch in #3369)"}]
+      "excluded": [{"id": "3369", "why": "its stop is the same with and without #3365 (42-executable batch in #3369)"}],
+      "evidence": [
+        {"stage": "Menus", "os": "Windows", "gpu": "AMD", "build": "main", "date": "2026-10-14",
+         "url": "https://github.com/boykopovar/AnyPS5/discussions/5745", "note": "main d8888df9b, Radeon 860M, 60 s: Sign in to play screen at 13.4 FPS"}
+      ]
     },
     {
       "id": "PPSA97510", "name": "PSXS5", "kind": "homebrew",
@@ -741,11 +771,19 @@
     },
     {
       "id": "PPSA01153", "name": "OliSe Player", "kind": "homebrew",
-      "blockers": [{"id": "2136", "why": "first stop on main 6c9cb3a5, at 0xb04df7 (SDK generic syscall stub); with the stubs trapped, the next stop is the import 04AjkP0jO9U"}]
+      "blockers": [{"id": "2136", "why": "first stop on main 6c9cb3a5, at 0xb04df7 (SDK generic syscall stub); with the stubs trapped, the next stop is the import 04AjkP0jO9U"}],
+      "evidence": [
+        {"stage": "Menus", "os": "Windows", "gpu": "AMD", "build": "main", "date": "2026-10-14",
+         "url": "https://github.com/boykopovar/AnyPS5/discussions/5745", "note": "main d8888df9b, Radeon 860M, 60 s: main menu at 59.9 FPS (one run); relinked with --trap-sdk-syscall-stubs"}
+      ]
     },
     {
       "id": "PPSA99004", "name": "ProsperoAI", "kind": "homebrew",
-      "blockers": [{"id": "2136", "why": "first stop on main 6c9cb3a5, at 0x1108bf7 (SDK generic syscall stub); with the stubs trapped, the next stop is the import 5G2ONUzRgjY"}]
+      "blockers": [{"id": "2136", "why": "first stop on main 6c9cb3a5, at 0x1108bf7 (SDK generic syscall stub); with the stubs trapped, the next stop is the import 5G2ONUzRgjY"}],
+      "evidence": [
+        {"stage": "Menus", "os": "Windows", "gpu": "AMD", "build": "main", "date": "2026-10-14",
+         "url": "https://github.com/boykopovar/AnyPS5/discussions/5745", "note": "main d8888df9b, Radeon 860M, 60 s: workspace home at 8.4 FPS; relinked with --trap-sdk-syscall-stubs; second run, the first with empty caches hits the RADV 10 s submission wait"}
+      ]
     },
     {
       "id": "PPSA99008", "name": "ProsperoEden", "kind": "homebrew",
@@ -768,7 +806,11 @@
     },
     {
       "id": "PPSA99203", "name": "PS5SX2", "kind": "homebrew",
-      "blockers": [{"id": "2136", "why": "first stop on main 6c9cb3a5, at 0x10a2d37 (SDK generic syscall stub); with the stubs trapped, the next stop is the import aML18Z0J0t0"}]
+      "blockers": [{"id": "2136", "why": "first stop on main 6c9cb3a5, at 0x10a2d37 (SDK generic syscall stub); with the stubs trapped, the next stop is the import aML18Z0J0t0"}],
+      "evidence": [
+        {"stage": "Menus", "os": "Windows", "gpu": "AMD", "build": "main", "date": "2026-10-14",
+         "url": "https://github.com/boykopovar/AnyPS5/discussions/5745", "note": "main d8888df9b, Radeon 860M, 60 s: library screen (No games in /data/PCSX2/games) at 31.1 FPS; relinked with --trap-sdk-syscall-stubs"}
+      ]
     },
     {
       "id": "PPSA99204", "name": "PS5NES", "kind": "homebrew",
@@ -780,11 +822,19 @@
     },
     {
       "id": "PPSA99288", "name": "Nuvio Max'd", "kind": "homebrew",
-      "blockers": [{"id": "2136", "why": "first stop on main 6c9cb3a5, at 0x21a6cda; not an SDK stub, so it still fails with the stubs trapped"}]
+      "blockers": [{"id": "2136", "why": "first stop on main 6c9cb3a5, at 0x21a6cda; not an SDK stub, so it still fails with the stubs trapped"}],
+      "evidence": [
+        {"stage": "Menus", "os": "Windows", "gpu": "AMD", "build": "main", "date": "2026-10-14",
+         "url": "https://github.com/boykopovar/AnyPS5/discussions/5745", "note": "main d8888df9b, Radeon 860M, 60 s: sign-in screen with a QR code at 39.8 FPS; relinked with --trap-sdk-syscall-stubs"}
+      ]
     },
     {
       "id": "PPSA99360", "name": "PS5CEMU-HAR", "kind": "homebrew",
-      "blockers": [{"id": "2136", "why": "first stop on main 6c9cb3a5, at 0x1699f07 (SDK generic syscall stub); with the stubs trapped, the next stop is the import 04AjkP0jO9U"}]
+      "blockers": [{"id": "2136", "why": "first stop on main 6c9cb3a5, at 0x1699f07 (SDK generic syscall stub); with the stubs trapped, the next stop is the import 04AjkP0jO9U"}],
+      "evidence": [
+        {"stage": "Menus", "os": "Windows", "gpu": "AMD", "build": "main", "date": "2026-10-14",
+         "url": "https://github.com/boykopovar/AnyPS5/discussions/5745", "note": "main d8888df9b, Radeon 860M, 60 s: Let's check your setup screen at 10.6 FPS; relinked with --trap-sdk-syscall-stubs"}
+      ]
     },
     {
       "id": "PPSA99600", "name": "Cloud Play", "kind": "homebrew",
@@ -796,6 +846,10 @@
       ],
       "excluded": [
         {"id": "3249", "why": "localeconv is on main since #545; the title loads past it"}
+      ],
+      "evidence": [
+        {"stage": "Menus", "os": "Windows", "gpu": "AMD", "build": "main", "date": "2026-10-14",
+         "url": "https://github.com/boykopovar/AnyPS5/discussions/5745", "note": "main d8888df9b, Radeon 860M, 60 s: streaming settings at 29.8 FPS"}
       ]
     },
     {
@@ -814,6 +868,8 @@
       "blockers": [],
       "excluded": [{"id": "1413", "why": "no provoking-vertex stop on main 2a5eca11 (after #4030) in a 60 s run; the stop on main 3d8ffeb2 is gone"}],
       "evidence": [
+        {"stage": "Menus", "os": "Windows", "gpu": "AMD", "build": "main", "date": "2026-10-14",
+         "url": "https://github.com/boykopovar/AnyPS5/discussions/5745", "note": "main d8888df9b, Radeon 860M, 60 s: Link your account screen at 59.9 FPS"},
         {"stage": "Presents", "os": "Windows", "gpu": "NVIDIA", "build": "main 2a5eca11", "date": "2026-10-12",
          "url": "https://github.com/boykopovar/AnyPS5/issues/3581#issuecomment-6129427574", "note": "Runs 60 s; draws its App storage is unavailable screen"},
         {"stage": "Starts", "os": "Windows", "gpu": "NVIDIA", "build": "main 3d8ffeb2", "date": "2026-10-12",
@@ -825,6 +881,8 @@
       "blockers": [],
       "excluded": [{"id": "1413", "why": "no provoking-vertex stop on main 2a5eca11 (after #4030) in a 60 s run; the stop on main 3d8ffeb2 is gone"}],
       "evidence": [
+        {"stage": "Menus", "os": "Windows", "gpu": "AMD", "build": "main", "date": "2026-10-14",
+         "url": "https://github.com/boykopovar/AnyPS5/discussions/5745", "note": "main d8888df9b, Radeon 860M, 60 s: Create a forwarder screen at 28.9 FPS"},
         {"stage": "Presents", "os": "Windows", "gpu": "NVIDIA", "build": "main 2a5eca11", "date": "2026-10-12",
          "url": "https://github.com/boykopovar/AnyPS5/issues/3581#issuecomment-6129427574", "note": "Runs 60 s; draws its No access to /data/homebrew screen"},
         {"stage": "Starts", "os": "Windows", "gpu": "NVIDIA", "build": "main 3d8ffeb2", "date": "2026-10-12",
@@ -836,7 +894,11 @@
       "blockers": [
         {"id": "3521", "why": "first stop on main 3d8ffeb2 and 2a5eca11: poll on a pipe read end"}
       ],
-      "excluded": [{"id": "1413", "why": "with #3649 on main d592d54e poll is its only stop and it reaches Vulkan device ready (boykopovar/AnyPS5#3649, comment 6127378678)"}]
+      "excluded": [{"id": "1413", "why": "with #3649 on main d592d54e poll is its only stop and it reaches Vulkan device ready (boykopovar/AnyPS5#3649, comment 6127378678)"}],
+      "evidence": [
+        {"stage": "Menus", "os": "Windows", "gpu": "AMD", "build": "main", "date": "2026-10-14",
+         "url": "https://github.com/boykopovar/AnyPS5/discussions/5745", "note": "main d8888df9b, Radeon 860M, 60 s: home at 6.1 FPS"}
+      ]
     },
     {
       "id": "PPSA99051", "name": "Surround Sound Studio", "kind": "homebrew",
@@ -890,6 +952,83 @@
         {"stage": "Presents", "os": "Windows", "gpu": "NVIDIA", "build": "c080fc2d + local workaround (2 files)", "date": "2026-10-13",
          "url": "https://github.com/Zibo176/SilkSongFork/blob/harmony-odyssey-workaround/HarmonyOdyssey_PPSA16827.md",
          "note": "Zibo176 (roadmap #49, RTX 4060) saw Menus, but only on a branch with a local 2-file libc patch (Unwind.hpp, Exports.cpp), so the page keeps the Menus claim unverified. Clean main stops before the first frame: libSceAgcDriver.prx cannot resolve _ZN10LibcUnwind11CursorSlotsE (GetLastError 127). Upstream #5014 (merged 2026-10-13) hands the table out through a _nid_no_patch export; the report does not test it. With the patch: stable 60+ s, AGC/Vulkan active, about 16-17 FPS, screenshot https://github.com/Zibo176/SilkSongFork/blob/harmony-odyssey-workaround/screenshots/harmony-odyssey/runtime-01-workaround.png. Menus needs a re-run on main with #5014."}
+      ]
+    },
+    {
+      "id": "PPSA92280",
+      "evidence": [
+        {"stage": "Menus", "os": "Windows", "gpu": "AMD", "build": "main", "date": "2026-10-14",
+         "url": "https://github.com/boykopovar/AnyPS5/discussions/5745", "note": "main d8888df9b, Radeon 860M, 60 s: game list at 59.9 FPS"}
+      ]
+    },
+    {
+      "id": "PPSA98766",
+      "evidence": [
+        {"stage": "Menus", "os": "Windows", "gpu": "AMD", "build": "main", "date": "2026-10-14",
+         "url": "https://github.com/boykopovar/AnyPS5/discussions/5745", "note": "main d8888df9b, Radeon 860M, 60 s: controller test screen at 59.9 FPS"}
+      ]
+    },
+    {
+      "id": "PPSA99141",
+      "evidence": [
+        {"stage": "Menus", "os": "Windows", "gpu": "AMD", "build": "main", "date": "2026-10-14",
+         "url": "https://github.com/boykopovar/AnyPS5/discussions/5745", "note": "main d8888df9b, Radeon 860M, 60 s: Choose your Jellyfin server screen at 69.9 FPS; second run, the first with empty caches hits the RADV 10 s submission wait"}
+      ]
+    },
+    {
+      "id": "PPSA99082",
+      "evidence": [
+        {"stage": "Menus", "os": "Windows", "gpu": "AMD", "build": "main", "date": "2026-10-14",
+         "url": "https://github.com/boykopovar/AnyPS5/discussions/5745", "note": "main d8888df9b, Radeon 860M, 60 s: Press CROSS to sign in with NVIDIA screen at 25.8 FPS"}
+      ]
+    },
+    {
+      "id": "PPSA99728",
+      "evidence": [
+        {"stage": "Menus", "os": "Windows", "gpu": "AMD", "build": "main", "date": "2026-10-14",
+         "url": "https://github.com/boykopovar/AnyPS5/discussions/5745", "note": "main d8888df9b, Radeon 860M, 60 s: game files setup screen (waiting for the game files) at 59.9 FPS"}
+      ]
+    },
+    {
+      "id": "PPSA99009",
+      "evidence": [
+        {"stage": "Menus", "os": "Windows", "gpu": "AMD", "build": "main", "date": "2026-10-14",
+         "url": "https://github.com/boykopovar/AnyPS5/discussions/5745", "note": "main d8888df9b, Radeon 860M, 60 s: home with offline puzzles at 5.3 FPS"}
+      ]
+    },
+    {
+      "id": "PPSA99001",
+      "evidence": [
+        {"stage": "Menus", "os": "Windows", "gpu": "AMD", "build": "main", "date": "2026-10-14",
+         "url": "https://github.com/boykopovar/AnyPS5/discussions/5745", "note": "main d8888df9b, Radeon 860M, 60 s: station browser at 27.8 FPS; Radio Browser cannot be reached without network"}
+      ]
+    },
+    {
+      "id": "PPSA99773",
+      "evidence": [
+        {"stage": "Menus", "os": "Windows", "gpu": "AMD", "build": "main", "date": "2026-10-14",
+         "url": "https://github.com/boykopovar/AnyPS5/discussions/5745", "note": "main d8888df9b, Radeon 860M, 60 s: captures screen at 60.0 FPS"}
+      ]
+    },
+    {
+      "id": "PPSA99350",
+      "evidence": [
+        {"stage": "Menus", "os": "Windows", "gpu": "AMD", "build": "main", "date": "2026-10-14",
+         "url": "https://github.com/boykopovar/AnyPS5/discussions/5745", "note": "main d8888df9b, Radeon 860M, 60 s: looking for a PC running Steam at 119.5 FPS"}
+      ]
+    },
+    {
+      "id": "PPSA99505",
+      "evidence": [
+        {"stage": "Menus", "os": "Windows", "gpu": "AMD", "build": "main", "date": "2026-10-14",
+         "url": "https://github.com/boykopovar/AnyPS5/issues/4997#issuecomment-6162952305", "note": "main d8888df9b, Radeon 860M, 60 s: Connect to Jellyfin or Emby server screen at 57.5 FPS"}
+      ]
+    },
+    {
+      "id": "PPSA99515",
+      "evidence": [
+        {"stage": "Menus", "os": "Windows", "gpu": "AMD", "build": "main", "date": "2026-10-14",
+         "url": "https://github.com/boykopovar/AnyPS5/issues/4997#issuecomment-6162952305", "note": "main d8888df9b, Radeon 860M, 60 s: Connect to Emby server screen at 47.8 FPS"}
       ]
     }
   ],
