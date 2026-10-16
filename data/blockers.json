@@ -461,7 +461,12 @@
      "verdict": "confirmed", "stage": "Playable", "os": "Windows", "gpu": "NVIDIA", "build": "main", "date": "2026-10-14",
      "url": "https://github.com/boykopovar/AnyPS5/discussions/5744",
      "quote": "it boots through the loading screens to the main menu (~60 fps), opens a playable world, renders, saves on quit and exits cleanly.",
-     "reason": "Reported on Windows 11, RTX 3050 Laptop GPU, main at 31bfc4e86; import audit reports 0 absent imports."}
+     "reason": "Reported on Windows 11, RTX 3050 Laptop GPU, main at 31bfc4e86; import audit reports 0 absent imports."},
+    {"title": "PPSA21297", "claim": "Ingame", "claim_url": "https://github.com/boykopovar/AnyPS5/discussions/5809",
+     "verdict": "confirmed", "stage": "Ingame", "os": "Linux", "gpu": "AMD", "build": "main", "date": "2026-10-14",
+     "url": "https://github.com/boykopovar/AnyPS5/discussions/5809",
+     "quote": "In game (Gatehouse Residence, a study, Gatehouse Hallway): rooms render with lighting, the character walks between rooms and the \"Open\" prompt appears.",
+     "reason": "Reported on CachyOS, RX 9070 XT, main at 23be5a02b with no pull requests or environment variables; the title crashes after 2-4 minutes."}
   ],
   "titles": [
     {
