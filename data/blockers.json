@@ -1030,6 +1030,13 @@
         {"stage": "Menus", "os": "Windows", "gpu": "AMD", "build": "main", "date": "2026-10-14",
          "url": "https://github.com/boykopovar/AnyPS5/issues/4997#issuecomment-6162952305", "note": "main d8888df9b, Radeon 860M, 60 s: Connect to Emby server screen at 47.8 FPS"}
       ]
+    },
+    {
+      "id": "PPSA29413",
+      "evidence": [
+        {"stage": "Ingame", "os": "Linux", "gpu": "NVIDIA", "build": "main", "date": "2026-10-15",
+         "url": "https://github.com/boykopovar/AnyPS5/discussions/2211#discussioncomment-18947061", "note": "main 8856f18, RTX 3060 Ti, relinked with --registry, --module-dir and --to-intel: boots to gameplay; main menu at 35 FPS, in game at 12 FPS; the 3D view corrupts after map use (#5335)"}
+      ]
     }
   ],
   "title_tags_note": "What kind of game a title is, from a fixed list (2026-10-13). A tag needs a source that names it: the Wikidata genre of the item whose name and platform (PS5) match, the PlayStation Store genre of this title ID, the SteamSpy user tags of that item's Steam app (2D, 3D, Shooter, Platformer only), or the homebrew's own README. No source, no tag. See AGENTS.md.",
