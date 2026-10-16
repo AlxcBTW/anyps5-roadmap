@@ -68,7 +68,7 @@
       "title": "Depth surface sampled as a cube texture",
       "signature": null,
       "area": "agc",
-      "fix_prs": [{"number": 425, "note": "depth surfaces read as textures and storage images"}],
+      "fix_prs": [{"number": 425}],
       "next": "Land #425 or its cube case: a 512x512 D16 depth target is sampled as a cube map.",
       "sources": ["https://github.com/boykopovar/AnyPS5/pull/425"]
     },
@@ -216,9 +216,9 @@
       "title": "siglongjmp is not exported (libkernel)",
       "signature": "FAIL: unresolved ELF import pebqbE5ws8s (siglongjmp) from libkernel",
       "area": "libkernel",
-      "fix_prs": [],
+      "fix_prs": [{"number": 2935}],
       "next": "A ready branch is posted in #1578; it can go up as a PR now that the intake threshold is 10.",
-      "sources": ["https://github.com/boykopovar/AnyPS5/issues/1578"]
+      "sources": ["https://github.com/boykopovar/AnyPS5/issues/1578", "https://github.com/boykopovar/AnyPS5/pull/2935"]
     },
     {
       "id": "pr-1482",
@@ -254,7 +254,7 @@
       "title": "pthread_getaffinity_np is not exported (libkernel)",
       "signature": "FAIL: unresolved ELF import Jb2uGFMr688 (pthread_getaffinity_np) from libkernel",
       "area": "libkernel",
-      "fix_prs": [{"number": 1922, "note": "closed without merge"}],
+      "fix_prs": [{"number": 1922}],
       "next": "Submit #1922 again; PS5VR stops here once #3031 is in.",
       "sources": ["https://github.com/boykopovar/AnyPS5/pull/1922", "https://github.com/boykopovar/AnyPS5/pull/3031"]
     },
@@ -457,6 +457,16 @@
      "url": "https://github.com/boykopovar/AnyPS5/discussions/966",
      "quote": "In game and playable at 60 FPS.",
      "reason": "Reported on Windows 11, RTX 4070 SUPER, main at 2ba993a87; all eleven pull requests the report lists are merged."},
+    {"title": "PPSA17221", "claim": "Playable", "claim_url": "https://github.com/boykopovar/AnyPS5/discussions/5744",
+     "verdict": "confirmed", "stage": "Playable", "os": "Windows", "gpu": "NVIDIA", "build": "main", "date": "2026-10-14",
+     "url": "https://github.com/boykopovar/AnyPS5/discussions/5744",
+     "quote": "it boots through the loading screens to the main menu (~60 fps), opens a playable world, renders, saves on quit and exits cleanly.",
+     "reason": "Reported on Windows 11, RTX 3050 Laptop GPU, main at 31bfc4e86; import audit reports 0 absent imports."},
+    {"title": "PPSA21297", "claim": "Ingame", "claim_url": "https://github.com/boykopovar/AnyPS5/discussions/5809",
+     "verdict": "confirmed", "stage": "Ingame", "os": "Linux", "gpu": "AMD", "build": "main", "date": "2026-10-14",
+     "url": "https://github.com/boykopovar/AnyPS5/discussions/5809",
+     "quote": "In game (Gatehouse Residence, a study, Gatehouse Hallway): rooms render with lighting, the character walks between rooms and the \"Open\" prompt appears.",
+     "reason": "Reported on CachyOS, RX 9070 XT, main at 23be5a02b with no pull requests or environment variables; the title crashes after 2-4 minutes."},
     {"title": "PPSA03912", "claim": "Ingame", "claim_url": "https://github.com/boykopovar/AnyPS5/discussions/5146",
      "verdict": "confirmed", "stage": "Ingame", "os": "Linux", "gpu": "NVIDIA", "build": "main", "date": "2026-10-14",
      "url": "https://github.com/boykopovar/AnyPS5/discussions/5146",
