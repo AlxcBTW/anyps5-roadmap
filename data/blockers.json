@@ -570,7 +570,9 @@
       "blockers": [{"id": "2548", "why": "402 shaders fail to prepare"}],
       "evidence": [
         {"stage": "Presents", "os": "Windows", "gpu": "NVIDIA", "build": "main", "date": "2026-10-10",
-         "url": "https://github.com/boykopovar/AnyPS5/issues/2749", "note": "Never renders past the loading screen"}
+         "url": "https://github.com/boykopovar/AnyPS5/issues/2749", "note": "Never renders past the loading screen"},
+        {"stage": "Ingame", "os": "Linux", "gpu": "NVIDIA", "build": "main", "date": "2026-10-14",
+         "url": "https://github.com/boykopovar/AnyPS5/discussions/2461#discussioncomment-18921800", "note": "plain main eecf90953, RTX 3090, relinked with the title's own sce_module libraries, no save data: gameplay at the start of Dead City with correct rendering, about 12 FPS, no crash in 4 minutes; some runs drop to about 1 FPS (import race, same discussion, 2026-10-17)"}
       ]
     },
     {"id": "PPSA14632", "name": "LEGO Horizon Adventures", "kind": "retail", "blockers": [{"id": "2548", "why": "shaders refused by the visit limit"}]},
