@@ -1069,6 +1069,13 @@
         {"stage": "Menus", "os": "Windows", "gpu": "NVIDIA", "build": "main", "date": "2026-10-15T13:44:51Z",
          "url": "https://github.com/AlxcBTW/AnyPS5/issues/56#issuecomment-6193568996", "note": "main fdea36b83 with measurement-only prints, RTX 3060 and RTX 4060: the title screen (Press any button) renders, no stop in 240 s"}
       ]
+    },
+    {
+      "id": "PPSA02453", "engine": "Unity",
+      "evidence": [
+        {"stage": "Ingame", "os": "Linux", "gpu": "AMD", "build": "main", "date": "2026-10-18",
+         "url": "https://github.com/boykopovar/AnyPS5/pull/4449#issuecomment-6253726244", "note": "plain main 61d3d3080, no PRs, RX 6650 XT (RADV): title screen, new game, the lifepod intro, swimming on the surface and underwater, rendering looks right; loading stalls for minutes, about 20 FPS on the title screen and 5-10 FPS in game"}
+      ]
     }
   ],
   "title_tags_note": "What kind of game a title is, from a fixed list (2026-10-13). A tag needs a source that names it: the Wikidata genre of the item whose name and platform (PS5) match, the PlayStation Store genre of this title ID, the SteamSpy user tags of that item's Steam app (2D, 3D, Shooter, Platformer only), or the homebrew's own README. No source, no tag. See AGENTS.md.",
