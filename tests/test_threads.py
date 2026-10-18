@@ -30,6 +30,32 @@ class Rules(unittest.TestCase):
         self.assertEqual(mine.build_of("reaches the menu", "issue", 7), "main")
         self.assertEqual(mine.build_of("on main plus #1157 it reaches gameplay", "issue", 7), "main + #1157")
 
+    def test_open_prs_named_after_plus_are_not_plain_main(self):
+        lead = (
+            "Two runs of one build — `main` `14a7e64dc` plus the two still-open table PRs "
+            "(#757 `e904eb18c`, #758 `1ff81c241`) — on lavapipe"
+        )
+        got = mine.build_detail(lead, "issue", 3751)
+        self.assertEqual((got["build"], got["build_kind"], got["prs"]), ("main + #757, #758", "prs", [757, 758]))
+        self.assertEqual(got["commit"], "14a7e64dc")
+        for text in (
+            "main + #757 and #758 reach the menu",
+            "main with the open PRs #757, #758: Starts",
+            "`main` plus PRs #757 and #758: Starts",
+        ):
+            got = mine.build_detail(text, "issue", 1)
+            self.assertEqual((got["build_kind"], got["prs"]), ("prs", [757, 758]), text)
+        # the PRs are not named: still not plain main, and never counted
+        got = mine.build_detail("main plus the two still-open table PRs: Starts", "issue", 1)
+        self.assertEqual((got["build"], got["build_kind"]), ("main + patches", "patched"))
+        # plain main stays plain main
+        for text in (
+            "on main 4c1de0c0c it reaches the menu",
+            "Plain main 61d3d3080 (no PRs on top): boots; PR #4449 is not applied",
+            "two titles plus three homebrew apps reach the menu",
+        ):
+            self.assertEqual(mine.build_detail(text, "issue", 1)["build_kind"], "main", text)
+
     def test_a_named_branch_is_a_patched_build(self):
         line = "PPSA21567, on oneandonlydean's astrobot branch with an equivalent local export: it boots"
         self.assertEqual(mine.build_of(line, "issue", 1), "main + patches")

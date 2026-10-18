@@ -240,7 +240,8 @@ PATCHED_BUILD = re.compile(
     # "on oneandonlydean's astrobot branch", "on my audio branch"
     r"\b(?:my|our|their|his|her|[\w-]+'s)\s+(?:[\w-]+\s+)?branch\b|"
     # "on `main` de5e541d plus this PR", "main + the patch"
-    r"(?:\bplus|\+)\s+(?:this|that|these|those|the|my|our)\s+(?:PR|PRs|pull request|change|changes|patch|patches|fix|branch)\b",
+    r"(?:\bplus|\+)\s+(?:this|that|these|those|the|my|our|both|all|two|three|four|several|\d+)\s+(?:[\w'`-]+\s+){0,4}?"
+    r"(?:PR|PRs|pull request|pull requests|change|changes|patch|patches|fix|fixes|branch)\b",
     re.I,
 )
 # A line that says it ran on main: "on current main", "main at 262c031", "tested on main after the merge".
@@ -693,6 +694,13 @@ def blank(line: str, spans: list[tuple[int, int]]) -> str:
 
 # "with #3497", "plus #2054 and #2101", "main + #3497": PRs a run had on top of main
 PATCH_PRS = re.compile(r"(?:\bwith|\bplus|\+|\band)\s+(?:PRs?\s+)?#(\d+)", re.I)
+# "plus the two still-open table PRs (#757 `e904eb18c`, #758 `1ff81c241`)", "with the open PRs #12 and #13": PR numbers
+# named behind a few words and the word PR, in the parenthesis or list that follows it
+PLUS_PRS = re.compile(
+    r"(?:\bplus|\+|\bwith)\s+(?:[^\W\d_][\w'`-]*\s+){0,5}?(?:PRs?|pull requests?)\b\s*:?\s*"
+    r"(?:\((?P<paren>[^)]*)\)|(?P<list>#\d+(?:(?:,|\s|\band\b|&)+#\d+)*))",
+    re.I,
+)
 SELF_REF = re.compile(
     r"(?:\b(?:with|plus|on)|\+)\s+(?:this|these)\s+(?:PR|pull request|changes?|patch(?:es)?|branch|fix(?:es)?)\b"
     r"|\bthis branch\b|\b(?:my|our)\s+(?!(?:integration|test|testing|bring-up|working)\b)(?:[\w-]+\s+)?branch\b",
@@ -719,11 +727,16 @@ def build_detail(text: str, kind: str, number: int) -> dict:
     commit = MAIN_COMMIT.search(text)
     out = {"build": "main", "build_kind": "main", "prs": [], "commit": commit.group(1) if commit else None}
     own = number if kind == "pr" else None
-    named = sorted({int(n) for n in PATCH_PRS.findall(text)} - {own})
-    patched = PATCHED_BUILD.search(text)
+    plus = [m for m in PLUS_PRS.finditer(text) if re.search(r"#\d", m.group("paren") or m.group("list") or "")]
+    named = sorted(
+        {int(n) for n in PATCH_PRS.findall(text)}
+        | {int(n) for m in plus for n in re.findall(r"#(\d+)", m.group("paren") or m.group("list"))}
+    )
+    named = [n for n in named if n != own]
+    patched = PATCHED_BUILD.search(text) or plus
     # patched by more than PR numbers: local changes, a fork, a hack or a named branch; in PR text, "with this
     # PR" or "this branch" is the PR itself
-    rest = PATCH_PRS.sub(" ", text)
+    rest = PLUS_PRS.sub(" ", PATCH_PRS.sub(" ", text))
     other = PATCHED_BUILD.search(SELF_REF.sub(" ", rest) if kind == "pr" else rest)
     if kind == "pr":
         if MAIN_BUILD.search(text) and not patched:
