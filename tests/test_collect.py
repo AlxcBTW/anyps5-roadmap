@@ -6,6 +6,7 @@ import sys
 import tempfile
 import unittest
 from pathlib import Path
+from unittest import mock
 
 HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE.parent))
@@ -222,6 +223,37 @@ class Collect(unittest.TestCase):
         fake = FakeGitHub()
         run(fake, self.cache, refresh=True)
         self.assertEqual(len(self.deep(fake)), 1)
+
+    def test_a_long_thread_pass_saves_its_progress_as_it_goes(self):
+        fake = FakeGitHub()
+        fake.issues = {
+            n: {"updatedAt": "2026-10-09T10:00:00Z", "comments": [comment(n, "PPSA01999 boots")], "xrefs": 0}
+            for n in range(100, 160)
+        }
+        saved = []
+        real = c.save_threads
+
+        def record(cache_dir, threads):
+            saved.append(len(threads["issue"]))
+            real(cache_dir, threads)
+
+        with mock.patch.object(c, "CHECKPOINT_SECONDS", 0), mock.patch.object(c, "save_threads", record):
+            run(fake, self.cache)
+        self.assertGreater(len(saved), 2)  # checkpoints during the pass, then the final save
+        self.assertLess(saved[0], 60)  # the first checkpoint came before every thread was read
+        self.assertEqual(len(c.load_threads(self.cache)["issue"]), 60)
+
+    def test_a_save_that_dies_mid_write_keeps_the_previous_thread_cache(self):
+        c.save_threads(self.cache, {"version": c.THREADS_VERSION, "issue": {"1": {}}, "pr": {}, "discussion": {}})
+        real = Path.write_text
+
+        def torn(path, text, *args, **kwargs):
+            real(path, text[: len(text) // 2], *args, **kwargs)
+            raise OSError("killed")
+
+        with mock.patch.object(Path, "write_text", torn), self.assertRaises(OSError):
+            c.save_threads(self.cache, {"version": c.THREADS_VERSION, "issue": {"2": {}}, "pr": {}, "discussion": {}})
+        self.assertEqual(c.load_threads(self.cache)["issue"], {"1": {}})
 
     def test_batches_respect_the_size_limits(self):
         many = [("pr", n, {"comments": 100, "xrefs": 0, "reviews": 0, "threads": 0}) for n in range(30)]
