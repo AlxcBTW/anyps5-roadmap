@@ -8,7 +8,9 @@ name: Roadmap
 #
 # The API cache (data/cache) is kept between runs with actions/cache: threads whose
 # updatedAt did not change are not fetched again, and CI builds PR previews from
-# the latest snapshot.
+# the latest snapshot. Build site has its own time limit, below the job's, so a run
+# that runs out of time still saves the listing and the threads it read (the thread
+# pass writes them as it goes) and the next run carries on from there.
 
 on:
   schedule:
@@ -38,7 +40,7 @@ jobs:
     concurrency:
       group: pages
       cancel-in-progress: false
-    timeout-minutes: 20
+    timeout-minutes: 30
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
@@ -58,6 +60,7 @@ jobs:
         run: python3 -m unittest discover -s tests -v
 
       - name: Restore the API cache
+        id: restore
         uses: actions/cache/restore@v6
         with:
           path: data/cache
@@ -65,6 +68,7 @@ jobs:
           restore-keys: api-snapshot-
 
       - name: Build site
+        timeout-minutes: 27
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
@@ -87,6 +91,7 @@ jobs:
           cp -R dist/. ../site/
 
       - name: Save the API cache
+        if: ${{ !cancelled() && steps.restore.outcome == 'success' }}
         uses: actions/cache/save@v6
         with:
           path: data/cache
