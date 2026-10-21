@@ -92,12 +92,36 @@ CUSTOM_PM4 = {
 NOT_REGISTER = re.compile(r"_BIT$|^SQ_(?:RSRC|SEL|BUF|IMG)_|_FMT_|_TYPE_\d")
 
 
+WORD = re.compile(r"[A-Za-z0-9_]+")
+
+
+def word_index(texts: dict[int, str]) -> dict[str, set[int]]:
+    """Every identifier-like word of the texts, with the numbers of the texts it appears in.
+
+    A name made only of [A-Za-z0-9_] is mentioned exactly when it is one whole word, so one pass over
+    the texts answers every such name. Matching each of the thousands of names against every text
+    with its own regex took 15 minutes and more."""
+    index: dict[str, set[int]] = defaultdict(set)
+    for n, text in texts.items():
+        for word in set(WORD.findall(text)):
+            index[word].add(n)
+    return index
+
+
+def mentions_of(
+    name: str, texts: dict[int, str], index: dict[str, set[int]], prefixes: tuple[str, ...] = ("",)
+) -> list[int]:
+    """The texts that mention `name` as a whole word, also written with one of `prefixes` in front."""
+    if WORD.fullmatch(name):
+        return sorted(set().union(*(index.get(p + name, ()) for p in prefixes)))
+    alt = "|".join(re.escape(p) for p in prefixes if p)
+    rx = re.compile(r"(?<![A-Za-z0-9_])" + (f"(?:{alt})?" if alt else "") + re.escape(name) + r"(?![A-Za-z0-9_])")
+    return sorted(n for n, t in texts.items() if rx.search(t))
+
+
 def mention_count(names: list[str], texts: dict[int, str]) -> dict[str, list[int]]:
-    out = {}
-    for name in names:
-        rx = re.compile(r"(?<![A-Za-z0-9_])(?:IT_|PKT3_)?" + re.escape(name) + r"(?![A-Za-z0-9_])")
-        out[name] = sorted(n for n, t in texts.items() if rx.search(t))
-    return out
+    index = word_index(texts)
+    return {name: mentions_of(name, texts, index, ("", "IT_", "PKT3_")) for name in names}
 
 
 def build_coverage(model: Model, upstream: Upstream, progress: dict | None, log) -> dict:
@@ -124,12 +148,12 @@ def build_coverage(model: Model, upstream: Upstream, progress: dict | None, log)
         }
         lib = progress.get("libraries", {})
         groups = []
+        index = word_index(texts)
         for g in lib.get("groups", []):
             todo = g.get("todo_names", [])
             asked = {}
             for name in todo:
-                rx = re.compile(r"(?<![A-Za-z0-9_])" + re.escape(name) + r"(?![A-Za-z0-9_])")
-                hits = sorted(n for n, t in texts.items() if rx.search(t))
+                hits = mentions_of(name, texts, index)
                 if hits:
                     asked[name] = hits
             groups.append(
