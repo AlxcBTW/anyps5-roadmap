@@ -23,7 +23,11 @@ Every query asks for rateLimit { cost remaining resetAt }; the total lands in ra
 When the remaining GraphQL budget falls below RESERVE, or GitHub answers that the rate limit
 is spent, the thread pass stops: threads not read keep their cached copy (or none), and
 raw["api"]["partial"], raw["api"]["unread_threads"] and raw["truncated"] say so. The next run
-picks them up, because their cache entries are still stale.
+picks them up, because their cache entries are still stale. The pass also writes threads.json every
+CHECKPOINT_SECONDS, so a run stopped by the workflow's time limit keeps the threads it read, and
+stops after THREAD_BUDGET_SECONDS, so a run from a cold cache still builds and deploys the site
+with what it has and the next run carries on. A number the listing still holds but GitHub no
+longer resolves (deleted or transferred since) gets an empty entry, so it is not asked for again.
 
 The REST dependency calls keep the ETag and body of the last answer in data/cache/etags.json
 and send If-None-Match; a 304 reuses the body and costs no REST rate limit.
@@ -33,6 +37,7 @@ from __future__ import annotations
 
 import datetime as dt
 import json
+import time
 from collections import defaultdict
 from pathlib import Path
 
@@ -50,6 +55,8 @@ BATCH = 25  # threads per query
 BATCH_NODES = 1200  # and at most this many requested nodes per query
 TTL_HOURS = 24  # a cached thread is read again after 24 to 47 hours, spread by number
 REVIEW_THREAD_COMMENTS = 50
+CHECKPOINT_SECONDS = 120  # the thread pass writes threads.json at least this often
+THREAD_BUDGET_SECONDS = 10 * 60  # the thread pass stops reading after this long; the site is built with the rest cached
 REPLIES = 50  # replies read per discussion comment
 REPLY_WEIGHT = 10  # nodes a discussion comment counts for in a batch (itself and its replies)
 PAGE = 100
@@ -513,7 +520,10 @@ def load_threads(cache_dir: Path | None) -> dict:
 def save_threads(cache_dir: Path | None, threads: dict) -> None:
     if cache_dir:
         cache_dir.mkdir(parents=True, exist_ok=True)
-        (cache_dir / THREADS_FILE).write_text(json.dumps(threads), encoding="utf-8")
+        # written aside and renamed, so a run killed mid-write leaves the previous copy whole
+        partial = cache_dir / (THREADS_FILE + ".tmp")
+        partial.write_text(json.dumps(threads), encoding="utf-8")
+        partial.replace(cache_dir / THREADS_FILE)
 
 
 def load_etags(cache_dir: Path | None) -> dict:
@@ -533,11 +543,15 @@ def save_etags(cache_dir: Path | None, etags: dict) -> None:
         (cache_dir / ETAGS_FILE).write_text(json.dumps(etags), encoding="utf-8")
 
 
-def fetch_threads(api: Api, owner: str, name: str, items: dict[str, list[dict]], threads: dict, now, log) -> dict:
+def fetch_threads(
+    api: Api, owner: str, name: str, items: dict[str, list[dict]], threads: dict, now, log, checkpoint=None, budget=None
+) -> dict:
     """Bring threads.json up to date for the listed items; returns what was read.
 
     Stops early, with the rest counted as `unread`, when the GraphQL budget is below RESERVE
-    or GitHub reports the rate limit spent; unread threads keep their cached copy."""
+    or GitHub reports the rate limit spent, or `budget` seconds have passed; unread threads keep
+    their cached copy. `checkpoint`,
+    when given, is called after a query whenever CHECKPOINT_SECONDS have passed since the last call."""
     stamp = now.strftime("%Y-%m-%dT%H:%M:%SZ")
     wanted, empty, cached, updated, known = [], 0, 0, {}, set()
     for kind, nodes in items.items():
@@ -560,10 +574,14 @@ def fetch_threads(api: Api, owner: str, name: str, items: dict[str, list[dict]],
     wanted.sort(key=lambda w: (w[0], w[1]) in known)
     cost, queries, done, why = api.cost, api.queries, 0, None
     queue, failed = batches(wanted), []
+    saved = started = time.monotonic()
     while queue:
         batch = queue.pop(0)
         if api.remaining is not None and api.remaining < RESERVE:
             why = f"the GraphQL budget is low ({api.remaining} left, reserve {RESERVE})"
+            break
+        if budget is not None and time.monotonic() - started >= budget:
+            why = f"the time budget of {budget:.0f} s is spent"
             break
         stored = set()
         try:
@@ -571,7 +589,9 @@ def fetch_threads(api: Api, owner: str, name: str, items: dict[str, list[dict]],
             for kind, number, _ in batch:
                 node = data["repository"].get(f"{kind[0]}{number}")
                 if not node:
-                    stored.add((kind, number))  # gone since the listing
+                    # gone since the listing: remembered, so the next run does not ask again
+                    threads[kind][str(number)] = thread_entry(kind, {"updatedAt": updated[kind, number]}, stamp)
+                    stored.add((kind, number))
                     continue
 
                 def more(conn, cursor, kind=kind, number=number):
@@ -593,6 +613,9 @@ def fetch_threads(api: Api, owner: str, name: str, items: dict[str, list[dict]],
                 log(f"  warning: could not read {failed[-1]}: {str(e)[:80]}")
             continue
         done += len(batch)
+        if checkpoint and time.monotonic() - saved >= CHECKPOINT_SECONDS:
+            checkpoint()
+            saved = time.monotonic()
     unread = len(wanted) - done - len(failed)
     if why:
         log(f"  threads: stopped, {unread} left for the next run: {why}")
@@ -600,7 +623,15 @@ def fetch_threads(api: Api, owner: str, name: str, items: dict[str, list[dict]],
         f"  threads: {done} read in {api.queries - queries} queries (graphql cost {api.cost - cost}), "
         f"{cached} unchanged from the cache, {empty} without comments or references"
     )
-    return {"read": done, "cached": cached, "empty": empty, "cost": api.cost - cost, "unread": unread, "failed": failed}
+    return {
+        "read": done,
+        "cached": cached,
+        "empty": empty,
+        "cost": api.cost - cost,
+        "unread": unread,
+        "failed": failed,
+        "why": why,
+    }
 
 
 def merge_threads(kind: str, node: dict, entry: dict | None) -> dict:
@@ -638,7 +669,17 @@ def collect(
     discussions = windowed("discussion", listing, cutoff)
 
     threads = load_threads(None) if refresh else load_threads(cache_dir)
-    read = fetch_threads(api, owner, name, {"issue": issues, "pr": prs, "discussion": discussions}, threads, now, log)
+    read = fetch_threads(
+        api,
+        owner,
+        name,
+        {"issue": issues, "pr": prs, "discussion": discussions},
+        threads,
+        now,
+        log,
+        checkpoint=lambda: save_threads(cache_dir, threads),
+        budget=THREAD_BUDGET_SECONDS,
+    )
     issues = [merge_threads("issue", i, threads["issue"].get(str(i["number"]))) for i in issues]
     prs = [merge_threads("pr", p, threads["pr"].get(str(p["number"]))) for p in prs]
     discussions = [merge_threads("discussion", d, threads["discussion"].get(str(d["number"]))) for d in discussions]
@@ -665,8 +706,8 @@ def collect(
         truncated.append(f"could not read the threads of {', '.join(read['failed'])}; kept from the cache if any")
     if partial:
         truncated.append(
-            f"{read['unread']} threads were left for the next run because the GraphQL budget was low "
-            f"(remaining {api.remaining}, resets {api.reset_at})"
+            f"{read['unread']} threads were left for the next run: {read['why']} "
+            f"(GraphQL remaining {api.remaining}, resets {api.reset_at})"
         )
     save_threads(cache_dir, threads)
 

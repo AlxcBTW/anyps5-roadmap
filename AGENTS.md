@@ -20,7 +20,12 @@ updated since the last run (`data/cache/listing.json`; a full listing once a wee
 points), then reads comments, reviews, review threads, discussion replies and cross-references only
 for threads whose `updatedAt` changed (`data/cache/threads.json`). With an empty cache that is about
 4,800 threads and 220 points; a run with a warm cache costs about 20. Below a reserve of 500
-points the thread pass stops and the rest waits for the next run (`api.partial` in raw.json). REST
+points the thread pass stops and the rest waits for the next run (`api.partial` in raw.json). The
+pass writes `threads.json` every two minutes, and the Roadmap workflow saves `data/cache` even when
+Build site runs out of time, so a slow run's reads carry over to the next one. The pass also stops
+after 10 minutes (`THREAD_BUDGET_SECONDS`), so a run from a cold cache still builds and deploys with
+what it has (`api.partial`), and a number GitHub no longer resolves (GraphQL `NOT_FOUND` for one
+alias) is cached as empty instead of retried, which used to cost about 80 s per number. REST
 calls and downloads are revalidated with their ETag (`etags.json`, `*.meta.json`). The Roadmap
 workflow keeps `data/cache` between runs. Check the budget with
 `gh api graphql -f query='{ rateLimit { remaining resetAt } }'` (the REST `rate_limit`

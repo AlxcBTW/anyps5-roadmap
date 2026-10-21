@@ -79,6 +79,36 @@ class Retries(unittest.TestCase):
         self.assertEqual(g.gh_graphql("query { x }", {}, run=FakeRun((0, '{"data": {"a": 1}}', ""))), {"a": 1})
 
 
+class NotFound(unittest.TestCase):
+    ONE_GONE = {
+        "data": {"repository": {"i1": {"number": 1}, "i2": None}},
+        "errors": [{"type": "NOT_FOUND", "path": ["repository", "i2"], "message": "Could not resolve to an Issue"}],
+    }
+
+    def test_a_missing_alias_returns_the_rest_without_a_retry_or_a_sleep(self):
+        sleeps = []
+        run = FakeRun((1, json.dumps(self.ONE_GONE), "gh: Could not resolve to an Issue with the number of 2."))
+        data = g.gh_graphql("query { x }", {}, sleep=sleeps.append, run=run)
+        self.assertEqual(data, {"repository": {"i1": {"number": 1}, "i2": None}})
+        self.assertEqual((sleeps, len(run.calls)), ([], 1))
+
+    def test_a_pr_title_that_says_rate_limit_is_not_a_rate_limit(self):
+        body = json.loads(json.dumps(self.ONE_GONE))
+        body["data"]["repository"]["i1"]["title"] = "Back off on the API rate limit"
+        data = g.gh_graphql("query { x }", {}, run=FakeRun((1, json.dumps(body), "gh: Could not resolve")))
+        self.assertEqual(data["repository"]["i1"]["number"], 1)
+
+    def test_not_found_with_other_errors_or_without_data_still_fails(self):
+        mixed = json.loads(json.dumps(self.ONE_GONE))
+        mixed["errors"].append({"type": "FORBIDDEN", "message": "no"})
+        with self.assertRaises(g.GhError):
+            g.gh_graphql("query { x }", {}, run=FakeRun((1, json.dumps(mixed), "gh: no"), (1, "", "gh: HTTP 404")))
+        sleeps = []
+        empty = {"data": None, "errors": [{"type": "NOT_FOUND", "message": "Could not resolve"}]}
+        with self.assertRaises(g.GhError):
+            g.gh_graphql("query { x }", {}, sleep=sleeps.append, run=FakeRun(*[(1, json.dumps(empty), "gh: x")] * 4))
+
+
 class Etags(unittest.TestCase):
     OK = 'HTTP/2.0 200 OK\r\nContent-Type: application/json\r\nEtag: W/"abc"\r\n\r\n[{"number": 1}]'
     NOT_MODIFIED = 'HTTP/2.0 304 Not Modified\r\nEtag: "abc"\r\n\r\n'
