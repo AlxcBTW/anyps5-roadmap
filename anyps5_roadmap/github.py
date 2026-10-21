@@ -8,6 +8,11 @@ Three kinds of failure are told apart:
 - primary rate limit (the hourly budget is spent): raises RateLimited at once, since
   waiting would take up to an hour. collect() stops reading and keeps what it has.
 
+A GraphQL query that names a number which no longer exists (a deleted or transferred issue)
+answers NOT_FOUND for that alias only; gh exits 1 but the body still holds every other alias.
+That is not transient, so it is not retried, and gh_graphql returns the data with null for the
+missing alias.
+
 REST calls that can be repeated cheaply go through gh_rest_cached, which sends If-None-Match
 with the ETag of the last answer; a 304 does not count against the REST rate limit.
 gh prints a 304 to stdout (with -i) but exits 1 and writes "gh: HTTP 304" to stderr.
@@ -53,6 +58,16 @@ def _reset_of(err: str) -> int | None:
     return int(m.group(1)) if m else None
 
 
+def _graphql_data_with_only_not_found(out: str | None) -> bool:
+    try:
+        body = json.loads(out or "")
+    except ValueError:
+        return False
+    errors = body.get("errors") if isinstance(body, dict) else None
+    data = body.get("data") if isinstance(body, dict) else None
+    return bool(errors and data and all(e.get("type") == "NOT_FOUND" for e in errors))
+
+
 def _gh(
     args: list[str],
     stdin: str | None = None,
@@ -60,9 +75,11 @@ def _gh(
     sleep=None,
     run=None,
     ok_status: tuple[int, ...] = (),
+    graphql: bool = False,
 ) -> str:
     """Run gh and return stdout. A nonzero exit whose stdout starts with an HTTP status in
-    `ok_status` (a 304 under -i) counts as success."""
+    `ok_status` (a 304 under -i) counts as success, and so does a GraphQL answer (`graphql`)
+    that holds data and only NOT_FOUND errors."""
     sleep, run = sleep or time.sleep, run or subprocess.run
     delay, secondary = 2.0, 0
     attempt = 0
@@ -72,6 +89,8 @@ def _gh(
             return proc.stdout
         m = re.match(r"HTTP/\S+ (\d{3})", proc.stdout or "")
         if m and int(m.group(1)) in ok_status:
+            return proc.stdout
+        if graphql and _graphql_data_with_only_not_found(proc.stdout):
             return proc.stdout
         err = (proc.stderr or "") + (proc.stdout or "")
         status = None
@@ -102,8 +121,11 @@ def gh_graphql(query: str, variables: dict, sleep=None, run=None) -> dict:
         stdin=json.dumps({"query": query, "variables": variables}),
         sleep=sleep,
         run=run,
+        graphql=True,
     )
     data = json.loads(out)
+    if data.get("errors") and _graphql_data_with_only_not_found(out):
+        return data["data"]
     if data.get("errors"):
         errors = data["errors"]
         text = json.dumps(errors)[:800]
