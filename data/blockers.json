@@ -513,7 +513,12 @@
     {"title": "PPSA16064", "claim": "Ingame", "claim_url": "https://github.com/boykopovar/AnyPS5/pull/1201#issuecomment-6143102350",
      "verdict": "suppressed",
      "quote": "On Minecraft Dungeons II (PPSA16064) gameplay (Windows 11, RTX 5070), queue 0 spends about 59 ms of a ~101 ms frame on draws:",
-     "reason": "No build is named; the author's gameplay runs that morning were on main plus patches (#4517 comment), and on plain main the title stops at its first world load (#6301)."}
+     "reason": "No build is named; the author's gameplay runs that morning were on main plus patches (#4517 comment), and on plain main the title stops at its first world load (#6301)."},
+    {"title": "PPSA15552", "claim": "Playable", "claim_url": "https://github.com/boykopovar/AnyPS5/pull/6594#issuecomment-6263303569",
+     "verdict": "confirmed", "stage": "Playable", "os": "Windows", "gpu": "NVIDIA", "build": "main", "date": "2026-10-19",
+     "url": "https://github.com/boykopovar/AnyPS5/pull/6594#issuecomment-6263303569",
+     "quote": "Confirmation on plain `main`: Dead Cells (PPSA15552, v01.005) is playable on `main` 408455bda with no other PRs on top, so without #5898 and #5974.",
+     "reason": "parl0v (Windows 10, RTX 4060, main 408455bda, no PRs): title menu, intro and about 12 minutes of a run at about 60 FPS with no abort; the run-start abort on 46f27623c is fixed by #6594, merged 2026-10-19."}
   ],
   "titles": [
     {
