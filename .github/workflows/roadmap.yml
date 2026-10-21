@@ -40,7 +40,7 @@ jobs:
     concurrency:
       group: pages
       cancel-in-progress: false
-    timeout-minutes: 20
+    timeout-minutes: 30
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
@@ -68,7 +68,7 @@ jobs:
           restore-keys: api-snapshot-
 
       - name: Build site
-        timeout-minutes: 17
+        timeout-minutes: 27
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
