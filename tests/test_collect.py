@@ -48,6 +48,7 @@ class FakeGitHub:
         self.thread_error = None  # raised by the next thread queries instead of answering
         self.max_aliases = None  # a thread query with more aliases times out (HTTP 499)
         self.drain_to = None  # the budget reported from the first thread query on
+        self.gone = set()  # issue numbers the listing holds but GitHub no longer resolves
 
     def listing_page(self, nodes, variables, key):
         """One page of a listing as GitHub answers it: newest update first, cursor = offset."""
@@ -111,6 +112,8 @@ class FakeGitHub:
         repo = {}
         for kind, n in re.findall(r"\b([ipd])(\d+): ", query):
             n = int(n)
+            if kind == "i" and n in self.gone:
+                continue  # GitHub answers null for the alias
             if kind == "i":
                 d = self.issues[n]
                 xref = {
@@ -254,6 +257,29 @@ class Collect(unittest.TestCase):
         with mock.patch.object(Path, "write_text", torn), self.assertRaises(OSError):
             c.save_threads(self.cache, {"version": c.THREADS_VERSION, "issue": {"2": {}}, "pr": {}, "discussion": {}})
         self.assertEqual(c.load_threads(self.cache)["issue"], {"1": {}})
+
+    def test_a_number_that_no_longer_resolves_is_remembered_not_asked_for_again(self):
+        fake = FakeGitHub()
+        fake.issues[9] = {"updatedAt": "2026-10-09T09:00:00Z", "comments": [comment(5, "gone soon")], "xrefs": 0}
+        fake.gone = {9}
+        raw = run(fake, self.cache)
+        self.assertEqual(raw["api"]["unread_threads"], 0)
+        self.assertEqual(len(self.deep(fake)), 1)
+        again = FakeGitHub()
+        again.issues, again.gone = fake.issues, {9}
+        run(again, self.cache)
+        self.assertEqual(self.deep(again), [])
+
+    def test_the_thread_pass_stops_at_its_time_budget_and_the_rest_waits_for_the_next_run(self):
+        fake = FakeGitHub()
+        with mock.patch.object(c, "THREAD_BUDGET_SECONDS", 0):
+            raw = run(fake, self.cache)
+        self.assertTrue(raw["api"]["partial"])
+        self.assertEqual(raw["api"]["unread_threads"], 2)
+        self.assertTrue(any("time budget" in t for t in raw["truncated"]))
+        self.assertEqual(self.deep(fake), [])
+        run(fake, self.cache)  # the next run, with time, reads them
+        self.assertEqual(len(self.deep(fake)), 1)
 
     def test_batches_respect_the_size_limits(self):
         many = [("pr", n, {"comments": 100, "xrefs": 0, "reviews": 0, "threads": 0}) for n in range(30)]
