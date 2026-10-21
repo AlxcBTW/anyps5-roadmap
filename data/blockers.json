@@ -1085,6 +1085,13 @@
         {"stage": "Ingame", "os": "Linux", "gpu": "AMD", "build": "main", "date": "2026-10-18",
          "url": "https://github.com/boykopovar/AnyPS5/issues/6528#issuecomment-6249264454", "note": "plain main 9f25d0bf5, no PRs, RX 6650 XT (RADV): main menu, then the Smurfs' Village with player control; the village renders almost black and the 3D menu background stays black (mesh output layer limit, #6528)"}
       ]
+    },
+    {
+      "id": "PPSA02457", "engine": "Unity",
+      "evidence": [
+        {"stage": "Ingame", "os": "Linux", "gpu": "AMD", "build": "main", "date": "2026-10-19",
+         "url": "https://github.com/boykopovar/AnyPS5/pull/4449#issuecomment-6273368796", "note": "plain main 7a015c094, no PRs, RX 6650 XT (RADV): boots, loads, plays the intro and gives player control afterwards, the image looks right; the first run stalled in loading for over 3 minutes and a restart got through, about 92 presents per 10 s in game"}
+      ]
     }
   ],
   "title_tags_note": "What kind of game a title is, from a fixed list (2026-10-13). A tag needs a source that names it: the Wikidata genre of the item whose name and platform (PS5) match, the PlayStation Store genre of this title ID, the SteamSpy user tags of that item's Steam app (2D, 3D, Shooter, Platformer only), or the homebrew's own README. No source, no tag. See AGENTS.md.",
