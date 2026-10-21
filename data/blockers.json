@@ -1066,6 +1066,8 @@
       "id": "PPSA16064",
       "blockers": [{"id": "6301", "why": "the first world load stops here on plain main (636b1b93c, 5d9dcc42d); #6308 moves it on"}],
       "evidence": [
+        {"stage": "Ingame", "os": "Windows", "gpu": "NVIDIA", "build": "main", "date": "2026-10-19T08:48:43Z",
+         "url": "https://github.com/AlxcBTW/AnyPS5/issues/56#issuecomment-6263358753", "note": "plain main 46f27623c, no PRs, RTX 4060 8 GB, automatic texture cache: loading a save reaches gameplay (HUD, minimap and the Escape from Squid Coast objective at 415 s), then walking in all four directions at 3.5 FPS; the #6301 stop did not occur in this run, world loads still crash in some runs (timing-dependent, a different failure)"},
         {"stage": "Menus", "os": "Windows", "gpu": "NVIDIA", "build": "main", "date": "2026-10-15T14:10:27Z",
          "url": "https://github.com/AlxcBTW/AnyPS5/issues/56#issuecomment-6194113860", "note": "plain main 0e4ea13a0, RTX 5070 Laptop 8 GB: the title screen for 300 s at 2.2 FPS"},
         {"stage": "Menus", "os": "Windows", "gpu": "NVIDIA", "build": "main", "date": "2026-10-15T13:44:51Z",
