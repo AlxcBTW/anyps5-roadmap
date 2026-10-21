@@ -330,7 +330,8 @@
   "not_blockers": [
     {"issue": 2749, "reason": "Title report for Stray (PPSA02100); its stop is #2548."},
     {"issue": 3251, "reason": "Names vkQuake (PPSA99010), whose catalog build does not import shm_unlink; its stop is pr-1482."},
-    {"issue": 4664, "reason": "Title report for ccleste (PPSA59322), the same stall that #4536 fixed (merged 2026-10-12 18:31Z, 21c27e60); measured on main 9aa5fd29, before #4536. It stays open upstream; the stop is pr-4536."}
+    {"issue": 4664, "reason": "Title report for ccleste (PPSA59322), the same stall that #4536 fixed (merged 2026-10-12 18:31Z, 21c27e60); measured on main 9aa5fd29, before #4536. It stays open upstream; the stop is pr-4536."},
+    {"issue": 6637, "reason": "Title-data prerequisite: 2 Ship 2 Harkinian (PPSA99621) and Ship of Harkinian (PPSA99620) fault in the libultraship GUI texture loader on a texture that only the user-made ROM archive (mm.o2r) holds and the catalog zips omit, before any AGC or VideoOut call; no AnyPS5 stop."}
   ],
   "stage_reviews_note": "Hand review of every mined stage of Menus or higher (2026-10-10). claim_url is the source the miner quoted; it is dropped for that title. confirmed/downgraded add a curated stage from url. Only main or main plus PRs that are merged now counts; branches with open PRs, local stand-ins or hacks do not.",
   "stage_reviews": [
