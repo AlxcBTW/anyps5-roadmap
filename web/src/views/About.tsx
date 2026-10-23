@@ -39,7 +39,7 @@ export function About({ loc }: { loc: Location }) {
   return (
     <div className="view about">
       <ViewHead title="About this map">
-        A community map of how far PS5 games get on AnyPS5, rebuilt every few hours from public issues and pull requests in{" "}
+        A community map of how far PS5 games get on AnyPS5, built from public issues and pull requests in{" "}
         <External href={`https://github.com/${model.repo}`}>{model.repo}</External>. Every stage and every blocker links
         its source.
       </ViewHead>

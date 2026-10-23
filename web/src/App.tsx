@@ -1,4 +1,5 @@
 import { lazy, Suspense, useCallback, useEffect, useMemo, useRef } from "react";
+import { Archived } from "./components/Archived";
 import { Drawer } from "./components/Drawer";
 import { Footer } from "./components/Footer";
 import { TopBar } from "./components/TopBar";
@@ -72,6 +73,7 @@ export function App() {
         </a>
         <TopBar view={view} project={data?.model.project ?? "AlxcBTW/anyps5-roadmap"} />
         <main id="main" ref={main} tabIndex={-1} className="page main">
+          <Archived builtAt={data?.model.doc.generated_at ?? null} repo={data?.model.repo ?? "boykopovar/AnyPS5"} />
           {roadmap.status === "loading" && (
             <p className="loading" role="status">
               Loading the games…
