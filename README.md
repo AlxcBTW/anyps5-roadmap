@@ -2,7 +2,8 @@
 
 > [!WARNING]
 > **No longer maintained, as of 24 October 2026.** The repository is archived and the page is no longer rebuilt.
-> It stays online with its last build, so its stages and blockers are as of that day. Newer test reports are in
+> It stays online with its last build, from 23 October 2026 at 22:51 UTC, and its stages and blockers are as of then.
+> Newer test reports are in
 > AnyPS5's [Game bring-up discussions](https://github.com/boykopovar/AnyPS5/discussions/categories/game-bring-up).
 > The code is MIT licensed, and anyone can fork it to carry the map on.
 
