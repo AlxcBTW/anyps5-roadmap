@@ -129,6 +129,21 @@ a {
 .main:focus {
   outline: none;
 }
+/* the map is no longer maintained: ink on a sunken surface, not a warning color */
+.archived {
+  margin-top: var(--s-5);
+  padding: var(--s-3) var(--s-4);
+  border-radius: 12px;
+  background: var(--sunken);
+  color: var(--text-2);
+  font-size: var(--text-ui);
+  line-height: 1.5;
+  text-wrap: pretty;
+}
+.archived strong {
+  color: var(--text);
+  font-weight: 550;
+}
 .loading {
   padding-block: var(--s-9);
   color: var(--text-2);
@@ -1219,6 +1234,11 @@ details.detail-sec[open] > summary::after {
   align-items: center;
   gap: 6px var(--s-3);
   font-size: var(--text-small);
+}
+.stage-others {
+  color: var(--text-2);
+  font-size: var(--text-small);
+  line-height: 1.5;
 }
 .source {
   color: var(--text-2);

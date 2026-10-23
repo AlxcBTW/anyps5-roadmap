@@ -1,17 +1,17 @@
 # AnyPS5 blocker map
 
-[![CI](https://github.com/AlxcBTW/anyps5-roadmap/actions/workflows/ci.yml/badge.svg)](https://github.com/AlxcBTW/anyps5-roadmap/actions/workflows/ci.yml)
-[![Pages](https://github.com/AlxcBTW/anyps5-roadmap/actions/workflows/roadmap.yml/badge.svg)](https://github.com/AlxcBTW/anyps5-roadmap/actions/workflows/roadmap.yml)
+> [!WARNING]
+> **No longer maintained, as of 24 October 2026.** The repository is archived and the page is no longer rebuilt.
+> It stays online with its last build, so its stages and blockers are as of that day. Newer test reports are in
+> AnyPS5's [Game bring-up discussions](https://github.com/boykopovar/AnyPS5/discussions/categories/game-bring-up).
+> The code is MIT licensed, and anyone can fork it to carry the map on.
 
 Which open issues stop which PS5 games in [AnyPS5](https://github.com/boykopovar/AnyPS5), the tool that ports PS5 executables to Linux and Windows,
 ranked by how many games a fix would move, plus how much of the PS5's system libraries and GPU AnyPS5
 implements.
 
-**Live: <https://alxcbtw.github.io/anyps5-roadmap/>**. A merge to `main` goes live within minutes. Otherwise
-GitHub's schedule rebuilds the page: an hourly build, and a check several times an hour that builds once an upstream
-issue or PR changed and costs no API quota when nothing did (`.github/workflows/update-check.yml`). GitHub runs
-schedules best effort and started both far less often than their cron asks, so the rebuilds come irregularly: in
-mid-October 2026 about 1.7 hours apart at the median and at most about 5 hours apart
+**Last build: <https://alxcbtw.github.io/anyps5-roadmap/>**. While the map was maintained, a merge to `main` went
+live within minutes, and GitHub's schedule rebuilt the page from upstream every few hours
 ([#70](https://github.com/AlxcBTW/anyps5-roadmap/issues/70) has the details).
 
 A community project, not an official AnyPS5 page. Every stage and link on it comes from public GitHub

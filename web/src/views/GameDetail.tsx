@@ -37,6 +37,8 @@ export function GameDetail({ id, loc }: { id: string; loc: Location }) {
   const evidence = game.evidence ?? [];
   const meaning = model.stages.find((s) => s.name === g.stage)?.meaning;
   const several = game.title_ids.length > 1;
+  // the game's stage is its furthest title ID's; the others can be lower or have none (#114)
+  const others = (game.titles ?? []).filter((t) => t.id !== best?.title && t.stage !== g.stage);
   const timeline = game.timeline ?? [];
   const mentions = game.issues.length + game.prs.length + (game.discussions?.length ?? 0);
   // one link per kind of source: two region IDs often both have a store page
@@ -99,6 +101,18 @@ export function GameDetail({ id, loc }: { id: string; loc: Location }) {
           <p className="stage-source">
             {best?.url && <Source e={best} repo={model.repo} brief several={several} />}
             {g.reports && <span className={`tag sure sure-${g.confidence.level ?? "reported"}`}>{g.reports}</span>}
+          </p>
+        )}
+        {others.length > 0 && (
+          <p className="stage-others">
+            {others.map((t, i) => (
+              <Fragment key={t.id}>
+                {i > 0 && " "}
+                <span className="mono">{t.id}</span>
+                {t.name && t.name.toLowerCase() !== g.name.toLowerCase() && ` (${t.name})`}{" "}
+                {t.stage ? `is at ${t.stage}.` : "has no stage yet."}
+              </Fragment>
+            ))}
           </p>
         )}
       </section>

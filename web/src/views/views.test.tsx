@@ -153,6 +153,20 @@ describe("Game drawer", () => {
     expect(screen.queryByText(/Cover art from/)).toBeNull();
   });
 
+  it("names the title IDs that are not as far as the game", () => {
+    const doc = structuredClone(fixture);
+    const game = doc.games.find((x) => x.id === "kena-bridge-of-spirits")!;
+    game.stage = { stage: "Presents", title: "PPSA01802", url: "https://github.com/boykopovar/AnyPS5/issues/1", origin: "mined" } as typeof game.stage;
+    game.titles = game.titles.map((t) => ({ ...t, stage: t.id === "PPSA01802" ? "Presents" : null }));
+    const loc = { route: { item: null }, under: { view: "games" } } as unknown as Parameters<typeof GameDetail>[0]["loc"];
+    render(
+      <DataContext.Provider value={{ ...data, model: buildModel(doc) }}>
+        <GameDetail id="kena-bridge-of-spirits" loc={loc} />
+      </DataContext.Provider>,
+    );
+    expect(document.querySelector(".stage-others")!.textContent).toBe("PPSA01746 has no stage yet.");
+  });
+
   it("shows how far a game gets off main and the open PRs it needs", () => {
     render(<Drawer id="kena-bridge-of-spirits" />);
     const box = screen.getByRole("region", { name: "Off main" });
