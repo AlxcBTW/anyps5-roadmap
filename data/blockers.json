@@ -1294,6 +1294,27 @@
         {"stage": "Ingame", "os": "Linux", "gpu": "AMD", "build": "main", "date": "2026-10-19",
          "url": "https://github.com/boykopovar/AnyPS5/pull/4449#issuecomment-6273368796", "note": "plain main 7a015c094, no PRs, RX 6650 XT (RADV): boots, loads, plays the intro and gives player control afterwards, the image looks right; the first run stalled in loading for over 3 minutes and a restart got through, about 92 presents per 10 s in game"}
       ]
+    },
+    {
+      "id": "PPSA06699",
+      "evidence": [
+        {"stage": "Playable", "os": "Windows", "gpu": "NVIDIA", "build": "main + #3636, #3696, #3697", "date": "2026-10-11",
+         "url": "https://github.com/boykopovar/AnyPS5/discussions/3839", "note": "main a11c8f7f7 with #3636, #3696 and #3697 (all merged since), RTX 4070 SUPER: in game, playable; menus at 60 FPS, the 3D course at 45-49 FPS in heavy scenes on main and about 60 FPS with the performance PRs #1201, #1202 and #1193 (merged since) and #1191 (open)"}
+      ]
+    },
+    {
+      "id": "PPSA34501",
+      "evidence": [
+        {"stage": "Ingame", "os": "Windows", "gpu": "NVIDIA", "build": "main", "date": "2026-10-21",
+         "url": "https://github.com/boykopovar/AnyPS5/discussions/5389", "note": "plain main e072e88, RTX 2060: the whole campaign from Operation 40 to Redemption without crashes, multiplayer maps and modes, and the three Zombies maps; on main 15-20 FPS in the main menu, 5-15 FPS indoors and 3-10 FPS outdoors; split-screen for up to 4 controllers needs #7881 (open)"}
+      ]
+    },
+    {
+      "id": "PPSA18176",
+      "evidence": [
+        {"stage": "Ingame", "os": "Linux", "gpu": "NVIDIA", "build": "main", "date": "2026-10-22",
+         "url": "https://github.com/boykopovar/AnyPS5/discussions/2690#discussioncomment-19124272", "note": "plain main 3ca07d086, no local patches, GTX 1060 6 GB: title screen, the Terms of Service dialog closes, Cross input, save load and gameplay in Resort Plaza with rendering and audio; #7966 fixed the first stop on main"}
+      ]
     }
   ],
   "title_tags_note": "What kind of game a title is, from a fixed list (2026-10-13). A tag needs a source that names it: the Wikidata genre of the item whose name and platform (PS5) match, the PlayStation Store genre of this title ID, the SteamSpy user tags of that item's Steam app (2D, 3D, Shooter, Platformer only), or the homebrew's own README. No source, no tag. See AGENTS.md.",
